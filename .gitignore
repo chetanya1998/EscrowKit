@@ -1,0 +1,10 @@
+node_modules
+.pnpm-store
+dist
+.env
+.DS_Store
+.next
+out
+build
+coverage
+.turbo
