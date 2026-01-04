@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Escrow {
+  id                 String      @id @default(uuid())
+  address            String      @unique
+  payer              String
+  payee              String
+  arbiter            String?
+  arbitrationAdapter String?
+  factoryAddress     String
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  milestones         Milestone[]
+  events             Event[]
+  disputes           Dispute[]
+}
+
+model Milestone {
+  id              String   @id @default(uuid())
+  escrowAddress   String
+  escrow          Escrow   @relation(fields: [escrowAddress], references: [address])
+  index           Int
+  amount          String   // Store as string to handle big numbers/decimals
+  description     String
+  deadline        DateTime?
+  status          String   // PENDING, SUBMITTED, APPROVED, RELEASED, REFUNDED, DISPUTED
+  deliverableHash String?
+  disputeId       String?
+  
+  @@unique([escrowAddress, index])
+}
+
+model Event {
+  id              String   @id @default(uuid())
+  escrowAddress   String
+  escrow          Escrow   @relation(fields: [escrowAddress], references: [address])
+  eventName       String
+  blockNumber     BigInt
+  transactionHash String
+  args            Json
+  createdAt       DateTime @default(now())
+  
+  @@index([escrowAddress])
+}
+
+model Dispute {
+  id              String   @id @default(uuid())
+  escrowAddress   String
+  escrow          Escrow   @relation(fields: [escrowAddress], references: [address])
+  milestoneIndex  Int
+  disputeIdOnChain String
+  status          String   // OPEN, RESOLVED
+  reason          String?
+  createdAt       DateTime @default(now())
+}
