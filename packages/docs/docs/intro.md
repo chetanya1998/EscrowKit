@@ -1,47 +1,38 @@
----
-sidebar_position: 1
----
+# Introduction to EscrowKit
 
-# Tutorial Intro
+EscrowKit is a comprehensive, open-source engine for building trustless escrow applications. It provides a complete stack—from smart contracts to a frontend dApp and TypeScript SDK—enabling developers to integrate secure milestone-based payments into their platforms.
 
-Let's discover **Docusaurus in less than 5 minutes**.
+## Core Features
+
+- **Non-Custodial**: Funds are held in a smart contract, not by a middleman.
+- **Milestone-Based**: Release funds incrementally as work is completed and approved.
+- **Dispute Resolution**: built-in hooks for arbitration adapters (e.g., Kleros, specialized arbiters).
+- **Full Stack**: Includes Solidity contracts, Indexer, API, dApp, and SDK.
+
+## Architecture
+
+EscrowKit is composed of several packages in a monorepo:
+
+- \`packages/contracts\`: Foundry-based Solidity smart contracts.
+- \`packages/indexer\`: Listens to chain events and indexes data to PostgreSQL.
+- \`packages/api\`: NestJS API for querying escrow data.
+- \`packages/dapp\`: Reference Next.js implementation.
+- \`packages/sdk-ts\`: TypeScript SDK for easy integration.
 
 ## Getting Started
 
-Get started by **creating a new site**.
+To run the full stack locally:
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+\`\`\`bash
+# 1. Start local chain (Anvil)
+anvil
 
-### What you'll need
+# 2. Deploy contracts
+cd packages/contracts && forge script script/Deploy.s.sol --broadcast --rpc-url http://127.0.0.1:8545
 
-- [Node.js](https://nodejs.org/en/download/) version 20.0 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+# 3. Start Database
+docker compose up -d
 
-## Generate a new site
-
-Generate a new Docusaurus site using the **classic template**.
-
-The classic template will automatically be added to your project after you run the command:
-
-```bash
-npm init docusaurus@latest my-website classic
-```
-
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
-
-The command also installs all necessary dependencies you need to run Docusaurus.
-
-## Start your site
-
-Run the development server:
-
-```bash
-cd my-website
-npm run start
-```
-
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
-
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
-
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+# 4. Start Indexer & API & dApp
+pnpm dev
+\`\`\`
