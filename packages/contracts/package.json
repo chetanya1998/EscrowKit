@@ -9,6 +9,7 @@
         "lint": "forge fmt --check",
         "fmt": "forge fmt"
     },
-    "dependencies": {},
-    "devDependencies": {}
+    "dependencies": {
+        "@openzeppelin/contracts": "^5.4.0"
+    }
 }
