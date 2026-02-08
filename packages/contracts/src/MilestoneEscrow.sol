@@ -205,16 +205,22 @@ contract MilestoneEscrow is
         emit DisputeOpened(milestoneId, disputeId);
     }
 
-    function resolveDispute(uint256 milestoneId, MilestoneStatus resolution) external nonReentrant {
+
+    
+    // Better Approach:
+    // Retain `resolveDispute` for Aribter (manual) and let `rule` call it.
+    // The `rule` function finds the milestone.
+
+    function resolveDispute(uint256 milestoneId, MilestoneStatus resolution) public nonReentrant {
         require(
-            msg.sender == arbiter || msg.sender == arbitrationAdapter,
+            msg.sender == arbiter || msg.sender == address(this), /* Allow self-call from rule */
             "Not authorized"
         );
         Milestone storage m = milestones[milestoneId];
         require(m.status == MilestoneStatus.DISPUTED, "Not disputed");
         
         if (resolution == MilestoneStatus.RELEASED) {
-            m.status = MilestoneStatus.APPROVED; // Set to approved so release can process
+            m.status = MilestoneStatus.APPROVED;
             releaseMilestone(milestoneId);
         } else if (resolution == MilestoneStatus.REFUNDED) {
              m.status = MilestoneStatus.REFUNDED;
@@ -230,6 +236,33 @@ contract MilestoneEscrow is
         } else {
             revert("Invalid resolution");
         }
+    }
+
+    function rule(uint256 disputeId, uint256 ruling) external override {
+        require(msg.sender == arbitrationAdapter, "Not authorized");
+        
+        // Find milestone with this disputeId
+        uint256 milestoneId = type(uint256).max;
+        for(uint256 i=0; i<milestones.length; i++) {
+            if(milestones[i].disputeId == disputeId && milestones[i].status == MilestoneStatus.DISPUTED) {
+                milestoneId = i;
+                break;
+            }
+        }
+        require(milestoneId != type(uint256).max, "Dispute not found");
+
+        MilestoneStatus resolution;
+        if (ruling == 1) {
+            resolution = MilestoneStatus.RELEASED;
+        } else if (ruling == 2) {
+            resolution = MilestoneStatus.REFUNDED;
+        } else {
+            // Ruling 0 or others: Refund Payer as fail-safe or split? 
+            // Default to Refund Payer for safety in this version.
+            resolution = MilestoneStatus.REFUNDED;
+        }
+        
+        resolveDispute(milestoneId, resolution);
     }
 
     function updateMilestone(

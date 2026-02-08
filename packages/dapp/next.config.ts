@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
+const isGithubPages = process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'gh-pages';
+
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: isGithubPages ? "export" : undefined,
+  images: {
+    unoptimized: true,
+  },
 };
 
 export default nextConfig;

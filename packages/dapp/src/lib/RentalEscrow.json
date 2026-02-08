@@ -1,0 +1,461 @@
+{
+    "abi": [
+        {
+            "inputs": [],
+            "stateMutability": "nonpayable",
+            "type": "constructor"
+        },
+        {
+            "inputs": [],
+            "type": "error",
+            "name": "InvalidInitialization"
+        },
+        {
+            "inputs": [],
+            "type": "error",
+            "name": "NotInitializing"
+        },
+        {
+            "inputs": [],
+            "type": "error",
+            "name": "ReentrancyGuardReentrantCall"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "token",
+                    "type": "address"
+                }
+            ],
+            "type": "error",
+            "name": "SafeERC20FailedOperation"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "claimAmount",
+                    "type": "uint256",
+                    "indexed": false
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "refundAmount",
+                    "type": "uint256",
+                    "indexed": false
+                }
+            ],
+            "type": "event",
+            "name": "ClaimAccepted",
+            "anonymous": false
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "payee",
+                    "type": "address",
+                    "indexed": true
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "amount",
+                    "type": "uint256",
+                    "indexed": false
+                },
+                {
+                    "internalType": "string",
+                    "name": "reason",
+                    "type": "string",
+                    "indexed": false
+                }
+            ],
+            "type": "event",
+            "name": "Claimed",
+            "anonymous": false
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "payer",
+                    "type": "address",
+                    "indexed": true
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "amount",
+                    "type": "uint256",
+                    "indexed": false
+                }
+            ],
+            "type": "event",
+            "name": "Deposited",
+            "anonymous": false
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "disputeId",
+                    "type": "uint256",
+                    "indexed": false
+                }
+            ],
+            "type": "event",
+            "name": "DisputeOpened",
+            "anonymous": false
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "payeeAmount",
+                    "type": "uint256",
+                    "indexed": false
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "payerAmount",
+                    "type": "uint256",
+                    "indexed": false
+                }
+            ],
+            "type": "event",
+            "name": "DisputeResolved",
+            "anonymous": false
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint64",
+                    "name": "version",
+                    "type": "uint64",
+                    "indexed": false
+                }
+            ],
+            "type": "event",
+            "name": "Initialized",
+            "anonymous": false
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "payer",
+                    "type": "address",
+                    "indexed": true
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "amount",
+                    "type": "uint256",
+                    "indexed": false
+                }
+            ],
+            "type": "event",
+            "name": "Refunded",
+            "anonymous": false
+        },
+        {
+            "inputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function",
+            "name": "acceptClaim"
+        },
+        {
+            "inputs": [],
+            "stateMutability": "view",
+            "type": "function",
+            "name": "arbiter",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ]
+        },
+        {
+            "inputs": [],
+            "stateMutability": "view",
+            "type": "function",
+            "name": "arbitrationAdapter",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ]
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "amount",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "string",
+                    "name": "reason",
+                    "type": "string"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function",
+            "name": "claim"
+        },
+        {
+            "inputs": [],
+            "stateMutability": "view",
+            "type": "function",
+            "name": "claimAmount",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ]
+        },
+        {
+            "inputs": [],
+            "stateMutability": "view",
+            "type": "function",
+            "name": "claimDeadline",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ]
+        },
+        {
+            "inputs": [],
+            "stateMutability": "view",
+            "type": "function",
+            "name": "config",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "arbitrationFee",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "disputeWindow",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "claimWindow",
+                    "type": "uint256"
+                }
+            ]
+        },
+        {
+            "inputs": [],
+            "stateMutability": "payable",
+            "type": "function",
+            "name": "deposit"
+        },
+        {
+            "inputs": [],
+            "stateMutability": "view",
+            "type": "function",
+            "name": "depositAmount",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ]
+        },
+        {
+            "inputs": [],
+            "stateMutability": "payable",
+            "type": "function",
+            "name": "disputeClaim"
+        },
+        {
+            "inputs": [],
+            "stateMutability": "view",
+            "type": "function",
+            "name": "disputeId",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ]
+        },
+        {
+            "inputs": [],
+            "stateMutability": "view",
+            "type": "function",
+            "name": "getStatus",
+            "outputs": [
+                {
+                    "internalType": "enum IRentalEscrow.RentalStatus",
+                    "name": "",
+                    "type": "uint8"
+                }
+            ]
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_payer",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_payee",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_arbiter",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_arbitrationAdapter",
+                    "type": "address"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_token",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_depositAmount",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "struct IRentalEscrow.RentalConfig",
+                    "name": "_config",
+                    "type": "tuple",
+                    "components": [
+                        {
+                            "internalType": "uint256",
+                            "name": "arbitrationFee",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "disputeWindow",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "claimWindow",
+                            "type": "uint256"
+                        }
+                    ]
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function",
+            "name": "initialize"
+        },
+        {
+            "inputs": [],
+            "stateMutability": "view",
+            "type": "function",
+            "name": "payee",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ]
+        },
+        {
+            "inputs": [],
+            "stateMutability": "view",
+            "type": "function",
+            "name": "payer",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ]
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "payeeAmount",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function",
+            "name": "resolveDispute"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "ruling",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "nonpayable",
+            "type": "function",
+            "name": "rule"
+        },
+        {
+            "inputs": [],
+            "stateMutability": "view",
+            "type": "function",
+            "name": "status",
+            "outputs": [
+                {
+                    "internalType": "enum IRentalEscrow.RentalStatus",
+                    "name": "",
+                    "type": "uint8"
+                }
+            ]
+        },
+        {
+            "inputs": [],
+            "stateMutability": "view",
+            "type": "function",
+            "name": "token",
+            "outputs": [
+                {
+                    "internalType": "contract IERC20",
+                    "name": "",
+                    "type": "address"
+                }
+            ]
+        }
+    ],
+    "devdoc": {
+        "kind": "dev",
+        "methods": {},
+        "version": 1
+    },
+    "userdoc": {
+        "kind": "user",
+        "methods": {},
+        "version": 1
+    }
+}

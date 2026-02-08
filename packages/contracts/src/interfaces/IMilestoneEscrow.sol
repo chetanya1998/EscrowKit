@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.20;
 
-interface IMilestoneEscrow {
+import "./IArbitrableEscrow.sol";
+
+interface IMilestoneEscrow is IArbitrableEscrow {
     enum MilestoneStatus { PENDING, SUBMITTED, APPROVED, RELEASED, REFUNDED, DISPUTED }
 
     struct Milestone {
@@ -46,6 +48,7 @@ interface IMilestoneEscrow {
     function refundMilestone(uint256 milestoneId) external;
     function openDispute(uint256 milestoneId) external payable;
     function resolveDispute(uint256 milestoneId, MilestoneStatus resolution) external;
+    // rule function is inherited from IArbitrableEscrow
     
     function getMilestone(uint256 milestoneId) external view returns (Milestone memory);
     function getMilestoneCount() external view returns (uint256);

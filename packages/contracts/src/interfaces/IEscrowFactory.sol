@@ -1,7 +1,9 @@
+
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.20;
 
 import "./IMilestoneEscrow.sol";
+import "./IRentalEscrow.sol";
 
 interface IEscrowFactory {
     event EscrowCreated(address indexed escrowAddress, address indexed payer, address indexed payee, address arbiter);
@@ -12,6 +14,15 @@ interface IEscrowFactory {
         address arbitrationAdapter,
         bytes32 detailsHash,
         IMilestoneEscrow.EscrowConfig calldata config
+    ) external payable returns (address);
+
+    function createRentalEscrow(
+        address payee,
+        address arbiter,
+        address arbitrationAdapter,
+        address token,
+        uint256 depositAmount,
+        IRentalEscrow.RentalConfig calldata config
     ) external payable returns (address);
 
     function getEscrowCount() external view returns (uint256);
