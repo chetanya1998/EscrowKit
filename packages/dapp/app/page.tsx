@@ -557,7 +557,7 @@ export default function App() {
       <section id="roadmap" className="relative z-10 py-16 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5">
         <div className="max-w-5xl mx-auto">
           <FadeIn>
-            <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
               <div>
                 <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tighter text-white">Future Roadmap</h2>
                 <p className="text-zinc-400">See what we are building next.</p>
@@ -598,8 +598,8 @@ export default function App() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 py-24 px-12 border-t border-white/10 bg-[#000000]">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-16">
+      <footer className="relative z-10 py-12 px-6 md:py-24 md:px-12 border-t border-white/10 bg-[#000000]">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10 md:gap-16">
           <div className="flex flex-col gap-5 text-center md:text-left">
             <div className="flex items-center gap-3 justify-center md:justify-start">
               <ShieldCheck className="text-emerald-500" size={32} />
