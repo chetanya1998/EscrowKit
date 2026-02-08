@@ -109,30 +109,75 @@ const FadeIn = ({ children, delay = 0, className = '' }: { children: React.React
  * HIGH-VISIBILITY INTERACTIVE WAVES
  */
 const InteractiveWaves = () => {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0, rawX: 0, rawY: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
+  const waveRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let rafId: number;
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+
     const handleMouseMove = (e: MouseEvent) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 60;
-      const y = (e.clientY / window.innerHeight - 0.5) * 60;
-      setMousePos({ x, y, rawX: e.clientX, rawY: e.clientY });
+      // Normalize coordinates -0.5 to 0.5
+      const load = 60; // Max displacement
+      targetX = (e.clientX / window.innerWidth - 0.5) * load;
+      targetY = (e.clientY / window.innerHeight - 0.5) * load;
+
+      // Update glow position immediately for responsiveness
+      if (glowRef.current) {
+        glowRef.current.style.transform = `translate(${e.clientX - 350}px, ${e.clientY - 350}px)`;
+      }
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+
+    const animate = () => {
+      // Smooth interpolation for waves
+      currentX += (targetX - currentX) * 0.1;
+      currentY += (targetY - currentY) * 0.1;
+
+      if (waveRef.current) {
+        waveRef.current.style.transform = `translate(${currentX}px, ${currentY}px) scale(1.05)`;
+      }
+
+      rafId = requestAnimationFrame(animate);
+    };
+
+    // Only add listener on non-touch devices to save resources
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+    if (!isTouch) {
+      window.addEventListener('mousemove', handleMouseMove);
+      rafId = requestAnimationFrame(animate);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden bg-[#010101] pointer-events-none">
+    <div ref={containerRef} className="fixed inset-0 z-0 overflow-hidden bg-[#010101] pointer-events-none">
       <div className="absolute inset-0 opacity-[0.25] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+
+      {/* Interactive Glow - Hidden on mobile via styling logic or simple display none if needed, checking media query in JS is better for performance */}
       <div
-        className="absolute w-[700px] h-[700px] bg-emerald-500/10 blur-[120px] rounded-full transition-transform duration-500 ease-out"
-        style={{ left: mousePos.rawX - 350, top: mousePos.rawY - 350 }}
+        ref={glowRef}
+        className="absolute w-[700px] h-[700px] bg-emerald-500/10 blur-[120px] rounded-full will-change-transform hidden md:block"
+        style={{ top: 0, left: 0 }} // Position handled by JS
       />
+
       <div className="absolute top-[-5%] left-[-5%] w-[40%] h-[40%] bg-emerald-500/10 blur-[150px] rounded-full" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-emerald-900/15 blur-[150px] rounded-full" />
+
       <svg
-        className="absolute inset-0 w-full h-full transition-transform duration-[2.5s] cubic-bezier(0.1, 0, 0, 1)"
-        style={{ transform: `translate(${mousePos.x}px, ${mousePos.y}px) scale(1.05)` }}
+        ref={waveRef}
+        className="absolute inset-0 w-full h-full will-change-transform transition-transform duration-0" // Removed css duration, handled by JS
+        style={{ transform: `scale(1.05)` }} // Initial scale
         viewBox="0 0 1600 900"
         preserveAspectRatio="xMidYMid slice"
       >
@@ -244,9 +289,9 @@ const DashboardSimulation = () => (
         </div>
 
         {/* Dashboard Content */}
-        <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {/* Stats */}
-          <div className="col-span-3 grid grid-cols-3 gap-4">
+          <div className="col-span-1 md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
             <div className="bg-zinc-900/40 p-5 rounded-2xl border border-white/5">
               <div className="text-zinc-500 mb-1 font-bold uppercase tracking-wider text-[10px]">Total Volume</div>
               <div className="text-2xl font-bold text-white">12.5 ETH</div>
@@ -330,7 +375,7 @@ export default function App() {
       <InteractiveWaves />
 
       {/* Navigation */}
-      <nav className="relative z-50 h-24 px-8 md:px-16 flex items-center justify-between border-b border-white/[0.08] bg-[#010101]/40 backdrop-blur-xl">
+      <nav className="relative z-50 h-20 md:h-24 px-4 md:px-16 flex items-center justify-between border-b border-white/[0.08] bg-[#010101]/40 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.5)]">
             <ShieldCheck className="text-black" size={24} />
@@ -349,7 +394,7 @@ export default function App() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-28 pb-32 px-6 max-w-6xl mx-auto text-center">
+      <section className="relative z-10 pt-20 pb-20 md:pt-28 md:pb-32 px-6 max-w-6xl mx-auto text-center">
         <FadeIn delay={100}>
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-bold tracking-[0.4em] uppercase text-emerald-400 mb-14 backdrop-blur-md shadow-lg shadow-emerald-500/10">
             <Zap size={12} className="fill-emerald-400" /> Milestone Security v4
@@ -357,23 +402,23 @@ export default function App() {
         </FadeIn>
 
         <FadeIn delay={200}>
-          <h1 className="text-5xl md:text-8xl font-bold tracking-tight mb-10 min-h-[1.2em] leading-[1.05] bg-gradient-to-b from-white via-white to-zinc-500 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight mb-8 md:mb-10 min-h-[1.2em] leading-[1.05] bg-gradient-to-b from-white via-white to-zinc-500 bg-clip-text text-transparent">
             {headline}
           </h1>
         </FadeIn>
 
         <FadeIn delay={300}>
-          <p className="text-zinc-300 text-xl md:text-2xl max-w-3xl mx-auto mb-16 min-h-[3.2em] leading-relaxed font-light">
+          <p className="text-zinc-300 text-lg md:text-2xl max-w-3xl mx-auto mb-10 md:mb-16 min-h-[3.2em] leading-relaxed font-light">
             {subheadline}
           </p>
         </FadeIn>
 
         <FadeIn delay={400}>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-8 mb-24">
-            <button className="bg-emerald-500 text-black h-16 px-14 rounded-full font-bold text-lg hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-8 mb-16 md:mb-24 px-4">
+            <button className="bg-emerald-500 text-black h-14 md:h-16 px-10 md:px-14 rounded-full font-bold text-base md:text-lg hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all w-full sm:w-auto">
               Start Project
             </button>
-            <button className="bg-white/10 text-white h-16 px-14 rounded-full font-bold text-lg border border-white/20 hover:bg-white/20 backdrop-blur-md transition-all">
+            <button className="bg-white/10 text-white h-14 md:h-16 px-10 md:px-14 rounded-full font-bold text-base md:text-lg border border-white/20 hover:bg-white/20 backdrop-blur-md transition-all w-full sm:w-auto">
               View Live Demo
             </button>
           </div>
@@ -398,7 +443,7 @@ export default function App() {
       </section>
 
       {/* HOW IT WORKS: ANIMATED STEPS */}
-      <section id="how" className="relative z-10 py-40 px-6 bg-[#030303]/50 border-t border-white/5">
+      <section id="how" className="relative z-10 py-20 md:py-40 px-6 bg-[#030303]/50 border-t border-white/5">
         <div className="max-w-6xl mx-auto text-center">
           <FadeIn>
             <h2 className="text-4xl md:text-5xl font-bold mb-8 tracking-tighter text-white">How it works.</h2>
@@ -434,7 +479,7 @@ export default function App() {
       </section>
 
       {/* REFINED OPEN SOURCE / DEVELOPER SECTION */}
-      <section id="open-source" className="relative z-10 py-40 px-6">
+      <section id="open-source" className="relative z-10 py-20 md:py-40 px-6">
         <div className="max-w-7xl mx-auto">
           <FadeIn>
             <div className="text-center mb-24">
@@ -509,7 +554,7 @@ export default function App() {
       </section>
 
       {/* ROADMAP SECTION */}
-      <section id="roadmap" className="relative z-10 py-32 px-6 bg-[#030303]/50 border-t border-white/5">
+      <section id="roadmap" className="relative z-10 py-16 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5">
         <div className="max-w-5xl mx-auto">
           <FadeIn>
             <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
