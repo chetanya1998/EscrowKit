@@ -21,6 +21,7 @@ contract MilestoneEscrow is
     address public arbiter; // Optional, or address(0)
     address public arbitrationAdapter;
     IERC20 public token; // address(0) for ETH
+    EscrowConfig public config;
 
     Milestone[] public milestones;
     uint256 public totalFunded;
@@ -51,7 +52,8 @@ contract MilestoneEscrow is
         address _payee,
         address _arbiter,
         address _arbitrationAdapter,
-        address _token
+        address _token,
+        EscrowConfig calldata _config
     ) external initializer {
         require(_payer != address(0), "Invalid payer");
         require(_payee != address(0), "Invalid payee");
@@ -59,6 +61,7 @@ contract MilestoneEscrow is
         payee = _payee;
         arbiter = _arbiter;
         arbitrationAdapter = _arbitrationAdapter;
+        config = _config;
         if (_token != address(0)) {
             token = IERC20(_token);
         }
@@ -202,11 +205,61 @@ contract MilestoneEscrow is
         emit DisputeOpened(milestoneId, disputeId);
     }
 
+    function resolveDispute(uint256 milestoneId, MilestoneStatus resolution) external nonReentrant {
+        require(
+            msg.sender == arbiter || msg.sender == arbitrationAdapter,
+            "Not authorized"
+        );
+        Milestone storage m = milestones[milestoneId];
+        require(m.status == MilestoneStatus.DISPUTED, "Not disputed");
+        
+        if (resolution == MilestoneStatus.RELEASED) {
+            m.status = MilestoneStatus.APPROVED; // Set to approved so release can process
+            releaseMilestone(milestoneId);
+        } else if (resolution == MilestoneStatus.REFUNDED) {
+             m.status = MilestoneStatus.REFUNDED;
+             totalRefunded += m.amount;
+    
+             if (address(token) == address(0)) {
+                (bool success, ) = payable(payer).call{value: m.amount}("");
+                require(success, "ETH transfer failed");
+             } else {
+                token.safeTransfer(payer, m.amount);
+             }
+             emit MilestoneRefunded(milestoneId, payer, m.amount);
+        } else {
+            revert("Invalid resolution");
+        }
+    }
+
+    function updateMilestone(
+        uint256 milestoneId,
+        uint256 amount,
+        string calldata description,
+        uint256 deadline
+    ) external onlyPayer {
+        require(totalFunded == 0, "Already funded");
+        require(milestoneId < milestones.length, "Invalid ID");
+        
+        Milestone storage m = milestones[milestoneId];
+        require(m.status == MilestoneStatus.PENDING, "Not pending");
+        
+        m.amount = amount;
+        m.description = description;
+        m.deadline = deadline;
+        
+        emit MilestoneUpdated(milestoneId, amount, description, deadline);
+    }
+
     function getMilestone(uint256 milestoneId) external view returns (Milestone memory) {
         return milestones[milestoneId];
     }
     
     function getMilestoneCount() external view returns (uint256) {
         return milestones.length;
+    }
+
+    function getConfig() external view returns (EscrowConfig memory) {
+        return config;
     }
 }

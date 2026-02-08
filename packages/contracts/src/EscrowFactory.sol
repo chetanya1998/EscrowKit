@@ -17,7 +17,8 @@ contract EscrowFactory is IEscrowFactory {
         address payee,
         address arbiter,
         address arbitrationAdapter,
-        bytes32 /* detailsHash */ // Can be used for indexing logs
+        bytes32 /* detailsHash */,
+        IMilestoneEscrow.EscrowConfig calldata config
     ) external payable returns (address) {
         address clone = Clones.clone(implementation);
         
@@ -27,7 +28,8 @@ contract EscrowFactory is IEscrowFactory {
             payee,
             arbiter,
             arbitrationAdapter,
-            address(0) // Default to ETH for MVP factory call (can be overloaded)
+            address(0), // Default to ETH for MVP factory call (can be overloaded)
+            config
         );
 
         escrows.push(clone);
