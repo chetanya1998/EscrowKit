@@ -246,12 +246,12 @@ const PremiumCard = ({ children, className = '', highlight = false }: { children
  * FULL DASHBOARD SIMULATION
  */
 const DashboardSimulation = () => (
-  <div className="relative w-full aspect-[16/9] lg:aspect-[21/9] bg-[#0c0c0c] rounded-3xl border border-white/10 overflow-hidden shadow-2xl group">
+  <div className="relative w-full aspect-auto md:aspect-[16/9] lg:aspect-[21/9] bg-[#0c0c0c] rounded-3xl border border-white/10 overflow-hidden shadow-2xl group flex flex-col md:block">
     {/* Fade overlay for "Faded Product Experience" */}
     <div className="absolute inset-0 bg-gradient-to-t from-[#010101] via-transparent to-transparent z-20 pointer-events-none opacity-80" />
     <div className="absolute inset-0 bg-gradient-to-r from-[#010101] via-transparent to-[#010101] z-20 pointer-events-none opacity-50" />
 
-    <div className="flex h-full text-xs">
+    <div className="flex h-full text-xs flex-col md:flex-row">
       {/* Sidebar */}
       <div className="w-64 bg-[#111] border-r border-white/5 p-4 flex flex-col gap-6 hidden md:flex">
         <div className="flex items-center gap-2 px-2">
@@ -277,7 +277,7 @@ const DashboardSimulation = () => (
       {/* Main Content */}
       <div className="flex-1 bg-[#0c0c0c] flex flex-col">
         {/* Header */}
-        <div className="h-16 border-b border-white/5 flex items-center justify-between px-6">
+        <div className="h-16 border-b border-white/5 flex items-center justify-between px-6 shrink-0">
           <div className="text-zinc-400 font-medium">Dashboard / Overview</div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 rounded-full border border-white/5">
@@ -289,7 +289,7 @@ const DashboardSimulation = () => (
         </div>
 
         {/* Dashboard Content */}
-        <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 pb-20 md:pb-6">
           {/* Stats */}
           <div className="col-span-1 md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
             <div className="bg-zinc-900/40 p-5 rounded-2xl border border-white/5">
@@ -344,7 +344,7 @@ const DashboardSimulation = () => (
     </div>
 
     {/* Floating Interaction Hint */}
-    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 px-6 py-2 bg-zinc-900/80 backdrop-blur-md rounded-full border border-white/10 text-[10px] font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2 animate-bounce">
+    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 px-6 py-2 bg-zinc-900/80 backdrop-blur-md rounded-full border border-white/10 text-[10px] font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2 animate-bounce w-max max-w-[90%] justify-center whitespace-nowrap">
       <LayoutDashboard size={12} className="text-emerald-500" /> Interactive Preview
     </div>
   </div>
