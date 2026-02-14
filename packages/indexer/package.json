@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "prisma generate --schema=prisma/schema.prisma && tsc",
+    "build": "npx prisma generate --schema=prisma/schema.prisma && tsc",
     "start": "node dist/indexer.js",
     "dev": "ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
