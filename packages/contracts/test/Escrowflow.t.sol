@@ -76,6 +76,7 @@ contract EscrowFlowTest is Test {
         
         uint256 preBalance = payer.balance;
         
+        vm.warp(block.timestamp + 2 days);
         vm.prank(payer);
         escrow.refundMilestone(0);
         
@@ -101,6 +102,7 @@ contract EscrowFlowTest is Test {
         
         uint256 preBalance = payer.balance;
         
+        vm.warp(block.timestamp + 2 days);
         vm.prank(payer);
         escrow.refundMilestone(0); // Refund milestone 0 (1 ether)
         
