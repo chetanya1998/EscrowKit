@@ -9,7 +9,7 @@ export class WebhookController {
     constructor(private webhookService: WebhookService) { }
 
     @Post()
-    async registerWebhook(@Request() req, @Body() body: { url: string, events: string[], secret?: string }) {
+    async registerWebhook(@Request() req: any, @Body() body: { url: string, events: string[], secret?: string }) {
         const ownerId = req['apiKeyOwnerId'];
         // Default secret if not provided? Or require it? Let's auto-generate if missing for better UX
         const secret = body.secret || Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -18,7 +18,7 @@ export class WebhookController {
     }
 
     @Get()
-    async listWebhooks(@Request() req) {
+    async listWebhooks(@Request() req: any) {
         const ownerId = req['apiKeyOwnerId'];
         return this.webhookService.list(ownerId);
     }

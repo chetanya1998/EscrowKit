@@ -8,6 +8,11 @@ import { LayoutDashboard, Wallet, Gavel, FileText, Settings, ShieldCheck, PlusCi
 
 const sidebarItems = [
     {
+        title: "Create Escrow",
+        href: "/create",
+        icon: PlusCircle,
+    },
+    {
         title: "Overview",
         href: "/dashboard",
         icon: LayoutDashboard,
@@ -26,11 +31,6 @@ const sidebarItems = [
         title: "Transactions",
         href: "/dashboard/transactions",
         icon: FileText,
-    },
-    {
-        title: "Create Escrow",
-        href: "/escrow/create",
-        icon: PlusCircle,
     },
 ]
 

@@ -32,6 +32,8 @@ model Milestone {
   status          String   // PENDING, SUBMITTED, APPROVED, RELEASED, REFUNDED, DISPUTED
   deliverableHash String?
   disputeId       String?
+  conditionHash   String?
+  isVerified      Boolean  @default(false)
   
   @@unique([escrowAddress, index])
 }
@@ -58,4 +60,14 @@ model Dispute {
   status          String   // OPEN, RESOLVED
   reason          String?
   createdAt       DateTime @default(now())
+}
+
+model Webhook {
+  id        String   @id @default(uuid())
+  url       String
+  secret    String
+  events    String[] // Array of event names to subscribe
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

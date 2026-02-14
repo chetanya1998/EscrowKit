@@ -5,12 +5,12 @@ import RentalEscrowArtifact from './RentalEscrow.json';
 import SimpleArbiterAdapterArtifact from './SimpleArbiterAdapter.json';
 import VerificationOracleArtifact from './VerificationOracle.json';
 
-export const FACTORY_ADDRESS = "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
+export const FACTORY_ADDRESS = process.env.NEXT_PUBLIC_FACTORY_ADDRESS || "0xec0902d890e0c41b8837d180f923788696942c42";
 export const FACTORY_ABI = EscrowFactoryArtifact.abi as Abi;
 export const MILESTONE_ESCROW_ABI = MilestoneEscrowArtifact.abi as Abi;
 export const RENTAL_ESCROW_ABI = RentalEscrowArtifact.abi as Abi;
 export const ARBITER_ADAPTER_ABI = SimpleArbiterAdapterArtifact.abi as Abi;
-export const SIMPLE_ARBITER_ADAPTER_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-export const VERIFICATION_ORACLE_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+export const SIMPLE_ARBITER_ADAPTER_ADDRESS = process.env.NEXT_PUBLIC_ARBITER_ADAPTER_ADDRESS || "0x36d75d2b9a54ddd676ced8f75845d1fc72d841e3";
+export const VERIFICATION_ORACLE_ADDRESS = process.env.NEXT_PUBLIC_VERIFICATION_ORACLE_ADDRESS || "0xe11ed0a11624caaed2271b4bd73962b2d80ed8cd";
 export const VERIFICATION_ORACLE_ABI = VerificationOracleArtifact.abi as Abi;
 

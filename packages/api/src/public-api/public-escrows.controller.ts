@@ -9,7 +9,7 @@ export class PublicEscrowsController {
     constructor(private prisma: PrismaService) { }
 
     @Get()
-    async getEscrows(@Request() req) {
+    async getEscrows(@Request() req: any) {
         const ownerId = req['apiKeyOwnerId'];
         // Assuming API Key owner is linked to a user address somehow, or we use ownerId directly
         // Let's assume for MVP ownerId is the user ID which has an associated address

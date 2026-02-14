@@ -14,11 +14,12 @@ import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { ArrowLeft, MessageSquare, FileText, CheckCircle2, Clock, Lock, AlertTriangle, ChevronRight, Play, Check, ShieldCheck, Activity } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, getExplorerUrl } from "@/lib/utils"
 import Link from 'next/link';
 import { MILESTONE_ESCROW_ABI } from '@/lib/constants';
 import { MilestoneProposal } from "@/components/escrow/milestone-proposal"
 import { DisputeDialog } from "@/components/escrow/dispute-dialog"
+import { MilestoneCreation } from "@/components/escrow/MilestoneCreation"
 
 export default function EscrowClientPage() {
     const params = useParams();
@@ -104,8 +105,42 @@ export default function EscrowClientPage() {
         )
     }
 
+    // --- RENTAL VIEW COMPONENT ---
     if (type === 'rental' && rentalDetails) {
         return <RentalEscrowView address={address} details={details} rentalDetails={rentalDetails} refetch={refetch} />
+    }
+
+    // --- EMPTY STATE: INITIALIZATION ---
+    if (milestones.length === 0 && isPayer) {
+        return (
+            <DashboardLayout>
+                <div className="max-w-4xl mx-auto w-full py-10">
+                    <div className="mb-6">
+                        <Button variant="ghost" className="pl-0 text-neutral-400 hover:text-neutral-50 mb-2" onClick={() => router.push('/dashboard/escrows')}>
+                            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
+                        </Button>
+                        <h1 className="text-3xl font-bold text-neutral-50">Setup Milestones</h1>
+                        <p className="text-neutral-400">Your escrow contract is deployed. Now, define the milestones to fund.</p>
+                    </div>
+                    <MilestoneCreation escrowAddress={address} onSuccess={refetch} />
+                </div>
+            </DashboardLayout>
+        )
+    } else if (milestones.length === 0 && !isPayer) {
+        return (
+            <DashboardLayout>
+                <div className="max-w-4xl mx-auto w-full py-10 flex flex-col items-center justify-center text-center h-[60vh]">
+                    <div className="bg-neutral-900 p-6 rounded-full mb-4">
+                        <Clock className="h-12 w-12 text-neutral-500" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-neutral-50">Waiting for Setup</h2>
+                    <p className="text-neutral-400 mt-2 max-w-md">
+                        The payer has not yet added milestones to this escrow.
+                        Please check back later or contact them to complete the setup.
+                    </p>
+                </div>
+            </DashboardLayout>
+        )
     }
 
     // --- MILESTONE ESCROW VIEW (Default) ---
@@ -131,9 +166,11 @@ export default function EscrowClientPage() {
                         <Button variant="outline" className="border-neutral-800 bg-neutral-900 text-neutral-300 hover:bg-neutral-800 hover:text-neutral-50">
                             <MessageSquare className="h-4 w-4 mr-2" /> Chat with Partner
                         </Button>
-                        <Button variant="outline" className="border-neutral-800 bg-neutral-900 text-neutral-300 hover:bg-neutral-800 hover:text-neutral-50">
-                            <FileText className="h-4 w-4 mr-2" /> View Contract
-                        </Button>
+                        <Link href={getExplorerUrl(address)} target="_blank" rel="noopener noreferrer">
+                            <Button variant="outline" className="border-neutral-800 bg-neutral-900 text-neutral-300 hover:bg-neutral-800 hover:text-neutral-50">
+                                <FileText className="h-4 w-4 mr-2" /> View Contract
+                            </Button>
+                        </Link>
                     </div>
                 </div>
 

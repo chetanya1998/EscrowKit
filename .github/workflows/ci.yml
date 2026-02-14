@@ -50,10 +50,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: Generate Prisma Clients
-        run: |
-           cd packages/indexer && npx prisma generate
-           cd ../api && npx prisma generate
+      - name: Generate Prisma Client (Indexer)
+        working-directory: packages/indexer
+        run: npx prisma generate --schema=prisma/schema.prisma
+
+      - name: Generate Prisma Client (API)
+        working-directory: packages/api
+        run: npx prisma generate --schema=prisma/schema.prisma
 
       - name: Build
         run: pnpm build
