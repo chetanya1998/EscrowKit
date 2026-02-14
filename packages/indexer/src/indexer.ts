@@ -2,9 +2,11 @@ import { createPublicClient, http, parseAbiItem } from 'viem';
 import { foundry } from 'viem/chains';
 import { PrismaClient } from '@prisma/client';
 import * as dotenv from 'dotenv';
+import * as crypto from 'crypto';
 import {
   EscrowFactoryABI,
-  MilestoneEscrowABI
+  MilestoneEscrowABI,
+  VerificationOracleABI
 } from './abis';
 
 import { Pool } from 'pg';
@@ -25,6 +27,7 @@ const client = createPublicClient({
 });
 
 const FACTORY_ADDRESS = process.env.FACTORY_ADDRESS as `0x${string}`;
+const VERIFICATION_ORACLE_ADDRESS = process.env.VERIFICATION_ORACLE_ADDRESS as `0x${string}`;
 
 async function main() {
   console.log('Indexer starting...');
@@ -84,6 +87,33 @@ async function main() {
       }
     }
   });
+
+
+  if (VERIFICATION_ORACLE_ADDRESS) {
+    console.log(`Watching VerificationOracle at ${VERIFICATION_ORACLE_ADDRESS}`);
+    client.watchContractEvent({
+      address: VERIFICATION_ORACLE_ADDRESS,
+      abi: VerificationOracleABI,
+      eventName: 'VerificationAttested',
+      onLogs: async (logs) => {
+        for (const log of logs) {
+          const { conditionHash, status } = log.args;
+          console.log(`Verification Attested: ${conditionHash} -> ${status}`);
+          try {
+            if (status && conditionHash) {
+              // Update all milestones with this condition hash to Verified
+              await prisma.milestone.updateMany({
+                where: { conditionHash: conditionHash },
+                data: { isVerified: true }
+              });
+            }
+          } catch (e) {
+            console.error('Error updating verification status:', e);
+          }
+        }
+      }
+    });
+  }
 }
 
 function watchEscrow(address: `0x${string}`) {
@@ -131,6 +161,7 @@ function watchEscrow(address: `0x${string}`) {
               description: milestoneData.description,
               deadline: new Date(Number(milestoneData.deadline) * 1000),
               status: 'PENDING',
+              conditionHash: milestoneData.conditionHash || null,
             }
           });
 
@@ -252,6 +283,7 @@ function watchEscrow(address: `0x${string}`) {
     }
   });
 
+
   // Also log Funding
   client.watchContractEvent({
     address,
@@ -288,7 +320,51 @@ function watchEscrow(address: `0x${string}`) {
   });
 }
 
+// Webhook Trigger Logic
+async function triggerWebhooks(eventName: string, payload: any) {
+  try {
+    const webhooks = await prisma.webhook.findMany({
+      where: {
+        isActive: true,
+        events: { has: eventName }
+      }
+    });
+
+    if (webhooks.length === 0) return;
+
+    console.log(`Triggering ${eventName} for ${webhooks.length} webhooks`);
+    const timestamp = Date.now();
+    const fullPayload = {
+      event: eventName,
+      timestamp,
+      data: payload
+    };
+    const payloadString = JSON.stringify(fullPayload);
+
+    for (const webhook of webhooks) {
+      // Calculate HMAC signature
+      const signature = crypto
+        .createHmac('sha256', webhook.secret)
+        .update(payloadString)
+        .digest('hex');
+
+      fetch(webhook.url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-EscrowKit-Signature': signature,
+          'X-EscrowKit-Event': eventName
+        },
+        body: payloadString
+      }).catch(err => console.error(`Webhook failed for ${webhook.url}:`, err));
+    }
+  } catch (e) {
+    console.error('Error triggering webhooks:', e);
+  }
+}
+
 main().catch((e) => {
   console.error(e);
   process.exit(1);
 });
+

@@ -22,10 +22,11 @@ contract EscrowFactory is IEscrowFactory {
         address arbiter,
         address arbitrationAdapter,
         bytes32 /* detailsHash */,
+        address verificationOracle,
         IMilestoneEscrow.EscrowConfig calldata config
     ) external payable returns (address) {
         address clone = Clones.clone(implementation);
-        
+
         // Payer is msg.sender
         MilestoneEscrow(clone).initialize(
             msg.sender,
@@ -33,6 +34,7 @@ contract EscrowFactory is IEscrowFactory {
             arbiter,
             arbitrationAdapter,
             address(0), // Default to ETH
+            verificationOracle,
             config
         );
 

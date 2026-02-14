@@ -1,17 +1,36 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Get, Param, UploadedFile, UseInterceptors, Res, NotFoundException } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { EvidenceService } from './evidence.service';
+import type { Response } from 'express';
+import * as path from 'path';
 
 @Controller('evidence')
 export class EvidenceController {
+    constructor(private readonly evidenceService: EvidenceService) { }
 
-    @Post()
-    uploadEvidence(@Body() body: any) {
-        // Stub implementation: In real app, handle file upload and return IPFS hash/URL
-        // Here we just acknowledge the metadata
-        console.log('Received evidence metadata:', body);
+    @Post('upload')
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadEvidence(@UploadedFile() file: Express.Multer.File) {
+        if (!file) throw new Error('File is required');
+        const { hash, filename } = await this.evidenceService.storeFile(file);
+
+        // Mock IPFS URL
+        const url = `http://localhost:3000/evidence/${filename}`;
+
         return {
             success: true,
-            hash: body.hash || "QmStubHash...",
-            url: body.url || "http://localhost:3000/uploads/stub.pdf"
+            hash,
+            url,
+            filename
         };
+    }
+
+    @Get(':hash')
+    async getEvidence(@Param('hash') hash: string, @Res() res: Response) {
+        const filePath = await this.evidenceService.getFile(hash);
+        if (!filePath) {
+            throw new NotFoundException('Evidence not found');
+        }
+        res.sendFile(filePath);
     }
 }

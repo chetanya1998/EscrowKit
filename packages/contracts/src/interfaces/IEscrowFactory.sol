@@ -13,6 +13,7 @@ interface IEscrowFactory {
         address arbiter,
         address arbitrationAdapter,
         bytes32 detailsHash,
+        address verificationOracle,
         IMilestoneEscrow.EscrowConfig calldata config
     ) external payable returns (address);
 

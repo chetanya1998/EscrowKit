@@ -88,6 +88,15 @@ export const MilestoneEscrowABI = [
         "name": "DisputeOpened",
         "type": "event"
     },
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "uint256", "name": "milestoneId", "type": "uint256" },
+            { "indexed": false, "internalType": "bytes32", "name": "conditionHash", "type": "bytes32" }
+        ],
+        "name": "VerificationRequested",
+        "type": "event"
+    },
     // Functions for reading state
     {
         "inputs": [{ "internalType": "uint256", "name": "milestoneId", "type": "uint256" }],
@@ -100,7 +109,8 @@ export const MilestoneEscrowABI = [
                     { "internalType": "uint256", "name": "deadline", "type": "uint256" },
                     { "internalType": "enum IMilestoneEscrow.MilestoneStatus", "name": "status", "type": "uint8" },
                     { "internalType": "bytes32", "name": "deliverableHash", "type": "bytes32" },
-                    { "internalType": "uint256", "name": "disputeId", "type": "uint256" }
+                    { "internalType": "uint256", "name": "disputeId", "type": "uint256" },
+                    { "internalType": "bytes32", "name": "conditionHash", "type": "bytes32" }
                 ],
                 "internalType": "struct IMilestoneEscrow.Milestone",
                 "name": "",
@@ -109,5 +119,18 @@ export const MilestoneEscrowABI = [
         ],
         "stateMutability": "view",
         "type": "function"
+    }
+] as const;
+
+export const VerificationOracleABI = [
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "bytes32", "name": "conditionHash", "type": "bytes32" },
+            { "indexed": true, "internalType": "address", "name": "verifier", "type": "address" },
+            { "indexed": false, "internalType": "bool", "name": "status", "type": "bool" }
+        ],
+        "name": "VerificationAttested",
+        "type": "event"
     }
 ] as const;

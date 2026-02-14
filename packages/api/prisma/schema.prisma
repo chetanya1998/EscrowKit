@@ -32,6 +32,8 @@ model Milestone {
   status          String   // PENDING, SUBMITTED, APPROVED, RELEASED, REFUNDED, DISPUTED
   deliverableHash String?
   disputeId       String?
+  conditionHash   String?
+  isVerified      Boolean  @default(false)
   
   @@unique([escrowAddress, index])
 }
@@ -58,4 +60,51 @@ model Dispute {
   status          String   // OPEN, RESOLVED
   reason          String?
   createdAt       DateTime @default(now())
+}
+
+model User {
+  id              String   @id @default(uuid())
+  address         String   @unique
+  username        String?  @unique
+  email           String?  @unique
+  bio             String?
+  avatar          String?
+  preferences     Json?    // { theme: 'dark', notifications: { email: true, app: true } }
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ApiKey {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  ownerId   String
+  name      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model Webhook {
+  id        String   @id @default(uuid())
+  url       String
+  secret    String
+  events    String[]
+  ownerId   String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model MilestoneDraft {
+  id            String   @id @default(uuid())
+  escrowAddress String
+  index         Int?
+  title         String
+  description   String
+  amount        String
+  deadline      DateTime
+  creator       String
+  isSigned      Boolean  @default(false)
+  signature     String?
+  status        String   // PENDING, SIGNED, REJECTED, COMMITTED
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

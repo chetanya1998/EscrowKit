@@ -2,12 +2,15 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EscrowsModule } from './escrows/escrows.module';
-import { EvidenceController } from './evidence/evidence.controller';
+import { EvidenceModule } from './evidence/evidence.module';
+import { PulsarModule } from './pulsar/pulsar.module';
 import { UsersModule } from './users/users.module';
+import { PublicApiModule } from './public-api/public-api.module';
+import { WebhookModule } from './webhook/webhook.module';
 
 @Module({
-  imports: [EscrowsModule, UsersModule],
-  controllers: [AppController, EvidenceController],
+  imports: [EscrowsModule, UsersModule, EvidenceModule, PulsarModule, PublicApiModule, WebhookModule],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule { }

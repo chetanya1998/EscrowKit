@@ -10,6 +10,7 @@ export interface Milestone {
     status: number; // enum (0=PENDING, 1=SUBMITTED, 2=APPROVED, 3=RELEASED, 4=REFUNDED, 5=DISPUTED)
     deliverableHash: string;
     disputeId: bigint;
+    conditionHash: string;
 }
 
 export interface EscrowDetails {
@@ -17,6 +18,7 @@ export interface EscrowDetails {
     payee: Address;
     arbiter: Address;
     token: Address;
+    arbitrationAdapter: Address;
     config: any; // EscrowConfig struct
 }
 
@@ -62,7 +64,7 @@ export function useEscrow(address: Address | undefined) {
     const milestoneContracts = Array.from({ length: count }, (_, i) => ({
         address,
         abi: MILESTONE_ESCROW_ABI,
-        functionName: 'getMilestone',
+        functionName: 'milestones',
         args: [BigInt(i)]
     }));
 
@@ -73,15 +75,29 @@ export function useEscrow(address: Address | undefined) {
 
     const milestones: Milestone[] = milestonesData?.map((result, index) => {
         if (result.status === 'success' && result.result) {
+            // result.result is an array/tuple now: 
+            // [amount, description, deadline, status, deliverableHash, disputeId, conditionHash]
             const m = result.result as any;
+            // Wagmi/Viem typically returns an array for structs if no proper type mapping, 
+            // or an object if ABI has names. 
+            // Given the complexity, let's assume it returns an array access or object access.
+            // With 'readContract' on ABI artifacts, it usually returns an array/object.
+            // Let's safe guard.
+
+            // Check if m is array or object. 
+            // Typically with recent Viem it returns an array if names are present but sometimes it's object.
+            // Let's assume array for safety based on `Escrowflow.t.sol` usage, but typical Viem read returns named object if ABI has names.
+            // Forge artifacts usually have names.
+
             return {
                 id: index,
-                amount: m.amount,
-                description: m.description,
-                deadline: m.deadline,
-                status: m.status,
-                deliverableHash: m.deliverableHash,
-                disputeId: m.disputeId
+                amount: m[0] || m.amount, // Fallback
+                description: m[1] || m.description,
+                deadline: m[2] || m.deadline,
+                status: m[3] || m.status,
+                deliverableHash: m[4] || m.deliverableHash,
+                disputeId: m[5] || m.disputeId,
+                conditionHash: m[6] || m.conditionHash,
             };
         }
         return null;
@@ -110,12 +126,14 @@ export function useEscrow(address: Address | undefined) {
     const { data: arbiter } = useReadContract({ address, abi: activeABI, functionName: 'arbiter' });
     const { data: token } = useReadContract({ address, abi: activeABI, functionName: 'token' });
     const { data: config } = useReadContract({ address, abi: activeABI, functionName: 'config' });
+    const { data: arbitrationAdapter } = useReadContract({ address, abi: activeABI, functionName: 'arbitrationAdapter' });
 
     const details: EscrowDetails | undefined = (payer && payee) ? {
         payer: payer as Address,
         payee: payee as Address,
         arbiter: arbiter as Address,
         token: token as Address,
+        arbitrationAdapter: arbitrationAdapter as Address,
         config
     } : undefined;
 

@@ -12,7 +12,13 @@
   },
   "packageManager": "pnpm@10.26.2",
   "devDependencies": {
+    "@types/node": "^25.2.3",
     "prettier": "^3.7.4",
-    "turbo": "^2.7.2"
+    "ts-node": "^10.9.2",
+    "turbo": "^2.7.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "viem": "^2.45.3"
   }
 }

@@ -13,6 +13,7 @@ interface IMilestoneEscrow is IArbitrableEscrow {
         MilestoneStatus status;
         bytes32 deliverableHash;
         uint256 disputeId;
+        bytes32 conditionHash; // Hash of the verification condition (0 if none)
     }
 
     struct EscrowConfig {
@@ -29,6 +30,7 @@ interface IMilestoneEscrow is IArbitrableEscrow {
     event MilestoneReleased(uint256 indexed milestoneId, address indexed payee, uint256 amount);
     event MilestoneRefunded(uint256 indexed milestoneId, address indexed payer, uint256 amount);
     event DisputeOpened(uint256 indexed milestoneId, uint256 disputeId);
+    event VerificationRequested(uint256 indexed milestoneId, bytes32 indexed conditionHash);
 
     function initialize(
         address _payer,
@@ -36,10 +38,16 @@ interface IMilestoneEscrow is IArbitrableEscrow {
         address _arbiter,
         address _arbitrationAdapter,
         address _token, // address(0) for native ETH
+        address _verificationOracle,
         EscrowConfig calldata _config
     ) external;
 
-    function addMilestones(uint256[] calldata amounts, string[] calldata descriptions, uint256[] calldata deadlines) external;
+    function addMilestones(
+        uint256[] calldata amounts, 
+        string[] calldata descriptions, 
+        uint256[] calldata deadlines,
+        bytes32[] calldata conditionHashes
+    ) external;
     function updateMilestone(uint256 milestoneId, uint256 amount, string calldata description, uint256 deadline) external;
     function fund() external payable;
     function submitDeliverable(uint256 milestoneId, bytes32 deliverableHash) external;

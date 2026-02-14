@@ -58,6 +58,10 @@ contract KlerosAdapter is IArbitrationAdapter, IArbitrable, Ownable {
         return disputeId;
     }
 
+    function submitEvidence(uint256 _disputeID, string calldata _evidence) external {
+        emit Evidence(arbitrator, _disputeID, msg.sender, _evidence);
+    }
+
     function rule(uint256 _disputeID, uint256 _ruling) external override {
         require(msg.sender == address(arbitrator), "Only arbitrator can rule");
         

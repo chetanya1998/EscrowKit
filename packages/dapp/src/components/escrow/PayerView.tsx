@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Address, formatEther, parseEther } from 'viem';
+import { Address, formatEther, parseEther, keccak256, toHex } from 'viem';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +29,7 @@ export function PayerView({ address, milestones, details, refetch }: PayerViewPr
 
     const [newMilestoneAmount, setNewMilestoneAmount] = useState('');
     const [newMilestoneDesc, setNewMilestoneDesc] = useState('');
+    const [newMilestoneCondition, setNewMilestoneCondition] = useState('');
     const [updateAmount, setUpdateAmount] = useState('');
     const [updateDesc, setUpdateDesc] = useState('');
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -64,6 +65,19 @@ export function PayerView({ address, milestones, details, refetch }: PayerViewPr
 
     const handleAddMilestone = () => {
         if (!newMilestoneAmount || !newMilestoneDesc) return;
+
+        // Generate Condition Hash
+        let conditionHash = '0x0000000000000000000000000000000000000000000000000000000000000000';
+        if (newMilestoneCondition) {
+            // Basic hash of the description string for MVP
+            // In real app: upload to IPFS -> get hash. 
+            // Here we allow "mock" conditions by hashing the string directly.
+            // If string starts with "Qm", we assume it is IPFS hash? 
+            // No, VerificationOracle expects bytes32. IPFS hash is usually multihash (larger).
+            // We'll use keccak256 of the string.
+            conditionHash = keccak256(toHex(newMilestoneCondition));
+        }
+
         writeContract({
             address,
             abi: MILESTONE_ESCROW_ABI,
@@ -71,11 +85,13 @@ export function PayerView({ address, milestones, details, refetch }: PayerViewPr
             args: [
                 [parseEther(newMilestoneAmount)],
                 [newMilestoneDesc],
-                [BigInt(Math.floor(Date.now() / 1000) + 86400 * 7)] // Default 7 days
+                [BigInt(Math.floor(Date.now() / 1000) + 86400 * 7)], // Default 7 days
+                [conditionHash as `0x${string}`]
             ]
         });
         setNewMilestoneAmount('');
         setNewMilestoneDesc('');
+        setNewMilestoneCondition('');
     };
 
     const handleApprove = (id: number) => {
@@ -148,6 +164,11 @@ export function PayerView({ address, milestones, details, refetch }: PayerViewPr
                                 value={newMilestoneAmount}
                                 onChange={e => setNewMilestoneAmount(e.target.value)}
                                 className="w-32"
+                            />
+                            <Input
+                                placeholder="Verification Condition (Optional)"
+                                value={newMilestoneCondition}
+                                onChange={e => setNewMilestoneCondition(e.target.value)}
                             />
                             <Button onClick={handleAddMilestone} disabled={isPending}>Add</Button>
                         </div>

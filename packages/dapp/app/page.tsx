@@ -36,6 +36,7 @@ import {
   BookOpen,
   Bug
 } from 'lucide-react';
+import Link from 'next/link';
 
 /**
  * HOOKS & UTILITIES
@@ -388,9 +389,11 @@ export default function App() {
           <a href="#open-source" className="hover:text-emerald-400 transition-colors">Developers</a>
           <a href="#roadmap" className="hover:text-emerald-400 transition-colors">Roadmap</a>
         </div>
-        <button className="px-8 py-3 rounded-full font-bold text-[10px] tracking-widest uppercase border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-white/5">
-          Launch App
-        </button>
+        <Link href="/dashboard">
+          <button className="px-8 py-3 rounded-full font-bold text-[10px] tracking-widest uppercase border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-white/5">
+            Launch App
+          </button>
+        </Link>
       </nav>
 
       {/* Hero Section */}
@@ -415,9 +418,11 @@ export default function App() {
 
         <FadeIn delay={400}>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-8 mb-16 md:mb-24 px-4">
-            <button className="bg-emerald-500 text-black h-14 md:h-16 px-10 md:px-14 rounded-full font-bold text-base md:text-lg hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all w-full sm:w-auto">
-              Start Project
-            </button>
+            <Link href="/create">
+              <button className="bg-emerald-500 text-black h-14 md:h-16 px-10 md:px-14 rounded-full font-bold text-base md:text-lg hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all w-full sm:w-auto">
+                Start Project
+              </button>
+            </Link>
             <button className="bg-white/10 text-white h-14 md:h-16 px-10 md:px-14 rounded-full font-bold text-base md:text-lg border border-white/20 hover:bg-white/20 backdrop-blur-md transition-all w-full sm:w-auto">
               View Live Demo
             </button>

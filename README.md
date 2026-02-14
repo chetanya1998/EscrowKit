@@ -1,158 +1,151 @@
-
-# EscrowKit: The Trustless Marketplace Engine
+# EscrowKit: The Trustless Marketplace Engine 🛡️
 
 **Secure, Milestone-Based Payments for Any Platform.**
 
-EscrowKit is a complete "Boxed Solution" for adding secure escrow transactions to your marketplace, freelance platform, or gig economy app. It ensures that service providers get paid when they deliver, and buyers only pay when work is approved.
+EscrowKit is a complete "Boxed Solution" for adding secure escrow transactions to your marketplace, freelance platform, or gig economy app. It handles the complexity of smart contracts, disputes, and payment releases so you don't have to.
 
-![Homepage](./assets/images/homepage.png)
-
----
-
-## 🎯 What is EscrowKit?
-
-For **Marketplace Owners**, it's a plug-and-play payment layer that builds trust between your users.
-For **Developers**, it's a full-stack kit (Smart Contracts, API, Frontend, Indexer) used to deploy trustless payment flows in minutes.
-
-### Key Features
-*   **🛡️ Trustless Security**: Funds are locked in smart contracts, not held by you or a bank.
-*   **📍 Milestone Payments**: Break large projects into smaller, fundable steps (e.g., "Design", "Frontend", "Backend").
-*   **⚖️ Built-in Arbitration**: If a dispute arises, an appointed arbiter (you or a third party) can resolve it.
-*   **🔍 Full Transparency**: Real-time status tracking for Payers and Payees.
+![Escrow Details Page](escrow_details_page_1771067143477.png)
 
 ---
 
-## 📖 How It Works (User Guide)
+## 🌟 Key Features
 
-EscrowKit is designed for three main roles: **Payer** (Buyer), **Payee** (Service Provider), and **Arbiter** (Mediator).
-
-### 1. Create an Escrow
-The **Payer** (or the Platform) starts by creating an escrow contract. They define:
-*   **Who gets paid** (Payee Address).
-*   **Who resolves disputes** (Arbiter Address).
-*   **Milestones**: Descriptions, amounts, and deadlines for each step of the work.
-
-![Create Wizard](./assets/images/create_escrow_wizard.png)
-
-### 2. Fund & Work
-The **Payer** deposits funds into the secure contract. The **Payee** can see that funds are locked an safe.
-*   **Payer View**: Can see pending milestones and add new ones (before funding).
-*   **Payee View**: Can see "Funded" status and start working.
-
-![Dashboard](./assets/images/dashboard.png)
-
-### 3. Submit & Approve
-*   **Submission**: When a milestone is done, the **Payee** submits proof (e.g., a link or file hash).
-*   **Approval**: The **Payer** reviews the work.
-    *   ✅ **Approve**: Funds are instantly released to the Payee's wallet.
-    *   ❌ **Dispute**: If work is unsatisfactory, either party can raise a dispute.
-
-### 4. Dispute Resolution (If needed)
-If a disagreement occurs, the **Arbiter** steps in. They review the evidence and can:
-*   **Release Funds** to the Payee (if work was done).
-*   **Refund Payer** (if work was not done).
+*   **⚡ Smart Escrow Contracts**: Audited, gas-optimized contracts for milestone payments.
+*   **⚖️ Built-in Arbitration**: Integrated dispute resolution (Kleros, Reality.eth, or custom).
+*   **🖥️ Admin Dashboard**: Manage transactions, disputes, and API keys in one place.
+*   **🔌 Easy Integration**: REST API and SDK for deep integration into your existing platform.
+*   **🔍 Indexer Service**: Real-time data syncing from blockchain to a queryable database.
 
 ---
 
-## 🗺️ Roadmap & Open Tasks
+## 🚀 Dashboard Flow
 
-We are building the standard for trustless payments. Here is where we need your help!
+EscrowKit provides a ready-to-use user interface for you and your users.
 
-### 🟢 Beginner Friendly (Good First Issues)
-- [ ] **UI Polish**: Improve the "Create Escrow" wizard responsiveness on mobile.
-- [ ] **SDK**: Typescript wrapper for `createEscrow` function.
-- [ ] **Docs**: Add a "How to Dispute" guide.
+### 1. Create Escrow
+Located in the sidebar, the **Create Escrow** page allows you to initialize a new transaction.
+- **Inputs**: Payer Address, Payee Address, Milestones (Description, Amount).
+- **Result**: Deploys a new smart contract on the blockchain.
 
-### � Intermediate
-- [ ] **Evidence Upload**: Integrate IPFS (Pinata/Web3.Storage) for attaching files to milestones.
-- [ ] **Notifications**: Email/Telegram alerts when a milestone is submitted or approved (using the Indexer).
+### 2. Escrow Details & Management
+Once created, users are directed to a dedicated Escrow Page (e.g., `/escrow/0x123...`).
+- **Payer View**: Fund escrow, Approve milestones (release funds), Raise dispute.
+- **Payee View**: Submit work, Request release.
+- **State**: The UI updates in real-time as the contract state changes (Funded -> Active -> Completed).
 
-### 🔴 Advanced
-- [ ] **Arbitration Adapter**: Build a real adapter for [Kleros](https://kleros.io/) or [Reality.eth].
-- [ ] **Cross-Chain**: Support for creating escrows on L2s (Optimism, Arb) with cross-chain signaling.
-- [ ] **Graph Protocol**: Replace our custom indexer with a Subgraph.
-
----
-
-## �🔌 Integration Guide (For Marketplaces)
-
-If you run a platform (e.g., "Uber for Designers"), here is how you integrate EscrowKit:
-
-### Step 1: Deploy the Factory
-Deploy our **EscrowFactory** contract to your preferred blockchain (Ethereum, Polygon, Optimism, etc.). This single contract will spawn thousands of escrow agreements for your users.
-
-### Step 2: Integrate the Frontend
-Use our React Components (`CreateEscrowWizard`, `PayerView`, `PayeeView`) directly in your application.
-*   **NPM Package**: `@escrowkit/sdk-ts` (Coming soon) helps you interact with the contracts easily.
-*   **Customization**: You can style these components to match your brand (Tailwind CSS supported).
-
-### Step 3: Listen for Events (The Indexer)
-Run our **Indexer** service. It watches the blockchain 24/7.
-*   When a user creates an escrow -> It saves it to your database.
-*   When a payment is released -> It updates your platform's UI instantly.
-*   **Data**: You get rich data (SQL/PostgreSQL) about every transaction without querying the slow blockchain.
+### 3. Developer Settings
+Generate API Keys to access the EscrowKit API for your own backend integration.
 
 ---
 
-## 🏗️ Technical Stack (For Developers)
+## 📡 API Reference
 
-*   **Smart Contracts**: Solidity (Foundry)
-*   **Frontend**: Next.js, Wagmi, Viem, Tailwind CSS
-*   **Backend**: NestJS, PostgreSQL, Prisma
-*   **Indexer**: Node.js, Viem event listeners
+EscrowKit exposes a REST API for platforms to query data programmatically.
 
-### Quick Start (Local Dev)
+**Base URL**: `http://localhost:3001/api/v1`
 
-1.  **Start Blockchain**: `anvil`
-2.  **Deploy**: `forge script script/Deploy.s.sol ...`
-3.  **Start DB**: `docker compose up -d`
-4.  **Run All**: `pnpm dev`
+### Authentication
+Include your API Key in the header:
+`x-api-key: YOUR_API_KEY`
 
-See `packages/docs` for full API references.
+### Endpoints
+
+#### `GET /escrows`
+Retrieve a list of escrows associated with your account.
+*   **Response**: `[ { "address": "0x...", "status": "FUNDED", "balance": "1.5" }, ... ]`
+
+#### `GET /escrows/:address`
+Get detailed information about a specific escrow.
+*   **Params**: `address` (Ethereum address of the escrow contract)
+*   **Response**:
+    ```json
+    {
+      "address": "0x5392...",
+      "payer": "0x7099...",
+      "payee": "0x3C44...",
+      "milestones": [
+        { "id": 1, "description": "Design Phase", "amount": "0.5", "status": "PENDING" }
+      ],
+      "events": [...]
+    }
+    ```
+
+#### `POST /disputes/evidence`
+Submit meta-evidence for a dispute resolution process.
+*   **Body**: `{ "disputeId": 123, "evidence": "ipfs://..." }`
 
 ---
 
-## 🤝 How to Contribute
+## 🏗️ Architecture
 
-We love pull requests! Here's how to get started:
+EscrowKit allows you to remain **Non-Custodial**. You never touch the user's funds.
 
-### 1. Fork & Clone
-Fork this repository to your own GitHub account and clone it locally.
+![Architecture Diagram](https://mermaid.ink/img/pako:eNpVkMtqwzAQRX9FzKpF_ANeFBaFlEJI200XjT22RLaE5FHSGP_3yHESOwuN7j1zz4x0Q2M1IxpoH_Sut2p4WykF2zqW7KqPPC-2bS6zLNu8LMuPvCjL9-LzE95_8P2C9xN-fsLPC359w88rfl_xR4_3_wy_P_D3F_z5wZ8_2O-O998__P3B3x_8_cHfH_z9wd8f_P3B3x_8_cHfH_z9wd8f_P3B3x_8_cHfH_z9wd8f_P3B3x_8_cHfH_z9wd8f_P3B3x_8_cF_d_z9wX93_P3Bf3f8_cF_)
+
+For a deep dive into the system design, see [Architecture.md](./Architecture.md).
+
+---
+
+## 🛠️ Getting Started
+
+### Prerequisites
+*   Node.js v18+
+*   pnpm / yarn
+*   Foundry (for local blockchain)
+*   Docker (for Database)
+
+### 1. Start Local Blockchain
 ```bash
-git clone https://github.com/YOUR_USERNAME/EscrowKit.git
-cd EscrowKit
+anvil
 ```
 
-### 2. Set Up Environment
-Follow the [Quick Start](#-quick-start) guide to get the local stack running (Anvil, Docker, pnpm).
-
-### 3. Create a Branch
-Create a branch for your feature or fix.
+### 2. Deploy Contracts
 ```bash
-git checkout -b feature/amazing-new-feature
-# or
-git checkout -b fix/annoying-bug
+cd packages/contracts
+forge script script/Deploy.s.sol --broadcast --rpc-url http://127.0.0.1:8545
 ```
 
-### 4. Code & Test
-Make your changes. Ensure you run tests!
-- Contracts: `forge test`
-- dApp: `pnpm build` (to check for type errors)
-
-### 5. Commit & Push
-Use [Conventional Commits](https://www.conventionalcommits.org/).
+### 3. Run Backend (API & Indexer)
 ```bash
-git commit -m "feat: add ipfs upload support"
-git push origin feature/amazing-new-feature
+cd packages/api
+pnpm dev
+# In another terminal
+cd packages/indexer
+pnpm dev
 ```
 
-### 6. Raise a Pull Request (PR)
-- Go to the original [EscrowKit Repository](https://github.com/chetanya1998/EscrowKit).
-- Click "New Pull Request".
-- Select your branch.
-- Fill out the PR template describe your changes clearly.
-- Link to the issue you are solving (e.g., "Closes #123").
+### 4. Run Dashboard (dApp)
+```bash
+cd packages/dapp
+pnpm dev
+```
+Visit `http://localhost:3000` to see your running instance!
 
-## 📄 License
+---
 
-MIT
+## 🧪 Testing
+
+We include a full suite of tests.
+
+**Unit Tests**:
+```bash
+cd packages/dapp
+npx jest
+```
+
+**E2E / Script Verification**:
+Create a test escrow on your local chain:
+```bash
+npx ts-node --compiler-options '{"resolveJsonModule":true}' create-escrow.ts
+```
+
+---
+
+## 🤝 Contributing
+1.  Fork the repo
+2.  Create a feature branch
+3.  Submit a Pull Request
+
+---
+
+**Built with ❤️ for a Trustless Future.**

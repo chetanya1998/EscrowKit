@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interfaces/IMilestoneEscrow.sol";
 import "./interfaces/IArbitrationAdapter.sol";
 import "./ConditionEngine.sol";
+import "./VerificationOracle.sol";
 
 contract MilestoneEscrow is
     Initializable,
@@ -22,6 +23,7 @@ contract MilestoneEscrow is
     address public arbitrationAdapter;
     IERC20 public token; // address(0) for ETH
     EscrowConfig public config;
+    VerificationOracle public verificationOracle;
 
     Milestone[] public milestones;
     uint256 public totalFunded;
@@ -53,6 +55,7 @@ contract MilestoneEscrow is
         address _arbiter,
         address _arbitrationAdapter,
         address _token,
+        address _verificationOracle,
         EscrowConfig calldata _config
     ) external initializer {
         require(_payer != address(0), "Invalid payer");
@@ -61,6 +64,9 @@ contract MilestoneEscrow is
         payee = _payee;
         arbiter = _arbiter;
         arbitrationAdapter = _arbitrationAdapter;
+        if (_verificationOracle != address(0)) {
+            verificationOracle = VerificationOracle(_verificationOracle);
+        }
         config = _config;
         if (_token != address(0)) {
             token = IERC20(_token);
@@ -70,12 +76,14 @@ contract MilestoneEscrow is
     function addMilestones(
         uint256[] calldata amounts,
         string[] calldata descriptions,
-        uint256[] calldata deadlines
+        uint256[] calldata deadlines,
+        bytes32[] calldata conditionHashes
     ) external onlyPayer {
         require(totalFunded == 0, "Already funded");
         require(
             amounts.length == descriptions.length &&
-                descriptions.length == deadlines.length,
+                descriptions.length == deadlines.length &&
+                deadlines.length == conditionHashes.length,
             "Length mismatch"
         );
 
@@ -87,7 +95,8 @@ contract MilestoneEscrow is
                     deadline: deadlines[i],
                     status: MilestoneStatus.PENDING,
                     deliverableHash: bytes32(0),
-                    disputeId: 0
+                    disputeId: 0,
+                    conditionHash: conditionHashes[i]
                 })
             );
             emit MilestoneAdded(milestones.length - 1, amounts[i]);
@@ -128,9 +137,13 @@ contract MilestoneEscrow is
     {
         Milestone storage m = milestones[milestoneId];
         require(m.status == MilestoneStatus.PENDING, "Not pending");
-        m.status = MilestoneStatus.SUBMITTED;
-        m.deliverableHash = deliverableHash;
+        milestones[milestoneId].status = MilestoneStatus.SUBMITTED;
+        milestones[milestoneId].deliverableHash = deliverableHash;
         emit MilestoneSubmitted(milestoneId, deliverableHash);
+
+        if (milestones[milestoneId].conditionHash != bytes32(0)) {
+            emit VerificationRequested(milestoneId, milestones[milestoneId].conditionHash);
+        }
     }
 
     function approveMilestone(uint256 milestoneId) external {
@@ -139,11 +152,19 @@ contract MilestoneEscrow is
         require(msg.sender == payer, "Only payer can approve");
         Milestone storage m = milestones[milestoneId];
         require(
-            m.status == MilestoneStatus.PENDING ||
-                m.status == MilestoneStatus.SUBMITTED,
+            m.status == MilestoneStatus.SUBMITTED || 
+            m.status == MilestoneStatus.PENDING, // Allow approval without submission if no verification needed
             "Invalid status"
         );
 
+        // Check verification if required
+        if (m.conditionHash != bytes32(0) && address(verificationOracle) != address(0)) {
+            require(
+                verificationOracle.checkVerification(m.conditionHash),
+                "Condition not verified"
+            );
+        }
+        
         m.status = MilestoneStatus.APPROVED;
         emit MilestoneApproved(milestoneId);
         releaseMilestone(milestoneId);

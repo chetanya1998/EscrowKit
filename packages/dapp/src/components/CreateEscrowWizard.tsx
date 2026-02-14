@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { FACTORY_ADDRESS, FACTORY_ABI } from '@/lib/constants';
+import { FACTORY_ABI, FACTORY_ADDRESS, SIMPLE_ARBITER_ADAPTER_ADDRESS, VERIFICATION_ORACLE_ADDRESS } from '@/lib/constants';
 import { Check, User, Shield, Wallet, Plus, Trash2, ArrowRight, ArrowLeft, Loader2, Briefcase, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -18,7 +18,9 @@ type EscrowTemplate = 'freelance' | 'rental';
 
 interface MilestoneInput {
     description: string;
+
     amount: string;
+    condition: string;
 }
 
 interface WizardState {
@@ -42,7 +44,7 @@ export function CreateEscrowWizard() {
         title: '',
         payee: '',
         arbiter: '',
-        milestones: [{ description: '', amount: '' }],
+        milestones: [{ description: '', amount: '', condition: '' }],
         depositAmount: '',
         claimWindow: '604800', // 7 days default
         arbitrationFee: '0.01',
@@ -70,7 +72,7 @@ export function CreateEscrowWizard() {
     const addMilestone = () => {
         setState(prev => ({
             ...prev,
-            milestones: [...prev.milestones, { description: '', amount: '' }]
+            milestones: [...prev.milestones, { description: '', amount: '', condition: '' }]
         }));
     };
 
@@ -101,7 +103,8 @@ export function CreateEscrowWizard() {
                     state.payee as `0x${string}`,
                     arbiter,
                     adapter as `0x${string}`,
-                    '0x0000000000000000000000000000000000000000000000000000000000000000', // salt/extra (not used in implementation details here)
+                    '0x0000000000000000000000000000000000000000000000000000000000000000', // detailsHash
+                    VERIFICATION_ORACLE_ADDRESS as `0x${string}`, // verificationOracle
                     {
                         arbitrationFee: parseEther(state.arbitrationFee || '0'),
                         disputeWindow: BigInt(state.disputeWindow || '0'),
@@ -246,6 +249,15 @@ export function CreateEscrowWizard() {
                                             className="bg-neutral-950 border-neutral-800"
                                             value={milestone.amount}
                                             onChange={e => updateMilestone(index, 'amount', e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="flex-1 space-y-2">
+                                        <label className="text-xs font-medium text-neutral-500">Condition (Optional)</label>
+                                        <Input
+                                            placeholder="Verification details..."
+                                            className="bg-neutral-950 border-neutral-800"
+                                            value={milestone.condition}
+                                            onChange={e => updateMilestone(index, 'condition', e.target.value)}
                                         />
                                     </div>
                                     <div className="pt-8">

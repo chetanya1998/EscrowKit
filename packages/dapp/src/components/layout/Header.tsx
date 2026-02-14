@@ -1,11 +1,21 @@
 
 "use client"
 
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "../ui/dropdown-menu"
+import Link from 'next/link'
+import { User, LogOut, Settings, Copy, Wallet, Search } from 'lucide-react'
+import { toast } from 'sonner'
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
 
 export function Header() {
     const { address, isConnected } = useAccount()
@@ -13,10 +23,15 @@ export function Header() {
     const { disconnect } = useDisconnect()
 
     const handleConnect = () => {
-        if (isConnected) {
-            disconnect()
-        } else {
+        if (!isConnected) {
             connect({ connector: injected() })
+        }
+    }
+
+    const copyAddress = () => {
+        if (address) {
+            navigator.clipboard.writeText(address)
+            toast.success("Address copied to clipboard")
         }
     }
 
@@ -35,15 +50,44 @@ export function Header() {
                 </form>
             </div>
             <div className="flex items-center gap-4">
-                <Button
-                    className="rounded-full bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20"
-                    onClick={handleConnect}
-                >
-                    {isConnected
-                        ? `${address?.slice(0, 6)}...${address?.slice(-4)}`
-                        : "Connect Wallet"
-                    }
-                </Button>
+                {isConnected ? (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                className="rounded-full bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20"
+                            >
+                                <Wallet className="mr-2 h-4 w-4" />
+                                {address?.slice(0, 6)}...{address?.slice(-4)}
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56 bg-neutral-900 border-neutral-800 text-neutral-200">
+                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                            <DropdownMenuSeparator className="bg-neutral-800" />
+                            <DropdownMenuItem className="focus:bg-neutral-800 focus:text-neutral-50 cursor-pointer" onClick={copyAddress}>
+                                <Copy className="mr-2 h-4 w-4" />
+                                <span>Copy Address</span>
+                            </DropdownMenuItem>
+                            <Link href="/dashboard/settings">
+                                <DropdownMenuItem className="focus:bg-neutral-800 focus:text-neutral-50 cursor-pointer">
+                                    <Settings className="mr-2 h-4 w-4" />
+                                    <span>Settings</span>
+                                </DropdownMenuItem>
+                            </Link>
+                            <DropdownMenuSeparator className="bg-neutral-800" />
+                            <DropdownMenuItem className="focus:bg-neutral-800 focus:text-red-400 text-red-500 cursor-pointer" onClick={() => disconnect()}>
+                                <LogOut className="mr-2 h-4 w-4" />
+                                <span>Disconnect</span>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                ) : (
+                    <Button
+                        className="rounded-full bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20"
+                        onClick={handleConnect}
+                    >
+                        Connect Wallet
+                    </Button>
+                )}
             </div>
         </header>
     )

@@ -17,6 +17,8 @@ import { ArrowLeft, MessageSquare, FileText, CheckCircle2, Clock, Lock, AlertTri
 import { cn } from "@/lib/utils"
 import Link from 'next/link';
 import { MILESTONE_ESCROW_ABI } from '@/lib/constants';
+import { MilestoneProposal } from "@/components/escrow/milestone-proposal"
+import { DisputeDialog } from "@/components/escrow/dispute-dialog"
 
 export default function EscrowClientPage() {
     const params = useParams();
@@ -138,6 +140,11 @@ export default function EscrowClientPage() {
                 <div className="grid gap-6 lg:grid-cols-[1fr_350px]">
                     {/* Left Column: Timeline */}
                     <div className="space-y-6">
+                        {/* Negotiation for Payer/Payee */}
+                        {(isPayer || isPayee) && (
+                            <MilestoneProposal escrowAddress={address} role={isPayer ? 'payer' : 'payee'} />
+                        )}
+
                         <div className="flex items-center gap-2 text-lg font-semibold text-neutral-50">
                             <Clock className="h-5 w-5 text-neutral-400" /> Progress Timeline
                         </div>
@@ -206,7 +213,12 @@ export default function EscrowClientPage() {
                                                 {(m.status === 0 || m.status === 1) && (
                                                     <>
                                                         <Button variant="outline" className="border-neutral-700 hover:bg-neutral-800 text-neutral-300">Request Changes</Button>
-                                                        <Button variant="ghost" className="text-red-500 hover:text-red-400 hover:bg-red-500/10">Raise Dispute</Button>
+                                                        <DisputeDialog
+                                                            escrowAddress={address}
+                                                            milestoneId={index}
+                                                            milestoneIndex={index}
+                                                            arbitrationAdapter={details.arbitrationAdapter}
+                                                        />
                                                     </>
                                                 )}
                                             </div>

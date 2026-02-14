@@ -1,52 +1,107 @@
 # EscrowKit Architecture
 
-## System Overview
-EscrowKit is a non-custodial smart escrow engine. It uses smart contracts to hold funds and an indexer/API layer to provide a rich user experience.
+## 1. System Overview
+EscrowKit is a **Trustless Marketplace Engine** designed to provide secure, milestone-based payments for platforms. It operates as a "Boxed Solution" that platforms can integrate to handle payments without taking custody of funds.
 
-## Modules & Boundaries
+### Core Philosophy
+- **Non-Custodial**: Funds are held in smart contracts, not by the platform or EscrowKit.
+- **Trustless**: Operations are governed by code; disputes are resolved by decentralized or pre-agreed arbiters.
+- **Milestone-Based**: Payments are released only when specific deliverables are met and approved.
 
-### 1. Smart Contracts (`packages/contracts`)
-- **Responsibility**: Hold funds, manage milestones, execute payouts/refunds, handle dispute initiation.
-- **Boundaries**: 
-  - Input: Transactions from Users/SDK.
-  - Output: On-chain events (EscrowCreated, Funded, Released, etc.).
-  - Dependencies: None (pure on-chain).
+---
 
-### 2. Indexer (`packages/indexer`)
-- **Responsibility**: Listen to blockchain events and project them into a relational database.
-- **Boundaries**:
-  - Input: RPC Provider (Anvil/Ethereum).
-  - Output: Postgres Database writes (Escrows, Milestones, Events).
-  - Reorg handling: Must handle chain reorgs (basic implementation).
+## 2. Technical Architecture
 
-### 3. Read API (`packages/api`)
-- **Responsibility**: Serve escrow data to the frontend, handle evidence metadata uploads.
-- **Boundaries**:
-  - Input: HTTP requests from Dapp/SDK.
-  - Output: JSON responses.
-  - State: Read-only from Postgres (written by indexer), Write evidence metadata (to local disk/S3).
+The system consists of four primary components:
 
-### 4. dApp (`packages/dapp`)
-- **Responsibility**: UI for creating and managing escrows.
-- **Boundaries**:
-  - Interact with Contracts (Write) via Wallet (wagmi/viem).
-  - Interact with API (Read) via HTTP (TanStack Query).
+### A. Smart Contracts (`packages/contracts`)
+*   **Techn**: Solidity, Foundry
+*   **Role**: The "Trust Layer". Holds funds and business logic.
+*   **Key Contracts**:
+    *   `EscrowFactory`: Registry and factory for creating new escrow clones.
+    *   `MilestoneEscrow`: The main escrow instance. Handles:
+        *   Deposits (payer -> contract)
+        *   Milestone allocation
+        *   Releases (contract -> payee)
+        *   Refunds (contract -> payer)
+        *   Dispute initiation
+    *   `IArbitrationAdapter`: Interface for connecting to arbitration services (e.g., Kleros, reality.eth).
 
-### 5. SDK (`packages/sdk-ts`)
-- **Responsibility**: Typed wrapper around contracts for developers.
-- **Boundaries**:
-  - Used by Dapp and 3rd party integrators.
+### B. Indexer Service (`packages/indexer`)
+*   **Tech**: TypeScript, Viem, Prisma, PostgreSQL
+*   **Role**: The "Data Layer". Listens to blockchain events and syncs state to a queryable database.
+*   **Workflow**:
+    1.  Poller fetches logs from RPC (Anvil/Ethereum).
+    2.  Parses events: `EscrowCreated`, `Funded`, `MilestoneCompleted`, `DisputeOpened`.
+    3.  Updates relational data in Postgres via Prisma.
+    4.  Ensures data consistency for the API.
 
-## Data Flow
+### C. Read API (`packages/api`)
+*   **Tech**: NestJS, Swagger
+*   **Role**: The "Integration Layer". Provides fast, structured access to escrow data for the dApp and third-party platforms.
+*   **Key Features**:
+    *   **Public API**: Secured via API Keys (`/api/v1/...`).
+    *   **Internal API**: Powers the Dashboard.
+    *   **Evidence Handling**: Manages metadata for disputes (IPFS/Storage).
 
-1. **User Action**: User connects wallet on dApp and calls `createEscrow()`.
-2. **On-Chain**: Contract emits `EscrowCreated(address, ...)`.
-3. **Indexing**: Indexer detects event, creates `Escrow` record in DB with status `INITIALIZED`.
-4. **UI Update**: dApp polls API/Indexer or refetches to show new escrow.
-5. **Interaction**: Payer calls `fund()` -> Event `EscrowFunded` -> Indexer updates status -> dApp shows "Funded".
-6. **Dispute**: User calls `openDispute()` -> Event -> Indexer updates status -> dApp shows Dispute UI.
+### D. dApp Dashboard (`packages/dapp`)
+*   **Tech**: Next.js (App Router), Wagmi, Tailwind CSS, Shadcn UI
+*   **Role**: The "User Interface".
+    *   **Dashboard**: For platforms/users to view all their transactions.
+    *   **Escrow Page**: A shared link for Payer and Payee to interact (Fund, Submit, Approve).
+    *   **Admin Tools**: API Key management and developer settings.
 
-## Invariants
-- **Non-Custodial**: Backend API never holds private keys or control over funds.
-- **Solvency**: `Balance = Released + Refunded + Remaining`.
-- **Immutability**: Milestones cannot be changed after funding (MVP).
+---
+
+## 3. Data Flow
+
+### Scenario: Creating and Completing an Escrow
+
+1.  **Instantiation**: 
+    *   User fills "Create Escrow" form in dApp.
+    *   dApp calls `EscrowFactory.createEscrow()` on-chain.
+2.  **Indexing**:
+    *   Contracts emit `EscrowCreated`.
+    *   Indexer picks up event -> writes `Escrow` entry to DB.
+3.  **Discovery**:
+    *   API serves the new escrow at `/api/v1/escrows/:address`.
+    *   dApp redirects user to `/escrow/:address`.
+4.  **Funding**:
+    *   Payer connects wallet -> calls `deposit()` on contract.
+    *   Indexer updates DB status to `FUNDED`.
+5.  **Completion**:
+    *   Payee marks milestone complete.
+    *   Payer approves release.
+    *   Contract sends funds to Payee.
+
+---
+
+## 4. Database Schema (Simplified)
+
+```mermaid
+erDiagram
+    User ||--o{ Escrow : "creates/participates"
+    Escrow ||--|{ Milestone : "contains"
+    Escrow ||--o{ Event : "history"
+    Escrow ||--o{ Dispute : "may have"
+
+    Escrow {
+        string address PK
+        string payer
+        string payee
+        string status
+        decimal balance
+    }
+
+    Milestone {
+        string id PK
+        string description
+        decimal amount
+        string status
+    }
+```
+
+## 5. Security & Invariants
+*   **Solvency**: The contract balance strictly tracks `Deposited - Released - Refunded`.
+*   **Immutability**: Core terms (Arbitrator, Fee) are fixed upon creation.
+*   **Access Control**: Only the Payer can release funds; only the Arbiter can resolve disputes.

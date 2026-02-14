@@ -4,7 +4,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Wallet, Gavel, FileText, Settings, ShieldCheck } from "lucide-react"
+import { LayoutDashboard, Wallet, Gavel, FileText, Settings, ShieldCheck, PlusCircle } from "lucide-react"
 
 const sidebarItems = [
     {
@@ -26,6 +26,11 @@ const sidebarItems = [
         title: "Transactions",
         href: "/dashboard/transactions",
         icon: FileText,
+    },
+    {
+        title: "Create Escrow",
+        href: "/escrow/create",
+        icon: PlusCircle,
     },
 ]
 
@@ -66,7 +71,7 @@ export function Sidebar() {
                 <div className="mt-auto border-t p-4">
                     {/* Bottom items like settings can go here */}
                     <Link
-                        href="/settings"
+                        href="/dashboard/settings"
                         className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-400 transition-all hover:bg-neutral-800/50 hover:text-neutral-50"
                     >
                         <Settings className="h-4 w-4" />
