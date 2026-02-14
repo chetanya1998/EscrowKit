@@ -1,5 +1,5 @@
-import { createPublicClient, http, parseAbiItem } from 'viem';
-import { foundry } from 'viem/chains';
+import { createPublicClient, http, parseAbiItem, Chain } from 'viem';
+import { foundry, baseSepolia } from 'viem/chains';
 import { PrismaClient } from '@prisma/client';
 import * as dotenv from 'dotenv';
 import * as crypto from 'crypto';
@@ -16,13 +16,24 @@ dotenv.config();
 
 const connectionString = `${process.env.DATABASE_URL}`;
 
-const pool = new Pool({ connectionString });
+// Enable SSL for cloud-hosted PostgreSQL (Supabase, Railway, etc.)
+const pool = new Pool({
+  connectionString,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+});
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-// Use Anvil chain (local) or configure via ENV
+// Chain selection: default to Base Sepolia for production, Anvil for local dev
+const CHAIN_ID = process.env.CHAIN_ID ? Number(process.env.CHAIN_ID) : undefined;
+const chains: Record<number, Chain> = {
+  31337: foundry,
+  84532: baseSepolia,
+};
+const selectedChain = CHAIN_ID ? chains[CHAIN_ID] ?? baseSepolia : baseSepolia;
+
 const client = createPublicClient({
-  chain: foundry,
+  chain: selectedChain,
   transport: http(process.env.RPC_URL || 'http://127.0.0.1:8545'),
 });
 
