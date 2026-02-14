@@ -4,7 +4,9 @@
 
 EscrowKit is a complete "Boxed Solution" for adding secure escrow transactions to your marketplace, freelance platform, or gig economy app. It handles the complexity of smart contracts, disputes, and payment releases so you don't have to.
 
-![Escrow Details Page](escrow_details_page_1771067143477.png)
+## 🎥 Agent Demo
+
+![EscrowKit Demo](./assets/demo.webp)
 
 ---
 
@@ -22,13 +24,21 @@ EscrowKit is a complete "Boxed Solution" for adding secure escrow transactions t
 
 EscrowKit provides a ready-to-use user interface for you and your users.
 
-### 1. Create Escrow
+### 1. Home Page
+![Home Page](./assets/home_page.png)
+
+### 2. Dashboard Overview
+![Dashboard](./assets/dashboard.png)
+
+### 3. Create Escrow
 Located in the sidebar, the **Create Escrow** page allows you to initialize a new transaction.
+![Create Escrow](./assets/create_escrow.png)
 - **Inputs**: Payer Address, Payee Address, Milestones (Description, Amount).
 - **Result**: Deploys a new smart contract on the blockchain.
 
-### 2. Escrow Details & Management
-Once created, users are directed to a dedicated Escrow Page (e.g., `/escrow/0x123...`).
+### 4. Escrow Details & Management
+Once created, users are directed to a dedicated Escrow Page.
+![Escrow Details](./assets/escrow_details.png)
 - **Payer View**: Fund escrow, Approve milestones (release funds), Raise dispute.
 - **Payee View**: Submit work, Request release.
 - **State**: The UI updates in real-time as the contract state changes (Funded -> Active -> Completed).
