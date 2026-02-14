@@ -52,37 +52,9 @@ Generate API Keys to access the EscrowKit API for your own backend integration.
 
 EscrowKit exposes a REST API for platforms to query data programmatically.
 
-**Base URL**: `http://localhost:3001/api/v1`
+For detailed documentation on all endpoints, requests, and responses, please see [API.md](./API.md).
 
-### Authentication
-Include your API Key in the header:
-`x-api-key: YOUR_API_KEY`
-
-### Endpoints
-
-#### `GET /escrows`
-Retrieve a list of escrows associated with your account.
-*   **Response**: `[ { "address": "0x...", "status": "FUNDED", "balance": "1.5" }, ... ]`
-
-#### `GET /escrows/:address`
-Get detailed information about a specific escrow.
-*   **Params**: `address` (Ethereum address of the escrow contract)
-*   **Response**:
-    ```json
-    {
-      "address": "0x5392...",
-      "payer": "0x7099...",
-      "payee": "0x3C44...",
-      "milestones": [
-        { "id": 1, "description": "Design Phase", "amount": "0.5", "status": "PENDING" }
-      ],
-      "events": [...]
-    }
-    ```
-
-#### `POST /disputes/evidence`
-Submit meta-evidence for a dispute resolution process.
-*   **Body**: `{ "disputeId": 123, "evidence": "ipfs://..." }`
+**Base URL**: `http://localhost:3001` (Local Development)
 
 ---
 
