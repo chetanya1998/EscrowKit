@@ -1,6 +1,6 @@
 import { createPublicClient, http, parseAbiItem, Chain } from 'viem';
 import { foundry, baseSepolia } from 'viem/chains';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from './generated/prisma';
 import * as dotenv from 'dotenv';
 import * as crypto from 'crypto';
 import {

@@ -23,19 +23,19 @@ model Escrow {
 }
 
 model Milestone {
-  id              String   @id @default(uuid())
+  id              String    @id @default(uuid())
   escrowAddress   String
-  escrow          Escrow   @relation(fields: [escrowAddress], references: [address])
+  escrow          Escrow    @relation(fields: [escrowAddress], references: [address])
   index           Int
-  amount          String   // Store as string to handle big numbers/decimals
+  amount          String // Store as string to handle big numbers/decimals
   description     String
   deadline        DateTime?
-  status          String   // PENDING, SUBMITTED, APPROVED, RELEASED, REFUNDED, DISPUTED
+  status          String // PENDING, SUBMITTED, APPROVED, RELEASED, REFUNDED, DISPUTED
   deliverableHash String?
   disputeId       String?
   conditionHash   String?
-  isVerified      Boolean  @default(false)
-  
+  isVerified      Boolean   @default(false)
+
   @@unique([escrowAddress, index])
 }
 
@@ -48,31 +48,31 @@ model Event {
   transactionHash String
   args            Json
   createdAt       DateTime @default(now())
-  
+
   @@index([escrowAddress])
 }
 
 model Dispute {
-  id              String   @id @default(uuid())
-  escrowAddress   String
-  escrow          Escrow   @relation(fields: [escrowAddress], references: [address])
-  milestoneIndex  Int
+  id               String   @id @default(uuid())
+  escrowAddress    String
+  escrow           Escrow   @relation(fields: [escrowAddress], references: [address])
+  milestoneIndex   Int
   disputeIdOnChain String
-  status          String   // OPEN, RESOLVED
-  reason          String?
-  createdAt       DateTime @default(now())
+  status           String // OPEN, RESOLVED
+  reason           String?
+  createdAt        DateTime @default(now())
 }
 
 model User {
-  id              String   @id @default(uuid())
-  address         String   @unique
-  username        String?  @unique
-  email           String?  @unique
-  bio             String?
-  avatar          String?
-  preferences     Json?    // { theme: 'dark', notifications: { email: true, app: true } }
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id          String   @id @default(uuid())
+  address     String   @unique
+  username    String?  @unique
+  email       String?  @unique
+  bio         String?
+  avatar      String?
+  preferences Json? // { theme: 'dark', notifications: { email: true, app: true } }
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model ApiKey {
@@ -105,7 +105,7 @@ model MilestoneDraft {
   creator       String
   isSigned      Boolean  @default(false)
   signature     String?
-  status        String   // PENDING, SIGNED, REJECTED, COMMITTED
+  status        String // PENDING, SIGNED, REJECTED, COMMITTED
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
