@@ -3,6 +3,14 @@ import { useAccount } from 'wagmi';
 import { API_BASE_URL } from '@/lib/utils';
 import { Transaction, UsageStats } from '@/lib/mock-data';
 
+// Default fallback data shown when API is unreachable
+const FALLBACK_STATS: UsageStats = {
+    totalVolume: '0',
+    activeEscrows: 0,
+    completedEscrows: 0,
+    disputeRate: '0%',
+};
+
 async function fetchStats(address: string): Promise<UsageStats> {
     const res = await fetch(`${API_BASE_URL}/users/${address}/stats`);
     if (!res.ok) throw new Error('Failed to fetch stats');
@@ -14,15 +22,13 @@ async function fetchEscrows(address: string): Promise<Transaction[]> {
     if (!res.ok) throw new Error('Failed to fetch escrows');
     const data = await res.json();
 
-    // Map backend data to frontend Transaction interface if needed
-    // For now assuming direct mapping or we'll adjust types
     return data.map((escrow: any) => ({
         id: escrow.id,
         date: new Date(escrow.createdAt).toISOString().split('T')[0],
-        type: escrow.payer.toLowerCase() === address.toLowerCase() ? 'created' : 'funded', // Simplified logic
+        type: escrow.payer.toLowerCase() === address.toLowerCase() ? 'created' : 'funded',
         description: escrow.milestones[0]?.description,
-        amount: escrow.milestones[0]?.amount || '0', // taking first milestone for now
-        currency: 'ETH', // hardcoded for now
+        amount: escrow.milestones[0]?.amount || '0',
+        currency: 'ETH',
         counterparty: escrow.payer.toLowerCase() === address.toLowerCase() ? escrow.payee : escrow.payer,
         status: escrow.milestones[0]?.status === 'RELEASED' ? 'completed' : 'pending',
     }));
@@ -30,26 +36,37 @@ async function fetchEscrows(address: string): Promise<Transaction[]> {
 
 export function useDashboardData() {
     const { address } = useAccount();
-    // For testing/demo purposes, fallback to the seeded address if no wallet connected
     const targetAddress = address || '0x1234567890123456789012345678901234567890';
 
     const statsQuery = useQuery({
         queryKey: ['dashboard-stats', targetAddress],
         queryFn: () => fetchStats(targetAddress),
         enabled: !!targetAddress,
+        staleTime: 5 * 60 * 1000,      // Data stays fresh for 5 minutes
+        gcTime: 30 * 60 * 1000,         // Cache persists for 30 minutes
+        retry: 2,                        // Retry twice on failure
+        retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
+        placeholderData: FALLBACK_STATS, // Show zeros instead of nothing
     });
 
     const transactionsQuery = useQuery({
         queryKey: ['dashboard-transactions', targetAddress],
         queryFn: () => fetchEscrows(targetAddress),
         enabled: !!targetAddress,
+        staleTime: 5 * 60 * 1000,
+        gcTime: 30 * 60 * 1000,
+        retry: 2,
+        retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
+        placeholderData: [],             // Show empty list instead of nothing
     });
 
     return {
-        stats: statsQuery.data,
-        transactions: transactionsQuery.data,
+        stats: statsQuery.data ?? FALLBACK_STATS,
+        transactions: transactionsQuery.data ?? [],
         isLoading: statsQuery.isLoading || transactionsQuery.isLoading,
+        isFetching: statsQuery.isFetching || transactionsQuery.isFetching,
         error: statsQuery.error || transactionsQuery.error,
-        address: targetAddress
+        isStale: statsQuery.isStale || transactionsQuery.isStale,
+        address: targetAddress,
     };
 }

@@ -11,20 +11,12 @@ import { Plus, ArrowUpRight, ShieldCheck, Zap, Lock, CheckCircle } from "lucide-
 import Link from "next/link"
 
 export default function DashboardPage() {
-    const { stats, transactions, isLoading, error } = useDashboardData()
+    const { stats, transactions, isLoading, isFetching, error } = useDashboardData()
 
     if (isLoading) return (
         <DashboardLayout>
             <div className="flex h-[50vh] items-center justify-center text-neutral-500">
                 Loading dashboard...
-            </div>
-        </DashboardLayout>
-    )
-
-    if (error) return (
-        <DashboardLayout>
-            <div className="flex h-[50vh] items-center justify-center text-red-500">
-                Error loading data. Is the backend running?
             </div>
         </DashboardLayout>
     )
@@ -37,6 +29,16 @@ export default function DashboardPage() {
                     <h1 className="text-3xl font-bold tracking-tight text-neutral-50 mb-2">Trustless Escrow Engine</h1>
                     <p className="text-neutral-400">Monitor and manage your secure milestone-based payments.</p>
                 </div>
+
+                {error && (
+                    <div className="flex items-center gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
+                        <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                        <p className="text-sm text-amber-400">
+                            Unable to reach the API — showing cached data.{' '}
+                            {isFetching && <span className="text-amber-500/60">Retrying...</span>}
+                        </p>
+                    </div>
+                )}
 
                 {/* Metrics Grid */}
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

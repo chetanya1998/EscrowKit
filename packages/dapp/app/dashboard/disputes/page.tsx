@@ -11,7 +11,7 @@ import { ArrowUpRight, Scale } from "lucide-react"
 import Link from "next/link"
 
 export default function DisputesPage() {
-    const { transactions, isLoading, error } = useDashboardData()
+    const { transactions, isLoading, isFetching, error } = useDashboardData()
 
     // Filter for disputes
     const disputes = transactions?.filter((tx: any) => tx.status === 'disputed' || tx.type === 'disputed');
@@ -31,6 +31,16 @@ export default function DisputesPage() {
                     <h1 className="text-3xl font-bold tracking-tight text-neutral-50 mb-2">Resolution Center</h1>
                     <p className="text-neutral-400">Manage disputes and arbitration cases.</p>
                 </div>
+
+                {error && (
+                    <div className="flex items-center gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
+                        <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                        <p className="text-sm text-amber-400">
+                            Unable to reach the API — showing cached data.{' '}
+                            {isFetching && <span className="text-amber-500/60">Retrying...</span>}
+                        </p>
+                    </div>
+                )}
 
                 <Card className="bg-neutral-900 border-neutral-800">
                     <CardHeader>
