@@ -37,6 +37,7 @@ import {
   Bug
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 /**
  * HOOKS & UTILITIES
@@ -378,9 +379,9 @@ export default function App() {
       {/* Navigation */}
       <nav className="relative z-50 h-20 md:h-24 px-4 md:px-16 flex items-center justify-between border-b border-white/[0.08] bg-[#010101]/40 backdrop-blur-xl">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 flex items-center justify-center">
+          <div className="w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden">
             {/* Premium Logo */}
-            <img src="/escrowkit-logo.png" alt="EscrowKit Logo" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.6)]" />
+            <Image src="/escrowkit-logo.png" alt="EscrowKit Logo" width={40} height={40} className="object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.6)]" priority />
           </div>
           <span className="font-bold text-2xl tracking-tighter text-white">EscrowKit</span>
         </div>
