@@ -162,7 +162,7 @@ const InteractiveWaves = () => {
   }, []);
 
   return (
-    <div ref={containerRef} className="fixed inset-0 z-0 overflow-hidden bg-[#010101] pointer-events-none">
+    <div ref={containerRef} className="fixed inset-0 z-0 overflow-hidden bg-[#010101] pointer-events-none will-change-transform" style={{ contain: 'paint' }}>
       <div className="absolute inset-0 opacity-[0.25] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
       {/* Interactive Glow - Hidden on mobile via styling logic or simple display none if needed, checking media query in JS is better for performance */}
@@ -378,8 +378,9 @@ export default function App() {
       {/* Navigation */}
       <nav className="relative z-50 h-20 md:h-24 px-4 md:px-16 flex items-center justify-between border-b border-white/[0.08] bg-[#010101]/40 backdrop-blur-xl">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.5)]">
-            <ShieldCheck className="text-black" size={24} />
+          <div className="w-10 h-10 flex items-center justify-center">
+            {/* Premium Logo */}
+            <img src="/escrowkit-logo.png" alt="EscrowKit Logo" className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.6)]" />
           </div>
           <span className="font-bold text-2xl tracking-tighter text-white">EscrowKit</span>
         </div>
@@ -389,9 +390,9 @@ export default function App() {
           <a href="#open-source" className="hover:text-emerald-400 transition-colors">Developers</a>
           <a href="#roadmap" className="hover:text-emerald-400 transition-colors">Roadmap</a>
         </div>
-        <Link href="/dashboard">
-          <button className="px-8 py-3 rounded-full font-bold text-[10px] tracking-widest uppercase border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-white/5">
-            Launch App
+        <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank">
+          <button className="flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-[10px] tracking-widest uppercase border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-white/5">
+            <Github size={14} /> View on GitHub
           </button>
         </Link>
       </nav>
@@ -418,14 +419,11 @@ export default function App() {
 
         <FadeIn delay={400}>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-8 mb-16 md:mb-24 px-4">
-            <Link href="/create">
-              <button className="bg-emerald-500 text-black h-14 md:h-16 px-10 md:px-14 rounded-full font-bold text-base md:text-lg hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all w-full sm:w-auto">
-                Start Project
+            <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank">
+              <button className="bg-emerald-500 text-black h-14 md:h-16 px-10 md:px-14 rounded-full font-bold text-base md:text-lg hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all w-full sm:w-auto flex items-center gap-3">
+                <Github size={20} /> Check Out on GitHub
               </button>
             </Link>
-            <button className="bg-white/10 text-white h-14 md:h-16 px-10 md:px-14 rounded-full font-bold text-base md:text-lg border border-white/20 hover:bg-white/20 backdrop-blur-md transition-all w-full sm:w-auto">
-              View Live Demo
-            </button>
           </div>
         </FadeIn>
 
@@ -508,14 +506,16 @@ export default function App() {
                   <h3 className="text-2xl font-bold text-white">Get Started Instantly</h3>
                 </div>
                 <DeveloperTerminal />
-                <div className="flex gap-4 pt-4">
-                  <button className="flex-1 py-3 rounded-xl bg-zinc-900 border border-white/10 hover:border-emerald-500/50 hover:text-emerald-500 transition-colors text-zinc-400 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+                <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="flex-1">
+                  <button className="w-full py-3 rounded-xl bg-zinc-900 border border-white/10 hover:border-emerald-500/50 hover:text-emerald-500 transition-colors text-zinc-400 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
                     <BookOpen size={14} /> View Documentation
                   </button>
-                  <button className="flex-1 py-3 rounded-xl bg-zinc-900 border border-white/10 hover:border-emerald-500/50 hover:text-emerald-500 transition-colors text-zinc-400 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+                </Link>
+                <Link href="https://github.com/chetanya1998/EscrowKit/fork" target="_blank" className="flex-1">
+                  <button className="w-full py-3 rounded-xl bg-zinc-900 border border-white/10 hover:border-emerald-500/50 hover:text-emerald-500 transition-colors text-zinc-400 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
                     <Github size={14} /> Fork Repo
                   </button>
-                </div>
+                </Link>
               </div>
             </FadeIn>
 
@@ -567,7 +567,7 @@ export default function App() {
                 <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tighter text-white">Future Roadmap</h2>
                 <p className="text-zinc-400">See what we are building next.</p>
               </div>
-              <a href="#" className="flex items-center gap-2 text-emerald-500 font-bold uppercase tracking-widest text-xs hover:text-emerald-400">
+              <a href="https://github.com/chetanya1998/EscrowKit/issues" target="_blank" className="flex items-center gap-2 text-emerald-500 font-bold uppercase tracking-widest text-xs hover:text-emerald-400">
                 View Issues on GitHub <ArrowRight size={14} />
               </a>
             </div>
@@ -602,20 +602,43 @@ export default function App() {
         </div>
       </section>
 
+      {/* NEW GITHUB CTA SECTION */}
+      <section className="relative z-10 py-24 px-6 border-t border-white/5 bg-[#050505]">
+        <div className="max-w-4xl mx-auto text-center">
+          <FadeIn>
+            <div className="w-20 h-20 mx-auto mb-8 bg-zinc-900 rounded-2xl flex items-center justify-center border border-white/10 shadow-2xl">
+              <Github size={40} className="text-white" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">Open Source & Transparent.</h2>
+            <p className="text-zinc-400 text-lg mb-10 max-w-xl mx-auto">
+              Verify every line of code. Contribute to the future of trustless payments. Join us on GitHub.
+            </p>
+            <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank">
+              <button className="group relative inline-flex items-center gap-3 px-10 py-4 bg-white text-black rounded-full font-bold text-sm uppercase tracking-widest hover:bg-zinc-200 transition-all overflow-hidden">
+                <span className="relative z-10 flex items-center gap-2">
+                  <Github size={18} /> Star on GitHub
+                </span>
+                <div className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-500/10 transition-colors" />
+              </button>
+            </Link>
+          </FadeIn>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="relative z-10 py-12 px-6 md:py-24 md:px-12 border-t border-white/10 bg-[#000000]">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10 md:gap-16">
           <div className="flex flex-col gap-5 text-center md:text-left">
-            <div className="flex items-center gap-3 justify-center md:justify-start">
+            <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="flex items-center gap-3 justify-center md:justify-start hover:opacity-80 transition-opacity">
               <ShieldCheck className="text-emerald-500" size={32} />
               <span className="font-bold text-3xl tracking-tighter text-white uppercase">EscrowKit</span>
-            </div>
+            </Link>
             <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.5em]">Global Trust Protocol</p>
           </div>
 
           <div className="flex gap-12 text-[11px] font-bold uppercase tracking-[0.3em] text-zinc-300">
             {["Docs", "GitHub", "Privacy", "Contact"].map(l => (
-              <a key={l} href="#" className="hover:text-emerald-400 transition-colors">{l}</a>
+              <a key={l} href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="hover:text-emerald-400 transition-colors">{l}</a>
             ))}
           </div>
 
@@ -644,7 +667,7 @@ const DeveloperTerminal = () => (
       <div className="flex gap-2">
         <span className="text-emerald-500">➜</span>
         <span className="text-blue-400">~</span>
-        <span className="text-zinc-300">git clone https://github.com/EscrowKit/core.git</span>
+        <span className="text-zinc-300">git clone https://github.com/chetanya1998/EscrowKit.git</span>
       </div>
       <div className="text-zinc-500 pl-4">Cloning into 'core'...</div>
       <div className="flex gap-2">
@@ -677,9 +700,9 @@ const ContributionCard = ({ icon, title, desc, tag }: { icon: React.ReactNode, t
     </div>
     <h4 className="text-lg font-bold text-white mb-2">{title}</h4>
     <p className="text-zinc-400 text-sm leading-relaxed mb-4">{desc}</p>
-    <div className="flex items-center gap-2 text-emerald-500 text-xs font-bold uppercase tracking-widest group-hover:translate-x-1 transition-transform mt-auto">
+    <Link href="https://github.com/chetanya1998/EscrowKit/issues" target="_blank" className="flex items-center gap-2 text-emerald-500 text-xs font-bold uppercase tracking-widest group-hover:translate-x-1 transition-transform mt-auto">
       View Issues <ArrowRight size={12} />
-    </div>
+    </Link>
   </div>
 );
 
