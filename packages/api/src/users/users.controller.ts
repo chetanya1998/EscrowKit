@@ -1,5 +1,6 @@
-import { Controller, Get, Param, Query, Post, Delete, Body, Patch } from '@nestjs/common';
+import { Controller, Get, Param, Query, Post, Delete, Body, Patch, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -25,6 +26,7 @@ export class UsersController {
     }
 
     @Patch(':address')
+    @UseGuards(JwtAuthGuard)
     updateProfile(
         @Param('address') address: string,
         @Body() body: any,
@@ -33,6 +35,7 @@ export class UsersController {
     }
 
     @Post(':address/keys')
+    @UseGuards(JwtAuthGuard)
     generateApiKey(
         @Param('address') address: string,
         @Body() body: { name: string }
@@ -46,6 +49,7 @@ export class UsersController {
     }
 
     @Delete(':address/keys/:keyId')
+    @UseGuards(JwtAuthGuard)
     revokeApiKey(
         @Param('address') address: string,
         @Param('keyId') keyId: string
