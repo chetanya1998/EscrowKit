@@ -2,9 +2,10 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Wallet, Gavel, FileText, Settings, ShieldCheck, PlusCircle } from "lucide-react"
+import { LayoutDashboard, Wallet, Gavel, FileText, Settings, PlusCircle } from "lucide-react"
 
 const sidebarItems = [
     {
@@ -42,7 +43,9 @@ export function Sidebar() {
             <div className="flex h-full flex-col gap-2">
                 <div className="flex h-16 items-center border-b px-6">
                     <Link href="/" className="flex items-center gap-2 font-semibold">
-                        <ShieldCheck className="h-6 w-6 text-emerald-500" />
+                        <div className="w-6 h-6 flex items-center justify-center">
+                            <Image src="/escrowkit-logo.png" alt="EscrowKit" width={24} height={24} className="object-contain drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]" priority />
+                        </div>
                         <span className="text-lg text-neutral-50">EscrowKit</span>
                     </Link>
                 </div>
