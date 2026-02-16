@@ -7,6 +7,12 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { PrismaModule } from '../prisma/prisma.module';
 
+// Conditionally include GoogleStrategy only if credentials are provided
+const providers = [AuthService, JwtStrategy];
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    providers.push(GoogleStrategy);
+}
+
 @Module({
     imports: [
         PrismaModule,
@@ -17,7 +23,8 @@ import { PrismaModule } from '../prisma/prisma.module';
         }),
     ],
     controllers: [AuthController],
-    providers: [AuthService, JwtStrategy, GoogleStrategy],
+    providers,
     exports: [AuthService, JwtModule],
 })
 export class AuthModule { }
+
