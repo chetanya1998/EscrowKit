@@ -208,9 +208,9 @@ const InteractiveWaves = () => {
       </svg>
       <style>{`
         @keyframes pulse-flow {
-          0% { stroke-dashoffset: 3000; opacity: 0.3; }
-          50% { opacity: 0.7; }
-          100% { stroke-dashoffset: 0; opacity: 0.3; }
+          0% { stroke-dashoffset: 3000; opacity: 0.4; }
+          50% { opacity: 0.5; }
+          100% { stroke-dashoffset: 0; opacity: 0.4; }
         }
         ${[...Array(14)].map((_, i) => `
           .wave-strand-v3-${i} {
@@ -368,7 +368,7 @@ const AnimatedStep = ({ number, title, desc }: { number: string, title: string, 
  * MAIN PAGE
  */
 export default function App() {
-  const headline = useTypewriter("EscrowKit — The Trustless Marketplace Engine", 45);
+  const headline = useTypewriter("EscrowKit - The Trustless Marketplace Engine", 45);
   const subheadline = useTypewriter("Secure, milestone-based payments for marketplaces, freelancing, gigs, and rentals.", 35, 2500);
 
   return (
@@ -419,9 +419,7 @@ export default function App() {
           <p className="text-zinc-300 text-lg md:text-2xl max-w-3xl mx-auto mb-6 min-h-[3.2em] leading-relaxed font-light">
             {subheadline}
           </p>
-          <p className="text-zinc-500 text-base md:text-lg max-w-2xl mx-auto mb-10 md:mb-16 leading-relaxed">
-            EscrowKit helps two people transact safely online: buyers pay only when work is approved, and sellers get paid when they deliver, with disputes handled through a chosen arbiter or decentralized arbitration.
-          </p>
+
         </FadeIn>
 
         <FadeIn delay={400}>
@@ -449,11 +447,11 @@ export default function App() {
         <FadeIn delay={600}>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6 md:gap-4">
             {[
-              'Non-custodial: funds stay in smart contracts',
-              'Milestone-based: pay in steps, not upfront',
-              'Dispute-ready: built-in arbitration flow',
-              'Transparent: real-time tracking for both parties',
-              'Open-source: auditable, self-hostable, composable'
+              'Non-custodial',
+              'Milestone-based',
+              'Dispute-ready',
+              'Transparent',
+              'Open-source'
             ].map(item => (
               <div key={item} className="flex items-center gap-2 justify-center px-3 py-2 rounded-full bg-zinc-900/50 border border-white/5">
                 <CheckCircle2 size={12} className="text-emerald-500 shrink-0" />
@@ -550,7 +548,7 @@ export default function App() {
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-8 tracking-tighter text-white">A plug-and-play escrow layer for any platform.</h2>
             <p className="text-zinc-400 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto">
-              EscrowKit is a full-stack boxed solution you can use directly or embed into your marketplace. It includes smart contracts for escrow logic, a dashboard for users, an indexer and API for real-time tracking, webhooks for syncing events into your product, and an SDK for easy integration.
+              A full-stack boxed solution you can use directly or embed. Includes smart contracts, dashboard, API, indexer, and SDK.
             </p>
           </FadeIn>
         </div>
@@ -567,7 +565,7 @@ export default function App() {
               <PremiumCard highlight>
                 <div className="p-3 bg-emerald-500/10 rounded-xl w-fit mb-4"><Briefcase size={24} className="text-emerald-500" /></div>
                 <h3 className="text-xl font-bold text-white mb-3">Founders and SMEs</h3>
-                <p className="text-zinc-400 text-sm mb-6 leading-relaxed">If you run a marketplace or regularly hire freelancers, EscrowKit gives you safer payments without building escrow from scratch.</p>
+                <p className="text-zinc-400 text-sm mb-6 leading-relaxed">Safer payments for your marketplace or hiring needs, without building escrow from scratch.</p>
                 <ul className="space-y-3 mt-auto">
                   <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Safer payments without rebuilding escrow</li>
                   <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Reduced disputes and support load</li>
@@ -579,7 +577,7 @@ export default function App() {
               <PremiumCard>
                 <div className="p-3 bg-emerald-500/10 rounded-xl w-fit mb-4"><Users size={24} className="text-emerald-500" /></div>
                 <h3 className="text-xl font-bold text-white mb-3">Freelancers and service providers</h3>
-                <p className="text-zinc-400 text-sm mb-6 leading-relaxed">EscrowKit shows funds are locked before you start, supports milestone approvals for faster payouts.</p>
+                <p className="text-zinc-400 text-sm mb-6 leading-relaxed">See locked funds before you start. Get paid faster with verified milestone approvals.</p>
                 <ul className="space-y-3 mt-auto">
                   <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Proof that funds are locked</li>
                   <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Milestone approvals and faster payouts</li>
@@ -591,7 +589,7 @@ export default function App() {
               <PremiumCard>
                 <div className="p-3 bg-emerald-500/10 rounded-xl w-fit mb-4"><Code2 size={24} className="text-emerald-500" /></div>
                 <h3 className="text-xl font-bold text-white mb-3">Developers</h3>
-                <p className="text-zinc-400 text-sm mb-6 leading-relaxed">Use contracts, SDK, UI components, indexer, API, and signed webhooks to integrate escrow flows in minutes.</p>
+                <p className="text-zinc-400 text-sm mb-6 leading-relaxed">Integrate escrow flows in minutes using our contracts, SDK, API, indexer, and UI components.</p>
                 <ul className="space-y-3 mt-auto">
                   <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> SDK and UI components for fast integration</li>
                   <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Indexer and API for real-time read models</li>
