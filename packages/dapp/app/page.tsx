@@ -343,7 +343,7 @@ const AnimatedStep = ({ number, title, desc }: { number: string, title: string, 
  * MAIN PAGE
  */
 export default function App() {
-  const headline = useTypewriter("EscrowKit - The Trustless Marketplace Engine", 45);
+  // const headline = useTypewriter("EscrowKit - The Trustless Marketplace Engine", 45);
   const subheadline = useTypewriter("Secure, milestone-based payments for marketplaces, freelancing, gigs, and rentals.", 35, 2500);
 
   return (
@@ -385,8 +385,9 @@ export default function App() {
         </FadeIn>
 
         <FadeIn delay={200}>
-          <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight mb-8 md:mb-10 min-h-[1.2em] leading-[1.05] bg-gradient-to-b from-white via-white to-zinc-500 bg-clip-text text-transparent">
-            {headline}
+          <h1 className="font-heading font-bold tracking-tighter mb-8 md:mb-10">
+            <span className="block text-6xl md:text-8xl lg:text-9xl text-emerald-500 mb-6 drop-shadow-[0_0_25px_rgba(16,185,129,0.3)]">EscrowKit</span>
+            <span className="block text-2xl md:text-5xl lg:text-6xl text-white font-medium opacity-90">The Trustless Marketplace Engine</span>
           </h1>
         </FadeIn>
 
