@@ -109,117 +109,92 @@ const FadeIn = ({ children, delay = 0, className = '' }: { children: React.React
 /**
  * HIGH-VISIBILITY INTERACTIVE WAVES
  */
-const InteractiveWaves = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const glowRef = useRef<HTMLDivElement>(null);
-  const waveRef = useRef<SVGSVGElement>(null);
+/**
+ * PARTICLE CONSTELLATION ANIMATION
+ */
+const ParticleConstellation = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    let rafId: number;
-    let targetX = 0;
-    let targetY = 0;
-    let currentX = 0;
-    let currentY = 0;
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      // Normalize coordinates -0.5 to 0.5
-      const load = 60; // Max displacement
-      targetX = (e.clientX / window.innerWidth - 0.5) * load;
-      targetY = (e.clientY / window.innerHeight - 0.5) * load;
+    const particles: { x: number, y: number, vx: number, vy: number }[] = [];
+    const particleCount = width < 768 ? 40 : 80;
 
-      // Update glow position immediately for responsiveness
-      if (glowRef.current) {
-        glowRef.current.style.transform = `translate(${e.clientX - 350}px, ${e.clientY - 350}px)`;
-      }
-    };
-
-    const animate = () => {
-      // Smooth interpolation for waves
-      currentX += (targetX - currentX) * 0.1;
-      currentY += (targetY - currentY) * 0.1;
-
-      if (waveRef.current) {
-        waveRef.current.style.transform = `translate(${currentX}px, ${currentY}px) scale(1.05)`;
-      }
-
-      rafId = requestAnimationFrame(animate);
-    };
-
-    // Only add listener on non-touch devices to save resources
-    const isTouch = window.matchMedia("(pointer: coarse)").matches;
-    if (!isTouch) {
-      window.addEventListener('mousemove', handleMouseMove);
-      rafId = requestAnimationFrame(animate);
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5
+      });
     }
 
+    let rafId: number;
+    const animate = () => {
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.4)';
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.15)';
+      ctx.lineWidth = 1;
+
+      particles.forEach((p, i) => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0) p.x = width;
+        if (p.x > width) p.x = 0;
+        if (p.y < 0) p.y = height;
+        if (p.y > height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dx = p.x - p2.x;
+          const dy = p.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 150) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
+        }
+      });
+      rafId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    const handleResize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    };
+
+    window.addEventListener('resize', handleResize);
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
       cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
   return (
-    <div ref={containerRef} className="fixed inset-0 z-0 overflow-hidden bg-[#010101] pointer-events-none will-change-transform" style={{ contain: 'paint' }}>
+    <div className="fixed inset-0 z-0 bg-[#010101] pointer-events-none">
       <div className="absolute inset-0 opacity-[0.25] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-
-      {/* Interactive Glow - Hidden on mobile via styling logic or simple display none if needed, checking media query in JS is better for performance */}
-      <div
-        ref={glowRef}
-        className="absolute w-[700px] h-[700px] bg-emerald-500/10 blur-[120px] rounded-full will-change-transform hidden md:block"
-        style={{ top: 0, left: 0 }} // Position handled by JS
-      />
-
-      <div className="absolute top-[-5%] left-[-5%] w-[40%] h-[40%] bg-emerald-500/10 blur-[150px] rounded-full" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-emerald-900/15 blur-[150px] rounded-full" />
-
-      <svg
-        ref={waveRef}
-        className="absolute inset-0 w-full h-full will-change-transform transition-transform duration-0" // Removed css duration, handled by JS
-        style={{ transform: `scale(1.05)` }} // Initial scale
-        viewBox="0 0 1600 900"
-        preserveAspectRatio="xMidYMid slice"
-      >
-        <defs>
-          <linearGradient id="vibrant-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="transparent" />
-            <stop offset="50%" stopColor="#10b981" />
-            <stop offset="100%" stopColor="transparent" />
-          </linearGradient>
-          <filter id="hyper-glow">
-            <feGaussianBlur stdDeviation="6" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-        </defs>
-        {[...Array(14)].map((_, i) => (
-          <path
-            key={i}
-            className={`wave-strand-v3-${i}`}
-            d={`M-300,${450 + (i - 7) * 22} C400,${200 - (i - 7) * 70} 1200,${700 + (i - 7) * 70} 1900,${450 - (i - 7) * 22}`}
-            fill="none"
-            stroke="url(#vibrant-grad)"
-            strokeWidth={1.8 + (i % 3 === 0 ? 1 : 0)}
-            strokeOpacity={0.6 - Math.abs(i - 7) * 0.05}
-            filter="url(#hyper-glow)"
-          />
-        ))}
-      </svg>
-      <style>{`
-        @keyframes pulse-flow {
-          0% { stroke-dashoffset: 3000; opacity: 0.4; }
-          50% { opacity: 0.5; }
-          100% { stroke-dashoffset: 0; opacity: 0.4; }
-        }
-        ${[...Array(14)].map((_, i) => `
-          .wave-strand-v3-${i} {
-            stroke-dasharray: 1500;
-            animation: pulse-flow ${18 + i * 2.5}s linear infinite;
-            animation-delay: ${i * -2.2}s;
-          }
-        `).join('')}
-      `}</style>
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-60" />
     </div>
   );
 };
@@ -373,7 +348,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#010101] text-zinc-100 font-sans selection:bg-emerald-500 selection:text-black antialiased overflow-x-hidden">
-      <InteractiveWaves />
+      <ParticleConstellation />
 
       {/* Navigation */}
       <nav className="relative z-50 h-20 md:h-24 px-4 md:px-16 flex items-center justify-between border-b border-white/[0.08] bg-[#010101]/40 backdrop-blur-xl">
@@ -717,16 +692,18 @@ export default function App() {
                   <h3 className="text-2xl font-bold text-white">Get Started Instantly</h3>
                 </div>
                 <DeveloperTerminal />
-                <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="flex-1">
-                  <button className="w-full py-3 rounded-xl bg-zinc-900 border border-white/10 hover:border-emerald-500/50 hover:text-emerald-500 transition-colors text-zinc-400 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
-                    <BookOpen size={14} /> View Documentation
-                  </button>
-                </Link>
-                <Link href="https://github.com/chetanya1998/EscrowKit/fork" target="_blank" className="flex-1">
-                  <button className="w-full py-3 rounded-xl bg-zinc-900 border border-white/10 hover:border-emerald-500/50 hover:text-emerald-500 transition-colors text-zinc-400 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
-                    <Github size={14} /> Fork Repo
-                  </button>
-                </Link>
+                <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                  <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="flex-1">
+                    <button className="w-full py-4 rounded-xl bg-zinc-900 border border-white/10 hover:border-emerald-500/50 hover:text-emerald-500 transition-colors text-zinc-400 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg">
+                      <BookOpen size={14} /> View Documentation
+                    </button>
+                  </Link>
+                  <Link href="https://github.com/chetanya1998/EscrowKit/fork" target="_blank" className="flex-1">
+                    <button className="w-full py-4 rounded-xl bg-zinc-900 border border-white/10 hover:border-emerald-500/50 hover:text-emerald-500 transition-colors text-zinc-400 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg">
+                      <Github size={14} /> Fork Repo
+                    </button>
+                  </Link>
+                </div>
               </div>
             </FadeIn>
 
@@ -790,9 +767,6 @@ export default function App() {
                 <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tighter text-white">Future Roadmap</h2>
                 <p className="text-zinc-400">See what we are building next.</p>
               </div>
-              <a href="https://github.com/chetanya1998/EscrowKit/issues" target="_blank" className="flex items-center gap-2 text-emerald-500 font-bold uppercase tracking-widest text-xs hover:text-emerald-400">
-                View Issues on GitHub <ArrowRight size={14} />
-              </a>
             </div>
           </FadeIn>
 
@@ -863,11 +837,6 @@ export default function App() {
               Use milestone-based payments and dispute workflows without building escrow from scratch.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/dashboard">
-                <button className="group relative inline-flex items-center gap-3 px-10 py-4 bg-emerald-500 text-black rounded-full font-bold text-sm uppercase tracking-widest hover:bg-emerald-400 transition-all overflow-hidden shadow-[0_0_40px_rgba(16,185,129,0.3)]">
-                  <LayoutDashboard size={18} /> Start with the Dashboard
-                </button>
-              </Link>
               <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank" id="docs">
                 <button className="inline-flex items-center gap-3 px-10 py-4 border border-white/20 text-white rounded-full font-bold text-sm uppercase tracking-widest hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all">
                   <Github size={18} /> View Docs and GitHub
