@@ -368,8 +368,8 @@ const AnimatedStep = ({ number, title, desc }: { number: string, title: string, 
  * MAIN PAGE
  */
 export default function App() {
-  const headline = useTypewriter("EscrowKit — Safe Payments for Online Work", 45);
-  const subheadline = useTypewriter("Pay only when work is approved. Get paid when you deliver.", 35, 2500);
+  const headline = useTypewriter("EscrowKit — The Trustless Marketplace Engine", 45);
+  const subheadline = useTypewriter("Secure, milestone-based payments for marketplaces, freelancing, gigs, and rentals.", 35, 2500);
 
   return (
     <div className="min-h-screen bg-[#010101] text-zinc-100 font-sans selection:bg-emerald-500 selection:text-black antialiased overflow-x-hidden">
@@ -388,10 +388,11 @@ export default function App() {
           <span className="font-bold text-2xl tracking-tighter text-white">EscrowKit</span>
         </div>
         <div className="hidden lg:flex gap-12 text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-300">
-          <a href="#dashboard" className="hover:text-emerald-400 transition-colors">Platform</a>
-          <a href="#how" className="hover:text-emerald-400 transition-colors">Process</a>
-          <a href="#open-source" className="hover:text-emerald-400 transition-colors">Developers</a>
-          <a href="#roadmap" className="hover:text-emerald-400 transition-colors">Roadmap</a>
+          <a href="#how" className="hover:text-emerald-400 transition-colors">How It Works</a>
+          <a href="#audience" className="hover:text-emerald-400 transition-colors">Who It{"'s"} For</a>
+          <a href="#features" className="hover:text-emerald-400 transition-colors">Features</a>
+          <a href="#integrate" className="hover:text-emerald-400 transition-colors">Integrate</a>
+          <a href="#open-source" className="hover:text-emerald-400 transition-colors">Open Source</a>
         </div>
         <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank">
           <button className="flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-[10px] tracking-widest uppercase border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-white/5">
@@ -404,7 +405,7 @@ export default function App() {
       <section className="relative z-10 pt-20 pb-20 md:pt-28 md:pb-32 px-6 max-w-6xl mx-auto text-center">
         <FadeIn delay={100}>
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-bold tracking-[0.4em] uppercase text-emerald-400 mb-14 backdrop-blur-md shadow-lg shadow-emerald-500/10">
-            <Zap size={12} className="fill-emerald-400" /> Milestone Security v4
+            <Zap size={12} className="fill-emerald-400" /> The Trustless Marketplace Engine
           </div>
         </FadeIn>
 
@@ -415,18 +416,26 @@ export default function App() {
         </FadeIn>
 
         <FadeIn delay={300}>
-          <p className="text-zinc-300 text-lg md:text-2xl max-w-3xl mx-auto mb-10 md:mb-16 min-h-[3.2em] leading-relaxed font-light">
+          <p className="text-zinc-300 text-lg md:text-2xl max-w-3xl mx-auto mb-6 min-h-[3.2em] leading-relaxed font-light">
             {subheadline}
+          </p>
+          <p className="text-zinc-500 text-base md:text-lg max-w-2xl mx-auto mb-10 md:mb-16 leading-relaxed">
+            EscrowKit helps two people transact safely online: buyers pay only when work is approved, and sellers get paid when they deliver, with disputes handled through a chosen arbiter or decentralized arbitration.
           </p>
         </FadeIn>
 
         <FadeIn delay={400}>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-8 mb-16 md:mb-24 px-4">
-            <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank">
+            <a href="#get-started">
               <button className="bg-emerald-500 text-black h-14 md:h-16 px-10 md:px-14 rounded-full font-bold text-base md:text-lg hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all w-full sm:w-auto flex items-center gap-3">
-                <Github size={20} /> Check Out on GitHub
+                <ArrowRight size={20} /> Get Started
               </button>
-            </Link>
+            </a>
+            <a href="#integrate">
+              <button className="h-14 md:h-16 px-10 md:px-14 rounded-full font-bold text-base md:text-lg border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-white/5 w-full sm:w-auto flex items-center gap-3">
+                <Code2 size={20} /> Integrate EscrowKit
+              </button>
+            </a>
           </div>
         </FadeIn>
 
@@ -438,11 +447,18 @@ export default function App() {
         </FadeIn>
 
         <FadeIn delay={600}>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
-            {['Milestone Secure', 'Arbiter Logic', 'Instant Release', 'Audit Verified', 'Transparent'].map(item => (
-              <span key={item} className="text-[11px] font-black uppercase tracking-[0.4em] text-center text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
-                {item}
-              </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6 md:gap-4">
+            {[
+              'Non-custodial: funds stay in smart contracts',
+              'Milestone-based: pay in steps, not upfront',
+              'Dispute-ready: built-in arbitration flow',
+              'Transparent: real-time tracking for both parties',
+              'Open-source: auditable, self-hostable, composable'
+            ].map(item => (
+              <div key={item} className="flex items-center gap-2 justify-center px-3 py-2 rounded-full bg-zinc-900/50 border border-white/5">
+                <CheckCircle2 size={12} className="text-emerald-500 shrink-0" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-300 text-center">{item}</span>
+              </div>
             ))}
           </div>
         </FadeIn>
@@ -454,31 +470,225 @@ export default function App() {
           <FadeIn>
             <h2 className="text-4xl md:text-5xl font-bold mb-8 tracking-tighter text-white">How it works.</h2>
             <p className="text-zinc-400 text-lg mb-16 leading-relaxed max-w-xl mx-auto">
-              A simple, transparent process that keeps everyone honest. No hidden fees, no surprise chargebacks.
+              A simple four-step process that keeps everyone honest and protected.
             </p>
           </FadeIn>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-left">
             <FadeIn delay={100}>
               <AnimatedStep
                 number="01"
-                title="Create Contract"
-                desc="Define the project scope, set milestones, and choose a neutral arbiter."
+                title="Create an Escrow"
+                desc="Set payer, payee, and optional arbiter. Define milestones with amounts and deadlines or deposit terms."
               />
             </FadeIn>
             <FadeIn delay={200}>
               <AnimatedStep
                 number="02"
-                title="Fund Vault"
-                desc="Buyer deposits funds into the secure smart contract. Funds are locked."
+                title="Fund Securely"
+                desc="Buyer funds the escrow once. Funds are locked safely in the smart contract."
               />
             </FadeIn>
             <FadeIn delay={300}>
               <AnimatedStep
                 number="03"
-                title="Release Payment"
-                desc="Freelancer submits work. Buyer approves. Funds are released instantly."
+                title="Deliver & Approve"
+                desc="Provider submits proof of work using a link or file hash. Buyer approves to release funds instantly or opens a dispute."
               />
+            </FadeIn>
+            <FadeIn delay={400}>
+              <AnimatedStep
+                number="04"
+                title="Resolve Disputes"
+                desc="An arbiter or decentralized arbitration decides the outcome. Funds are released or refunded accordingly."
+              />
+            </FadeIn>
+          </div>
+        </div>
+      </section>
+
+      {/* PROBLEM SECTION */}
+      <section className="relative z-10 py-20 md:py-32 px-6 border-t border-white/5">
+        <div className="max-w-6xl mx-auto">
+          <FadeIn>
+            <h2 className="text-4xl md:text-5xl font-bold mb-16 tracking-tighter text-white text-center">Online work fails because trust is missing.</h2>
+          </FadeIn>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            <FadeIn delay={100}>
+              <PremiumCard>
+                <h3 className="text-xl font-bold text-white mb-6">For buyers and clients</h3>
+                <ul className="space-y-4">
+                  <li className="flex items-start gap-3 text-zinc-400"><Lock size={18} className="text-red-400 shrink-0 mt-0.5" /> Worried about paying and not getting delivery</li>
+                  <li className="flex items-start gap-3 text-zinc-400"><Lock size={18} className="text-red-400 shrink-0 mt-0.5" /> Worried about quality not matching the agreement</li>
+                </ul>
+              </PremiumCard>
+            </FadeIn>
+            <FadeIn delay={200}>
+              <PremiumCard>
+                <h3 className="text-xl font-bold text-white mb-6">For freelancers and providers</h3>
+                <ul className="space-y-4">
+                  <li className="flex items-start gap-3 text-zinc-400"><Lock size={18} className="text-red-400 shrink-0 mt-0.5" /> Worried about clients disappearing after delivery</li>
+                  <li className="flex items-start gap-3 text-zinc-400"><Lock size={18} className="text-red-400 shrink-0 mt-0.5" /> Worried about payments getting delayed indefinitely</li>
+                </ul>
+              </PremiumCard>
+            </FadeIn>
+          </div>
+          <FadeIn delay={300}>
+            <p className="text-center text-zinc-300 text-lg md:text-xl max-w-3xl mx-auto font-light leading-relaxed">
+              EscrowKit removes this risk by locking funds and releasing them only when conditions are met.
+            </p>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* WHAT IT IS SECTION */}
+      <section className="relative z-10 py-20 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5">
+        <div className="max-w-4xl mx-auto text-center">
+          <FadeIn>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-widest border border-emerald-500/20 mb-6">
+              <ShieldCheck size={12} /> What is EscrowKit
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-8 tracking-tighter text-white">A plug-and-play escrow layer for any platform.</h2>
+            <p className="text-zinc-400 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto">
+              EscrowKit is a full-stack boxed solution you can use directly or embed into your marketplace. It includes smart contracts for escrow logic, a dashboard for users, an indexer and API for real-time tracking, webhooks for syncing events into your product, and an SDK for easy integration.
+            </p>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* AUDIENCE SECTION */}
+      <section id="audience" className="relative z-10 py-20 md:py-32 px-6 border-t border-white/5">
+        <div className="max-w-6xl mx-auto">
+          <FadeIn>
+            <h2 className="text-4xl md:text-5xl font-bold mb-16 tracking-tighter text-white text-center">Who it{"'"}s for.</h2>
+          </FadeIn>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <FadeIn delay={100}>
+              <PremiumCard highlight>
+                <div className="p-3 bg-emerald-500/10 rounded-xl w-fit mb-4"><Briefcase size={24} className="text-emerald-500" /></div>
+                <h3 className="text-xl font-bold text-white mb-3">Founders and SMEs</h3>
+                <p className="text-zinc-400 text-sm mb-6 leading-relaxed">If you run a marketplace or regularly hire freelancers, EscrowKit gives you safer payments without building escrow from scratch.</p>
+                <ul className="space-y-3 mt-auto">
+                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Safer payments without rebuilding escrow</li>
+                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Reduced disputes and support load</li>
+                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Full audit timeline across all actions</li>
+                </ul>
+              </PremiumCard>
+            </FadeIn>
+            <FadeIn delay={200}>
+              <PremiumCard>
+                <div className="p-3 bg-emerald-500/10 rounded-xl w-fit mb-4"><Users size={24} className="text-emerald-500" /></div>
+                <h3 className="text-xl font-bold text-white mb-3">Freelancers and service providers</h3>
+                <p className="text-zinc-400 text-sm mb-6 leading-relaxed">EscrowKit shows funds are locked before you start, supports milestone approvals for faster payouts.</p>
+                <ul className="space-y-3 mt-auto">
+                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Proof that funds are locked</li>
+                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Milestone approvals and faster payouts</li>
+                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Clear dispute path when needed</li>
+                </ul>
+              </PremiumCard>
+            </FadeIn>
+            <FadeIn delay={300}>
+              <PremiumCard>
+                <div className="p-3 bg-emerald-500/10 rounded-xl w-fit mb-4"><Code2 size={24} className="text-emerald-500" /></div>
+                <h3 className="text-xl font-bold text-white mb-3">Developers</h3>
+                <p className="text-zinc-400 text-sm mb-6 leading-relaxed">Use contracts, SDK, UI components, indexer, API, and signed webhooks to integrate escrow flows in minutes.</p>
+                <ul className="space-y-3 mt-auto">
+                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> SDK and UI components for fast integration</li>
+                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Indexer and API for real-time read models</li>
+                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Signed webhooks for platform sync</li>
+                </ul>
+              </PremiumCard>
+            </FadeIn>
+          </div>
+        </div>
+      </section>
+
+      {/* USE CASES SECTION */}
+      <section className="relative z-10 py-20 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5">
+        <div className="max-w-6xl mx-auto">
+          <FadeIn>
+            <h2 className="text-4xl md:text-5xl font-bold mb-16 tracking-tighter text-white text-center">What you can build with it.</h2>
+          </FadeIn>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+            {[
+              { icon: <Briefcase size={20} />, title: 'Freelance milestones', desc: 'Design, build, deliver, and handover with staged payments.' },
+              { icon: <Zap size={20} />, title: 'Gig work', desc: 'Small tasks with fast approvals.' },
+              { icon: <Store size={20} />, title: 'Rental deposits', desc: 'Deposit, claims, disputes, and resolution.' },
+              { icon: <Globe size={20} />, title: 'B2B procurement', desc: 'Vendor milestones with audit trail and approvals.' },
+              { icon: <MessageCircle size={20} />, title: 'Creator collaborations', desc: 'Staged payouts tied to deliverables.' },
+            ].map((item, i) => (
+              <FadeIn key={item.title} delay={i * 100}>
+                <div className="bg-zinc-900/30 border border-white/5 p-6 rounded-2xl hover:border-emerald-500/30 transition-all h-full">
+                  <div className="p-3 bg-zinc-900 rounded-xl text-emerald-500 w-fit mb-4">{item.icon}</div>
+                  <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed">{item.desc}</p>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* KEY FEATURES SECTION */}
+      <section id="features" className="relative z-10 py-20 md:py-32 px-6 border-t border-white/5">
+        <div className="max-w-6xl mx-auto">
+          <FadeIn>
+            <h2 className="text-4xl md:text-5xl font-bold mb-16 tracking-tighter text-white text-center">Key features.</h2>
+          </FadeIn>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {[
+              { title: 'Milestone escrow', points: ['Add milestones with descriptions, amounts, and deadlines', 'Provider submits deliverable proof as a hash', 'Approve to release funds or refund after deadline'] },
+              { title: 'Rental deposit escrow', points: ['Deposit locked until the rental ends', 'Landlord can claim with a reason within a claim window', 'Tenant can accept or dispute, arbiter can resolve'] },
+              { title: 'Dispute system', points: ['Dispute opening by payer or payee', 'Pluggable arbitration adapters', 'Supports trusted arbiter flow and decentralized arbitration'] },
+              { title: 'Automated verification', points: ['Optional verification oracle for condition checks', 'Automated milestone approvals when conditions are verified'] },
+            ].map((feature, i) => (
+              <FadeIn key={feature.title} delay={i * 100}>
+                <PremiumCard className="h-full">
+                  <h3 className="text-xl font-bold text-white mb-6">{feature.title}</h3>
+                  <ul className="space-y-3">
+                    {feature.points.map(point => (
+                      <li key={point} className="flex items-start gap-3 text-sm text-zinc-300">
+                        <CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> {point}
+                      </li>
+                    ))}
+                  </ul>
+                </PremiumCard>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* INTEGRATION SECTION */}
+      <section id="integrate" className="relative z-10 py-20 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5">
+        <div className="max-w-6xl mx-auto">
+          <FadeIn>
+            <h2 className="text-4xl md:text-5xl font-bold mb-16 tracking-tighter text-white text-center">Integrate EscrowKit into your product.</h2>
+          </FadeIn>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <FadeIn delay={100}>
+              <PremiumCard highlight className="h-full">
+                <div className="p-3 bg-emerald-500/10 rounded-xl w-fit mb-4"><LayoutDashboard size={24} className="text-emerald-500" /></div>
+                <h3 className="text-xl font-bold text-white mb-4">Use the EscrowKit dashboard</h3>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Create escrows using templates</li>
+                  <li className="flex items-start gap-3 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Track milestones and disputes</li>
+                  <li className="flex items-start gap-3 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Manage API keys and settings</li>
+                </ul>
+              </PremiumCard>
+            </FadeIn>
+            <FadeIn delay={200}>
+              <PremiumCard className="h-full">
+                <div className="p-3 bg-emerald-500/10 rounded-xl w-fit mb-4"><Terminal size={24} className="text-emerald-500" /></div>
+                <h3 className="text-xl font-bold text-white mb-4">Embed EscrowKit into your platform</h3>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Deploy the factory and spawn escrow instances</li>
+                  <li className="flex items-start gap-3 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Run the indexer to sync events into a database</li>
+                  <li className="flex items-start gap-3 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Use signed webhooks to update your system in real time</li>
+                  <li className="flex items-start gap-3 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Use the API and transaction helpers to power your UI</li>
+                  <li className="flex items-start gap-3 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Use the TypeScript SDK for integration</li>
+                </ul>
+              </PremiumCard>
             </FadeIn>
           </div>
         </div>
@@ -492,10 +702,10 @@ export default function App() {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-widest border border-blue-500/20 mb-6">
                 <Code2 size={12} /> Developer Hub
               </div>
-              <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tighter bg-gradient-to-b from-white to-zinc-500 bg-clip-text text-transparent italic">Built for Developers.</h2>
+              <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tighter bg-gradient-to-b from-white to-zinc-500 bg-clip-text text-transparent italic">Open-source and community-built.</h2>
               <div className="w-24 h-1 bg-emerald-500 mx-auto rounded-full mb-8 shadow-lg shadow-emerald-500/50" />
               <p className="text-zinc-300 text-xl max-w-2xl mx-auto font-light leading-relaxed">
-                EscrowKit is 100% open source. Start building trustless marketplaces in minutes, not months.
+                EscrowKit is open-source. You can self-host it, audit it, and extend it with templates and adapters.
               </p>
             </div>
           </FadeIn>
@@ -531,28 +741,40 @@ export default function App() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <ContributionCard
-                    icon={<Cpu size={20} />}
-                    title="Core Protocol"
-                    desc="Optimize gas usage in our Solidity smart contracts."
-                    tag="Hardhat"
+                    icon={<Plus size={20} />}
+                    title="Escrow Templates"
+                    desc="Add new escrow templates for different industries."
+                    tag="Solidity"
                   />
                   <ContributionCard
                     icon={<LayoutDashboard size={20} />}
-                    title="UI Components"
-                    desc="Enhance the React SDK with new visual themes."
+                    title="Dashboard UX"
+                    desc="Improve dashboard UX and responsiveness."
                     tag="React"
                   />
                   <ContributionCard
-                    icon={<Database size={20} />}
-                    title="Indexer API"
-                    desc="Improve query speed for transaction history."
-                    tag="GraphQL"
+                    icon={<Code2 size={20} />}
+                    title="SDK Methods"
+                    desc="Expand the SDK with submit, approve, dispute, and rental methods."
+                    tag="TypeScript"
                   />
                   <ContributionCard
-                    icon={<Bug size={20} />}
-                    title="Security"
-                    desc="Find vulnerabilities and earn bounties."
-                    tag="Audits"
+                    icon={<Database size={20} />}
+                    title="Indexer Tooling"
+                    desc="Add historical backfill and replay tooling."
+                    tag="Node.js"
+                  />
+                  <ContributionCard
+                    icon={<Scale size={20} />}
+                    title="Arbitration Adapters"
+                    desc="Build arbitration adapters and verification integrations."
+                    tag="Solidity"
+                  />
+                  <ContributionCard
+                    icon={<BookOpen size={20} />}
+                    title="Documentation"
+                    desc="Improve documentation and integration recipes."
+                    tag="Docs"
                   />
                 </div>
               </div>
@@ -605,26 +827,83 @@ export default function App() {
         </div>
       </section>
 
-      {/* NEW GITHUB CTA SECTION */}
-      <section className="relative z-10 py-24 px-6 border-t border-white/5 bg-[#050505]">
+      {/* CREDIBILITY SECTION */}
+      <section className="relative z-10 py-20 md:py-32 px-6 border-t border-white/5 bg-[#050505]">
+        <div className="max-w-4xl mx-auto text-center">
+          <FadeIn>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-12 tracking-tight">Built for strong foundations.</h2>
+          </FadeIn>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {[
+              'Non-custodial by design',
+              'Indexer writes and API reads for clean scaling',
+              'Signed webhooks for authenticity verification',
+              'Open-source monorepo with contracts, indexer, API, dApp, SDK, and docs',
+              'CI pipeline with build and contract tests',
+              'Active development and deployed on Railway',
+            ].map((item, i) => (
+              <FadeIn key={item} delay={i * 80}>
+                <div className="flex items-center gap-3 bg-zinc-900/30 border border-white/5 p-4 rounded-xl">
+                  <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+                  <span className="text-sm text-zinc-300 text-left">{item}</span>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA SECTION */}
+      <section id="get-started" className="relative z-10 py-24 px-6 border-t border-white/5">
         <div className="max-w-4xl mx-auto text-center">
           <FadeIn>
             <div className="w-20 h-20 mx-auto mb-8 bg-zinc-900 rounded-2xl flex items-center justify-center border border-white/10 shadow-2xl">
-              <Github size={40} className="text-white" />
+              <ShieldCheck size={40} className="text-emerald-500" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">Open Source & Transparent.</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">Add trustless escrow to your product.</h2>
             <p className="text-zinc-400 text-lg mb-10 max-w-xl mx-auto">
-              Verify every line of code. Contribute to the future of trustless payments. Join us on GitHub.
+              Use milestone-based payments and dispute workflows without building escrow from scratch.
             </p>
-            <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank">
-              <button className="group relative inline-flex items-center gap-3 px-10 py-4 bg-white text-black rounded-full font-bold text-sm uppercase tracking-widest hover:bg-zinc-200 transition-all overflow-hidden">
-                <span className="relative z-10 flex items-center gap-2">
-                  <Github size={18} /> Star on GitHub
-                </span>
-                <div className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-500/10 transition-colors" />
-              </button>
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/dashboard">
+                <button className="group relative inline-flex items-center gap-3 px-10 py-4 bg-emerald-500 text-black rounded-full font-bold text-sm uppercase tracking-widest hover:bg-emerald-400 transition-all overflow-hidden shadow-[0_0_40px_rgba(16,185,129,0.3)]">
+                  <LayoutDashboard size={18} /> Start with the Dashboard
+                </button>
+              </Link>
+              <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank" id="docs">
+                <button className="inline-flex items-center gap-3 px-10 py-4 border border-white/20 text-white rounded-full font-bold text-sm uppercase tracking-widest hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all">
+                  <Github size={18} /> View Docs and GitHub
+                </button>
+              </Link>
+            </div>
           </FadeIn>
+        </div>
+      </section>
+
+      {/* FAQ SECTION */}
+      <section className="relative z-10 py-20 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5">
+        <div className="max-w-3xl mx-auto">
+          <FadeIn>
+            <h2 className="text-4xl md:text-5xl font-bold mb-16 tracking-tighter text-white text-center">FAQ</h2>
+          </FadeIn>
+          <div className="space-y-4">
+            {[
+              { q: 'Do I need to know coding to use EscrowKit?', a: 'No. You can use the dashboard to create and manage escrows. Developers can integrate EscrowKit into a platform for a deeper experience.' },
+              { q: 'Where is the money stored?', a: 'Funds are held in smart contracts. The platform operator does not custody funds.' },
+              { q: 'What happens in a dispute?', a: 'A chosen arbiter or a decentralized arbitration adapter can resolve disputes based on evidence.' },
+              { q: 'Can I integrate EscrowKit into my existing product?', a: 'Yes. Use the SDK, API, indexer, and signed webhooks to sync escrow events and state into your system.' },
+            ].map((faq, i) => (
+              <FadeIn key={faq.q} delay={i * 80}>
+                <details className="group bg-zinc-900/30 border border-white/5 rounded-2xl overflow-hidden hover:border-emerald-500/30 transition-colors">
+                  <summary className="flex items-center justify-between p-6 cursor-pointer list-none">
+                    <span className="text-white font-bold text-lg pr-4">{faq.q}</span>
+                    <ChevronRight size={18} className="text-zinc-500 group-open:rotate-90 transition-transform shrink-0" />
+                  </summary>
+                  <div className="px-6 pb-6 text-zinc-400 leading-relaxed">{faq.a}</div>
+                </details>
+              </FadeIn>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -636,17 +915,19 @@ export default function App() {
               <ShieldCheck className="text-emerald-500" size={32} />
               <span className="font-bold text-3xl tracking-tighter text-white uppercase">EscrowKit</span>
             </Link>
-            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.5em]">Global Trust Protocol</p>
+            <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.5em]">The Trustless Marketplace Engine</p>
           </div>
 
-          <div className="flex gap-12 text-[11px] font-bold uppercase tracking-[0.3em] text-zinc-300">
-            {["Docs", "GitHub", "Privacy", "Contact"].map(l => (
-              <a key={l} href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="hover:text-emerald-400 transition-colors">{l}</a>
-            ))}
+          <div className="flex gap-8 md:gap-12 text-[11px] font-bold uppercase tracking-[0.3em] text-zinc-300 flex-wrap justify-center">
+            <a href="/docs" className="hover:text-emerald-400 transition-colors">Docs</a>
+            <a href="#roadmap" className="hover:text-emerald-400 transition-colors">Roadmap</a>
+            <a href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="hover:text-emerald-400 transition-colors">Contribute</a>
+            <a href="https://github.com/chetanya1998/EscrowKit/blob/main/LICENSE" target="_blank" className="hover:text-emerald-400 transition-colors">License</a>
+            <a href="https://github.com/chetanya1998/EscrowKit/issues" target="_blank" className="hover:text-emerald-400 transition-colors">Contact</a>
           </div>
 
           <div className="text-[10px] font-mono text-zinc-800">
-            SEC_v4.2 // EMERALD_NET_PROD
+            © 2024 EscrowKit
           </div>
         </div>
       </footer>
