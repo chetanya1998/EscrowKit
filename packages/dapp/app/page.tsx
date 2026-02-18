@@ -22,6 +22,7 @@ import {
   Search,
   Bell,
   Menu,
+  X,
   FileText,
   CreditCard,
   Settings,
@@ -345,6 +346,7 @@ const AnimatedStep = ({ number, title, desc }: { number: string, title: string, 
 export default function App() {
   // const headline = useTypewriter("EscrowKit - The Trustless Marketplace Engine", 45);
   const subheadline = useTypewriter("Secure, milestone-based payments for marketplaces, freelancing, gigs, and rentals.", 35, 2500);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#010101] text-zinc-100 font-sans selection:bg-emerald-500 selection:text-black antialiased overflow-x-hidden">
@@ -369,12 +371,28 @@ export default function App() {
           <a href="#integrate" className="hover:text-emerald-400 transition-colors">Integrate</a>
           <a href="#open-source" className="hover:text-emerald-400 transition-colors">Open Source</a>
         </div>
-        <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank">
-          <button className="flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-xs tracking-widest uppercase border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-white/5">
-            <Github size={14} /> View on GitHub
+        <div className="flex items-center gap-4">
+          <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank">
+            <button className="flex items-center gap-2 px-3 md:px-6 py-2.5 rounded-full font-bold text-xs tracking-widest uppercase border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-white/5">
+              <Github size={14} /> <span className="hidden sm:inline">View on GitHub</span>
+            </button>
+          </Link>
+          <button className="lg:hidden p-2 text-white hover:text-emerald-400 transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-        </Link>
+        </div>
       </nav>
+
+      {/* Mobile Menu Overlay */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-40 bg-black/95 pt-24 px-6 lg:hidden flex flex-col gap-8 animate-in slide-in-from-top-10 duration-200">
+          <a href="#how" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-white hover:text-emerald-400">How It Works</a>
+          <a href="#audience" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-white hover:text-emerald-400">Who It{"'s"} For</a>
+          <a href="#features" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-white hover:text-emerald-400">Features</a>
+          <a href="#integrate" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-white hover:text-emerald-400">Integrate</a>
+          <a href="#open-source" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-white hover:text-emerald-400">Open Source</a>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section className="relative z-10 pt-20 pb-20 md:pt-28 md:pb-32 px-6 max-w-6xl mx-auto text-center">
@@ -880,8 +898,13 @@ export default function App() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10 md:gap-16">
           <div className="flex flex-col gap-5 text-center md:text-left">
             <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="flex items-center gap-3 justify-center md:justify-start hover:opacity-80 transition-opacity">
-              <ShieldCheck className="text-emerald-500" size={32} />
-              <span className="font-bold text-3xl tracking-tighter text-white uppercase">EscrowKit</span>
+              <div className="w-10 h-10 flex items-center justify-center">
+                <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 drop-shadow-[0_0_12px_rgba(16,185,129,0.7)]">
+                  <path d="M20 2L4 9v10c0 9.4 6.8 18.2 16 20.4C29.2 37.2 36 28.4 36 19V9L20 2z" fill="#10b981" />
+                  <text x="20" y="26" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold" fontFamily="system-ui, sans-serif">EK</text>
+                </svg>
+              </div>
+              <span className="font-bold text-2xl tracking-tighter text-white">EscrowKit</span>
             </Link>
             <p className="text-zinc-500 text-[10px] font-bold uppercase tracking-[0.5em]">The Trustless Marketplace Engine</p>
           </div>
