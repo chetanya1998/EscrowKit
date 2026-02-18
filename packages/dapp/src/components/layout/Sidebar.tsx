@@ -2,7 +2,6 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { LayoutDashboard, Wallet, Gavel, FileText, Settings, PlusCircle } from "lucide-react"
@@ -43,9 +42,10 @@ export function Sidebar() {
             <div className="flex h-full flex-col gap-2">
                 <div className="flex h-16 items-center border-b px-6">
                     <Link href="/" className="flex items-center gap-2 font-semibold">
-                        <div className="w-6 h-6 flex items-center justify-center">
-                            <Image src="/escrowkit-logo.png" alt="EscrowKit" width={24} height={24} className="object-contain drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]" priority />
-                        </div>
+                        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+                            <path d="M20 2L4 9v10c0 9.4 6.8 18.2 16 20.4C29.2 37.2 36 28.4 36 19V9L20 2z" fill="#10b981" />
+                            <text x="20" y="26" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold" fontFamily="system-ui, sans-serif">EK</text>
+                        </svg>
                         <span className="text-lg text-neutral-50">EscrowKit</span>
                     </Link>
                 </div>

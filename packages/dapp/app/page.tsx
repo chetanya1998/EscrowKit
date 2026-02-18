@@ -37,7 +37,6 @@ import {
   Bug
 } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 
 /**
  * HOOKS & UTILITIES
@@ -379,9 +378,12 @@ export default function App() {
       {/* Navigation */}
       <nav className="relative z-50 h-20 md:h-24 px-4 md:px-16 flex items-center justify-between border-b border-white/[0.08] bg-[#010101]/40 backdrop-blur-xl">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden">
-            {/* Premium Logo */}
-            <Image src="/escrowkit-logo.png" alt="EscrowKit Logo" width={40} height={40} className="object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.6)]" priority />
+          <div className="w-10 h-10 flex items-center justify-center">
+            {/* Inline SVG Logo - always renders */}
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 drop-shadow-[0_0_12px_rgba(16,185,129,0.7)]">
+              <path d="M20 2L4 9v10c0 9.4 6.8 18.2 16 20.4C29.2 37.2 36 28.4 36 19V9L20 2z" fill="#10b981" />
+              <text x="20" y="26" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold" fontFamily="system-ui, sans-serif">EK</text>
+            </svg>
           </div>
           <span className="font-bold text-2xl tracking-tighter text-white">EscrowKit</span>
         </div>
