@@ -206,7 +206,7 @@ const PremiumCard = ({ children, className = '', highlight = false }: { children
   return (
     <div className={`
       relative group bg-[#0a0a0a]/85 backdrop-blur-3xl border border-white/[0.1] rounded-[2rem] p-8 
-      transition-all duration-500 hover:border-emerald-500/50 hover:-translate-y-2 
+      transition-all duration-500 hover:border-emerald-500/50 hover:-translate-y-2 h-full
       ${highlight ? 'border-emerald-500/40 shadow-[0_0_60px_rgba(16,185,129,0.1)]' : ''}
       ${className}
     `}>
@@ -334,8 +334,8 @@ const AnimatedStep = ({ number, title, desc }: { number: string, title: string, 
     <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 group-hover:border-emerald-500/50 group-hover:shadow-emerald-500/20 transition-all">
       <span className="text-2xl font-black text-zinc-500 group-hover:text-emerald-400 transition-colors">{number}</span>
     </div>
-    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-emerald-300 transition-colors">{title}</h3>
-    <p className="text-zinc-400 text-sm leading-relaxed max-w-xs">{desc}</p>
+    <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-emerald-300 transition-colors">{title}</h3>
+    <p className="text-zinc-400 text-base leading-relaxed max-w-xs">{desc}</p>
   </div>
 );
 
@@ -362,7 +362,7 @@ export default function App() {
           </div>
           <span className="font-bold text-2xl tracking-tighter text-white">EscrowKit</span>
         </div>
-        <div className="hidden lg:flex gap-12 text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-300">
+        <div className="hidden lg:flex gap-12 text-xs font-bold uppercase tracking-[0.3em] text-zinc-300">
           <a href="#how" className="hover:text-emerald-400 transition-colors">How It Works</a>
           <a href="#audience" className="hover:text-emerald-400 transition-colors">Who It{"'s"} For</a>
           <a href="#features" className="hover:text-emerald-400 transition-colors">Features</a>
@@ -370,7 +370,7 @@ export default function App() {
           <a href="#open-source" className="hover:text-emerald-400 transition-colors">Open Source</a>
         </div>
         <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank">
-          <button className="flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-[10px] tracking-widest uppercase border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-white/5">
+          <button className="flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-xs tracking-widest uppercase border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-white/5">
             <Github size={14} /> View on GitHub
           </button>
         </Link>
@@ -490,19 +490,19 @@ export default function App() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
             <FadeIn delay={100}>
               <PremiumCard>
-                <h3 className="text-xl font-bold text-white mb-6">For buyers and clients</h3>
+                <h3 className="text-2xl font-bold text-white mb-6">For buyers and clients</h3>
                 <ul className="space-y-4">
-                  <li className="flex items-start gap-3 text-zinc-400"><Lock size={18} className="text-red-400 shrink-0 mt-0.5" /> Worried about paying and not getting delivery</li>
-                  <li className="flex items-start gap-3 text-zinc-400"><Lock size={18} className="text-red-400 shrink-0 mt-0.5" /> Worried about quality not matching the agreement</li>
+                  <li className="flex items-start gap-3 text-base text-zinc-400"><Lock size={18} className="text-red-400 shrink-0 mt-0.5" /> Worried about paying and not getting delivery</li>
+                  <li className="flex items-start gap-3 text-base text-zinc-400"><Lock size={18} className="text-red-400 shrink-0 mt-0.5" /> Worried about quality not matching the agreement</li>
                 </ul>
               </PremiumCard>
             </FadeIn>
             <FadeIn delay={200}>
               <PremiumCard>
-                <h3 className="text-xl font-bold text-white mb-6">For freelancers and providers</h3>
+                <h3 className="text-2xl font-bold text-white mb-6">For freelancers and providers</h3>
                 <ul className="space-y-4">
-                  <li className="flex items-start gap-3 text-zinc-400"><Lock size={18} className="text-red-400 shrink-0 mt-0.5" /> Worried about clients disappearing after delivery</li>
-                  <li className="flex items-start gap-3 text-zinc-400"><Lock size={18} className="text-red-400 shrink-0 mt-0.5" /> Worried about payments getting delayed indefinitely</li>
+                  <li className="flex items-start gap-3 text-base text-zinc-400"><Lock size={18} className="text-red-400 shrink-0 mt-0.5" /> Worried about clients disappearing after delivery</li>
+                  <li className="flex items-start gap-3 text-base text-zinc-400"><Lock size={18} className="text-red-400 shrink-0 mt-0.5" /> Worried about payments getting delayed indefinitely</li>
                 </ul>
               </PremiumCard>
             </FadeIn>
@@ -540,36 +540,36 @@ export default function App() {
             <FadeIn delay={100}>
               <PremiumCard highlight>
                 <div className="p-3 bg-emerald-500/10 rounded-xl w-fit mb-4"><Briefcase size={24} className="text-emerald-500" /></div>
-                <h3 className="text-xl font-bold text-white mb-3">Founders and SMEs</h3>
-                <p className="text-zinc-400 text-sm mb-6 leading-relaxed">Safer payments for your marketplace or hiring needs, without building escrow from scratch.</p>
+                <h3 className="text-2xl font-bold text-white mb-3">Founders and SMEs</h3>
+                <p className="text-zinc-400 text-base mb-6 leading-relaxed">Safer payments for your marketplace or hiring needs, without building escrow from scratch.</p>
                 <ul className="space-y-3 mt-auto">
-                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Safer payments without rebuilding escrow</li>
-                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Reduced disputes and support load</li>
-                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Full audit timeline across all actions</li>
+                  <li className="flex items-start gap-2 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Safer payments without rebuilding escrow</li>
+                  <li className="flex items-start gap-2 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Reduced disputes and support load</li>
+                  <li className="flex items-start gap-2 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Full audit timeline across all actions</li>
                 </ul>
               </PremiumCard>
             </FadeIn>
             <FadeIn delay={200}>
               <PremiumCard>
                 <div className="p-3 bg-emerald-500/10 rounded-xl w-fit mb-4"><Users size={24} className="text-emerald-500" /></div>
-                <h3 className="text-xl font-bold text-white mb-3">Freelancers and service providers</h3>
-                <p className="text-zinc-400 text-sm mb-6 leading-relaxed">See locked funds before you start. Get paid faster with verified milestone approvals.</p>
+                <h3 className="text-2xl font-bold text-white mb-3">Freelancers and service providers</h3>
+                <p className="text-zinc-400 text-base mb-6 leading-relaxed">See locked funds before you start. Get paid faster with verified milestone approvals.</p>
                 <ul className="space-y-3 mt-auto">
-                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Proof that funds are locked</li>
-                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Milestone approvals and faster payouts</li>
-                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Clear dispute path when needed</li>
+                  <li className="flex items-start gap-2 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Proof that funds are locked</li>
+                  <li className="flex items-start gap-2 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Milestone approvals and faster payouts</li>
+                  <li className="flex items-start gap-2 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Clear dispute path when needed</li>
                 </ul>
               </PremiumCard>
             </FadeIn>
             <FadeIn delay={300}>
               <PremiumCard>
                 <div className="p-3 bg-emerald-500/10 rounded-xl w-fit mb-4"><Code2 size={24} className="text-emerald-500" /></div>
-                <h3 className="text-xl font-bold text-white mb-3">Developers</h3>
-                <p className="text-zinc-400 text-sm mb-6 leading-relaxed">Integrate escrow flows in minutes using our contracts, SDK, API, indexer, and UI components.</p>
+                <h3 className="text-2xl font-bold text-white mb-3">Developers</h3>
+                <p className="text-zinc-400 text-base mb-6 leading-relaxed">Integrate escrow flows in minutes using our contracts, SDK, API, indexer, and UI components.</p>
                 <ul className="space-y-3 mt-auto">
-                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> SDK and UI components for fast integration</li>
-                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Indexer and API for real-time read models</li>
-                  <li className="flex items-start gap-2 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Signed webhooks for platform sync</li>
+                  <li className="flex items-start gap-2 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> SDK and UI components for fast integration</li>
+                  <li className="flex items-start gap-2 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Indexer and API for real-time read models</li>
+                  <li className="flex items-start gap-2 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Signed webhooks for platform sync</li>
                 </ul>
               </PremiumCard>
             </FadeIn>
@@ -594,8 +594,8 @@ export default function App() {
               <FadeIn key={item.title} delay={i * 100}>
                 <div className="bg-zinc-900/30 border border-white/5 p-6 rounded-2xl hover:border-emerald-500/30 transition-all h-full">
                   <div className="p-3 bg-zinc-900 rounded-xl text-emerald-500 w-fit mb-4">{item.icon}</div>
-                  <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
-                  <p className="text-zinc-400 text-sm leading-relaxed">{item.desc}</p>
+                  <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+                  <p className="text-zinc-400 text-base leading-relaxed">{item.desc}</p>
                 </div>
               </FadeIn>
             ))}
@@ -618,10 +618,10 @@ export default function App() {
             ].map((feature, i) => (
               <FadeIn key={feature.title} delay={i * 100}>
                 <PremiumCard className="h-full">
-                  <h3 className="text-xl font-bold text-white mb-6">{feature.title}</h3>
+                  <h3 className="text-2xl font-bold text-white mb-6">{feature.title}</h3>
                   <ul className="space-y-3">
                     {feature.points.map(point => (
-                      <li key={point} className="flex items-start gap-3 text-sm text-zinc-300">
+                      <li key={point} className="flex items-start gap-3 text-base text-zinc-300">
                         <CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> {point}
                       </li>
                     ))}
@@ -643,24 +643,24 @@ export default function App() {
             <FadeIn delay={100}>
               <PremiumCard highlight className="h-full">
                 <div className="p-3 bg-emerald-500/10 rounded-xl w-fit mb-4"><LayoutDashboard size={24} className="text-emerald-500" /></div>
-                <h3 className="text-xl font-bold text-white mb-4">Use the EscrowKit dashboard</h3>
+                <h3 className="text-2xl font-bold text-white mb-4">Use the EscrowKit dashboard</h3>
                 <ul className="space-y-3">
-                  <li className="flex items-start gap-3 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Create escrows using templates</li>
-                  <li className="flex items-start gap-3 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Track milestones and disputes</li>
-                  <li className="flex items-start gap-3 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Manage API keys and settings</li>
+                  <li className="flex items-start gap-3 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Create escrows using templates</li>
+                  <li className="flex items-start gap-3 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Track milestones and disputes</li>
+                  <li className="flex items-start gap-3 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Manage API keys and settings</li>
                 </ul>
               </PremiumCard>
             </FadeIn>
             <FadeIn delay={200}>
               <PremiumCard className="h-full">
                 <div className="p-3 bg-emerald-500/10 rounded-xl w-fit mb-4"><Terminal size={24} className="text-emerald-500" /></div>
-                <h3 className="text-xl font-bold text-white mb-4">Embed EscrowKit into your platform</h3>
+                <h3 className="text-2xl font-bold text-white mb-4">Embed EscrowKit into your platform</h3>
                 <ul className="space-y-3">
-                  <li className="flex items-start gap-3 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Deploy the factory and spawn escrow instances</li>
-                  <li className="flex items-start gap-3 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Run the indexer to sync events into a database</li>
-                  <li className="flex items-start gap-3 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Use signed webhooks to update your system in real time</li>
-                  <li className="flex items-start gap-3 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Use the API and transaction helpers to power your UI</li>
-                  <li className="flex items-start gap-3 text-sm text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Use the TypeScript SDK for integration</li>
+                  <li className="flex items-start gap-3 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Deploy the factory and spawn escrow instances</li>
+                  <li className="flex items-start gap-3 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Run the indexer to sync events into a database</li>
+                  <li className="flex items-start gap-3 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Use signed webhooks to update your system in real time</li>
+                  <li className="flex items-start gap-3 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Use the API and transaction helpers to power your UI</li>
+                  <li className="flex items-start gap-3 text-base text-zinc-300"><CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" /> Use the TypeScript SDK for integration</li>
                 </ul>
               </PremiumCard>
             </FadeIn>
@@ -950,11 +950,8 @@ const ContributionCard = ({ icon, title, desc, tag }: { icon: React.ReactNode, t
         {tag}
       </span>
     </div>
-    <h4 className="text-lg font-bold text-white mb-2">{title}</h4>
-    <p className="text-zinc-400 text-sm leading-relaxed mb-4">{desc}</p>
-    <Link href="https://github.com/chetanya1998/EscrowKit/issues" target="_blank" className="flex items-center gap-2 text-emerald-500 text-xs font-bold uppercase tracking-widest group-hover:translate-x-1 transition-transform mt-auto">
-      View Issues <ArrowRight size={12} />
-    </Link>
+    <h4 className="text-xl font-bold text-white mb-2">{title}</h4>
+    <p className="text-zinc-400 text-base leading-relaxed mb-4">{desc}</p>
   </div>
 );
 
