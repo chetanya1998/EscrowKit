@@ -45,21 +45,21 @@ graph TD
     classDef db fill:#18181b,stroke:#f59e0b,stroke-width:2px,color:#fff
     
     subgraph "Frontend (dApp)"
-        U[Users / Platforms] -->|Interact| D[Next.js Dashboard]
+        U["Users / Platforms"] -->|"Interact"| D["Next.js Dashboard"]
     end
 
     subgraph "Backend Services"
-        D -->|Read Data (API Key)| API[NestJS REST API]
-        IDX[Indexer Service] -->|Sync State| DB[(PostgreSQL)]
-        API -->|Query| DB
-        API -->|Upload| EVI[IPFS Evidence]
+        D -->|"Read Data (API Key)"| API["NestJS REST API"]
+        IDX["Indexer Service"] -->|"Sync State"| DB[("PostgreSQL")]
+        API -->|"Query"| DB
+        API -->|"Upload"| EVI["IPFS Evidence"]
     end
 
     subgraph "Blockchain (Smart Contracts)"
-        D -->|Write Tx| SC[Escrow Contracts]
-        SC -.->|Emit Events| IDX
-        SC <-->|Disputes| ARB[Arbitration Adapters]
-        SC <-->|Conditions| VOR[Verification Oracles]
+        D -->|"Write Tx"| SC["Escrow Contracts"]
+        SC -.->|"Emit Events"| IDX
+        SC <-->|"Disputes"| ARB["Arbitration Adapters"]
+        SC <-->|"Conditions"| VOR["Verification Oracles"]
     end
 
     class U,D frontend;
