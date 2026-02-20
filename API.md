@@ -203,3 +203,67 @@ Generate the `submitEvidence` calldata for the Arbitration Adapter.
 Endpoint used by the Arbitration Service to push rulings.
 
 - **Endpoint**: `POST /api/v1/disputes/webhook/ruling`
+
+## 🗄️ Database Relationships & Entity Model
+
+The API is driven by a relational PostgreSQL database synced via our Indexer. The following Entity-Relationship (ER) diagram details the core models and their connections.
+
+```mermaid
+erDiagram
+    User ||--o{ Escrow : "is payer or payee"
+    User ||--o{ Webhook : "manages"
+    Escrow ||--|{ Milestone : "contains"
+    Escrow ||--o{ Event : "has history of"
+    Escrow ||--o{ Dispute : "may trigger"
+
+    User {
+        string id PK
+        string email
+        string username
+        string address
+        string authProvider
+    }
+
+    Escrow {
+        string address PK
+        string payer
+        string payee
+        string arbiter
+        string factoryAddress
+    }
+
+    Milestone {
+        string escrowAddress PK, FK
+        int index PK
+        decimal amount
+        string description
+        string status
+        string deliverableHash
+        string conditionHash
+        boolean isVerified
+    }
+
+    Dispute {
+        string id PK
+        string escrowAddress FK
+        int milestoneIndex FK
+        string disputeIdOnChain
+        string status
+    }
+
+    Event {
+        string id PK
+        string escrowAddress FK
+        string eventName
+        int blockNumber
+        json args
+    }
+
+    Webhook {
+        string id PK
+        string userId FK
+        string url
+        string secret
+        boolean isActive
+    }
+```

@@ -34,6 +34,40 @@ The project is organized as a **pnpm + Turborepo monorepo** with the following p
 
 ---
 
+
+## 🏗️ System Architecture
+
+```mermaid
+graph TD
+    classDef frontend fill:#18181b,stroke:#10b981,stroke-width:2px,color:#fff
+    classDef backend fill:#18181b,stroke:#3b82f6,stroke-width:2px,color:#fff
+    classDef contracts fill:#18181b,stroke:#8b5cf6,stroke-width:2px,color:#fff
+    classDef db fill:#18181b,stroke:#f59e0b,stroke-width:2px,color:#fff
+    
+    subgraph "Frontend (dApp)"
+        U[Users / Platforms] -->|Interact| D[Next.js Dashboard]
+    end
+
+    subgraph "Backend Services"
+        D -->|Read Data (API Key)| API[NestJS REST API]
+        IDX[Indexer Service] -->|Sync State| DB[(PostgreSQL)]
+        API -->|Query| DB
+        API -->|Upload| EVI[IPFS Evidence]
+    end
+
+    subgraph "Blockchain (Smart Contracts)"
+        D -->|Write Tx| SC[Escrow Contracts]
+        SC -.->|Emit Events| IDX
+        SC <-->|Disputes| ARB[Arbitration Adapters]
+        SC <-->|Conditions| VOR[Verification Oracles]
+    end
+
+    class U,D frontend;
+    class API,IDX backend;
+    class DB,EVI db;
+    class SC,ARB,VOR contracts;
+```
+
 ## 2. Smart Contracts (`packages/contracts`)
 
 **Tech Stack:** Solidity `^0.8.20`, Foundry, OpenZeppelin
