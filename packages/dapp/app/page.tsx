@@ -914,7 +914,6 @@ export default function App() {
             <a href="#roadmap" className="hover:text-emerald-400 transition-colors">Roadmap</a>
             <a href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="hover:text-emerald-400 transition-colors">Contribute</a>
             <a href="https://github.com/chetanya1998/EscrowKit/blob/main/LICENSE" target="_blank" className="hover:text-emerald-400 transition-colors">License</a>
-            <a href="https://github.com/chetanya1998/EscrowKit/issues" target="_blank" className="hover:text-emerald-400 transition-colors">Contact</a>
           </div>
 
           <div className="text-[10px] font-mono text-zinc-800">
