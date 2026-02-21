@@ -18,7 +18,9 @@ export default function AIEscrowPage() {
         setConfig(null);
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/ai/generate-escrow`, {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.escrowkit.com';
+
+            const res = await fetch(`${apiUrl}/ai/generate-escrow`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt: textPrompt, predefinedTemplate: template })
