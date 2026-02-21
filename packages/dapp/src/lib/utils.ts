@@ -5,7 +5,8 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (isLocalhost ? 'http://localhost:3001' : 'https://api.escrowkit.com');
 
 export function getExplorerUrl(address: string) {
     // Default to local anvil explorer or similar if no env var
