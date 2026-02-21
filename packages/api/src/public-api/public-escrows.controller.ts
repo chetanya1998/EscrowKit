@@ -17,7 +17,7 @@ export class PublicEscrowsController {
         // For now, let's just find escrows where payer OR payee creates match the User's address
         // We need to fetch User address first
         const user = await this.prisma.user.findUnique({ where: { id: ownerId } });
-        if (!user || !user.address) return [];
+        if (!user) return [];
 
         return this.prisma.escrow.findMany({
             where: {
