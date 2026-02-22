@@ -7,10 +7,9 @@ import { PulsarModule } from './pulsar/pulsar.module';
 import { UsersModule } from './users/users.module';
 import { PublicApiModule } from './public-api/public-api.module';
 import { WebhookModule } from './webhook/webhook.module';
-import { AiModule } from './ai/ai.module';
 
 @Module({
-  imports: [AiModule, EscrowsModule, UsersModule, EvidenceModule, PulsarModule, PublicApiModule, WebhookModule],
+  imports: [EscrowsModule, UsersModule, EvidenceModule, PulsarModule, PublicApiModule, WebhookModule],
   controllers: [AppController],
   providers: [AppService],
 })

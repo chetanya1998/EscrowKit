@@ -13,6 +13,11 @@ const sidebarItems = [
         icon: PlusCircle,
     },
     {
+        title: "Custom Builder",
+        href: "/create/custom",
+        icon: FileText,
+    },
+    {
         title: "Overview",
         href: "/dashboard",
         icon: LayoutDashboard,
