@@ -6,6 +6,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 import { Providers } from "../src/components/providers";
 import { Toaster } from "sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata: Metadata = {
   title: "EscrowKit — Smart Escrow Engine",
@@ -40,10 +41,12 @@ export default function RootLayout({
         <meta httpEquiv="Content-Security-Policy" content={cspHeader} />
       </head>
       <body className={`${inter.variable} ${outfit.variable} font-sans`}>
-        <Providers>
-          {children}
-          <Toaster />
-        </Providers>
+        <TooltipProvider>
+          <Providers>
+            {children}
+            <Toaster />
+          </Providers>
+        </TooltipProvider>
       </body>
     </html>
   );

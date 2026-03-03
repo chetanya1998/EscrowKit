@@ -1,18 +1,18 @@
-import { type ClassValue, clsx } from "clsx"
+import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs))
 }
 
-const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (isLocalhost ? 'http://localhost:3001' : 'https://api.escrowkit.com');
-
-export function getExplorerUrl(address: string) {
-    // Default to local anvil explorer or similar if no env var
-    // For now, let's just point to etherscan sepolia as a placeholder or localhost if dev
-    if (process.env.NODE_ENV === 'development') {
-        return `https://etherscan.io/address/${address}`; // Fallback for now as local explorer isn't standard
-    }
-    return `https://sepolia.etherscan.io/address/${address}`;
+export function shortenAddress(address: string | `0x${string}`): string {
+  if (!address) return ""
+  return `${address.slice(0, 6)}...${address.slice(-4)}`
 }
+
+export function getExplorerUrl(hash: string, isAddress: boolean = false): string {
+  const baseUrl = process.env.NEXT_PUBLIC_EXPLORER_URL || "https://rpc.odyssey.storyrpc.io"
+  return isAddress ? `${baseUrl}/address/${hash}` : `${baseUrl}/tx/${hash}`
+}
+
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';

@@ -1,7 +1,6 @@
 
 "use client"
 
-import DashboardLayout from "@/components/layout/DashboardLayout"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ProfileForm } from "@/components/settings/profile-form"
 import { DeveloperSettings } from "@/components/settings/developer-settings"
@@ -9,7 +8,7 @@ import { Separator } from "@/components/ui/separator"
 
 export default function SettingsPage() {
     return (
-        <DashboardLayout>
+        
             <div className="space-y-6">
                 <div>
                     <h3 className="text-lg font-medium text-neutral-50">Settings</h3>
@@ -44,6 +43,6 @@ export default function SettingsPage() {
                     </TabsContent>
                 </Tabs>
             </div>
-        </DashboardLayout>
+        
     )
 }

@@ -1,7 +1,6 @@
 
 "use client"
 
-import DashboardLayout from "@/components/layout/DashboardLayout"
 import { useDashboardData } from "@/hooks/useDashboardData"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -14,15 +13,15 @@ export default function EscrowsPage() {
     const { transactions, isLoading, isFetching, error } = useDashboardData()
 
     if (isLoading) return (
-        <DashboardLayout>
+        
             <div className="flex h-[50vh] items-center justify-center text-neutral-500">
                 Loading escrows...
             </div>
-        </DashboardLayout>
+        
     )
 
     return (
-        <DashboardLayout>
+        
             <div className="flex flex-col gap-8">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-neutral-50 mb-2">My Escrows</h1>
@@ -102,6 +101,6 @@ export default function EscrowsPage() {
                     </CardContent>
                 </Card>
             </div>
-        </DashboardLayout>
+        
     )
 }

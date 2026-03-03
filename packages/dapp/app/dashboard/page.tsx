@@ -1,29 +1,26 @@
 
 "use client"
 
-import DashboardLayout from "@/components/layout/DashboardLayout"
 import { useDashboardData } from "@/hooks/useDashboardData"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Plus, ArrowUpRight, ShieldCheck, Zap, Lock, CheckCircle } from "lucide-react"
+import { Plus, ArrowUpRight, ShieldCheck, Zap, Lock, CheckCircle, LayoutTemplate } from "lucide-react"
 import Link from "next/link"
 
 export default function DashboardPage() {
     const { stats, transactions, isLoading, isFetching, error } = useDashboardData()
 
     if (isLoading) return (
-        <DashboardLayout>
-            <div className="flex h-[50vh] items-center justify-center text-neutral-500">
-                Loading dashboard...
-            </div>
-        </DashboardLayout>
+        <div className="flex h-[50vh] items-center justify-center text-neutral-500">
+            Loading dashboard...
+        </div>
     )
 
     return (
-        <DashboardLayout>
-            <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-8 mt-4">
                 {/* Header Section */}
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-neutral-50 mb-2">Trustless Escrow Engine</h1>
@@ -170,23 +167,23 @@ export default function DashboardPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Quick Actions & Notifications */}
                     <div className="space-y-4">
-                        {/* Quick Action: New Milestone */}
+                        {/* Quick Action: New Escrow from Template */}
                         <Card className="bg-neutral-900 border-neutral-800">
                             <CardHeader>
                                 <div className="h-10 w-10 rounded-full bg-neutral-800 flex items-center justify-center mb-2">
-                                    <Plus className="h-5 w-5 text-neutral-50" />
+                                    <LayoutTemplate className="h-5 w-5 text-neutral-50" />
                                 </div>
-                                <CardTitle className="text-neutral-50">New Milestone</CardTitle>
+                                <CardTitle className="text-neutral-50">Create Escrow</CardTitle>
                                 <CardDescription className="text-neutral-400">
-                                    Deploy a new milestone-based escrow contract instantly.
+                                    Choose from predefined templates designed for your specific needs.
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <Link href="/create">
-                                    <Button className="w-full bg-white text-black hover:bg-neutral-200 font-semibold">
-                                        Start Creation
+                                <Link href="/dashboard/templates">
+                                    <Button className="w-full bg-white text-black hover:bg-neutral-200 font-semibold gap-2">
+                                        <Plus className="h-4 w-4" />
+                                        Browse Templates
                                     </Button>
                                 </Link>
                             </CardContent>
@@ -216,7 +213,7 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </div>
-        </DashboardLayout>
+        </div>
     )
 }
 
