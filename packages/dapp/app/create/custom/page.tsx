@@ -29,6 +29,17 @@ export default function CustomEscrowPage() {
     ]);
 
     const [payeeAddress, setPayeeAddress] = useState("");
+    const [arbiterAddress, setArbiterAddress] = useState("0x0000000000000000000000000000000000000000"); // Default Arbiter
+    const [arbitrationAdapter, setArbitrationAdapter] = useState("0x0000000000000000000000000000000000000000"); // Default Adapter
+    const [verificationOracle, setVerificationOracle] = useState("0x0000000000000000000000000000000000000000"); // Default Oracle
+
+    // Penalties & Fees (BPS: 100 = 1%)
+    const [arbitrationFeeBps, setArbitrationFeeBps] = useState(500); // 5%
+    const [payerPenaltyBps, setPayerPenaltyBps] = useState(100);     // 1% per day
+    const [payeePenaltyBps, setPayeePenaltyBps] = useState(100);     // 1% per day
+    const [disputeWindow, setDisputeWindow] = useState(14);          // 14 days
+    const [reviewPeriod, setReviewPeriod] = useState(7);             // 7 days
+
     const [deployedEscrowHash, setDeployedEscrowHash] = useState<string | null>(null);
 
     // Contract Interaction
@@ -59,21 +70,39 @@ export default function CustomEscrowPage() {
         if (!isConnected || !address) return alert("Please connect your wallet first.");
 
         try {
-            const milestoneAmounts = milestones.map(m => {
+            const amountList = milestones.map(m => {
                 const amountForMilestone = (Number(totalAmount) * (m.percentage / 100)).toString();
                 return parseUnits(amountForMilestone, selectedToken.decimals);
             });
+            const descriptionList = milestones.map(m => m.description);
+            const deadlineList = milestones.map(() => BigInt(Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60)); // Placeholder 30 days
+            const conditionHashList = milestones.map(() => "0x0000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`);
+
+            const config = {
+                arbitrationFeeBps: BigInt(arbitrationFeeBps),
+                payerPenaltyBps: BigInt(payerPenaltyBps),
+                payeePenaltyBps: BigInt(payeePenaltyBps),
+                disputeWindow: BigInt(disputeWindow * 24 * 60 * 60),
+                reviewPeriod: BigInt(reviewPeriod * 24 * 60 * 60)
+            };
 
             writeContract({
                 address: factoryAddress,
                 abi: EscrowFactoryABI.abi,
-                functionName: 'createMilestoneEscrow',
+                functionName: 'createEscrow',
                 args: [
-                    selectedToken.address,
-                    address, // buyer
-                    payeeAddress, // seller
-                    milestoneAmounts
-                ]
+                    payeeAddress,        // payee
+                    arbiterAddress,      // arbiter
+                    arbitrationAdapter,  // arbitrationAdapter
+                    "0x0000000000000000000000000000000000000000000000000000000000000000", // detailsHash
+                    verificationOracle,  // verificationOracle
+                    config,              // EscrowConfig
+                    amountList,          // amounts
+                    descriptionList,     // descriptions
+                    deadlineList,        // deadlines
+                    conditionHashList    // conditionHashes
+                ],
+                value: selectedToken.address === "0x0000000000000000000000000000000000000000" ? parseUnits(totalAmount, 18) : 0n
             });
         } catch (err: any) {
             console.error(err);
@@ -127,14 +156,15 @@ export default function CustomEscrowPage() {
                     {[
                         { num: 1, label: "Scope & Terms" },
                         { num: 2, label: "Milestones" },
-                        { num: 3, label: "Payee & Review" }
+                        { num: 3, label: "Penalties" },
+                        { num: 4, label: "Review" }
                     ].map((s) => (
                         <div key={s.num} className="flex items-center gap-2 shrink-0">
                             <div className={`h-8 w-8 rounded-full flex items-center justify-center font-bold text-sm ${step === s.num ? 'bg-emerald-500 text-black' : step > s.num ? 'bg-white text-black' : 'bg-zinc-800 text-zinc-500'}`}>
                                 {step > s.num ? <CheckCircle2 className="h-5 w-5" /> : s.num}
                             </div>
                             <span className={`text-sm font-medium ${step >= s.num ? 'text-white' : 'text-zinc-600'}`}>{s.label}</span>
-                            {s.num < 3 && <div className="h-px w-8 bg-zinc-800 mx-2" />}
+                            {s.num < 4 && <div className="h-px w-8 bg-zinc-800 mx-2" />}
                         </div>
                     ))}
                 </div>
@@ -288,7 +318,87 @@ export default function CustomEscrowPage() {
 
                     {step === 3 && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-                            <h2 className="text-xl font-semibold border-b border-zinc-800 pb-4">Step 3: Payee & Contract Preview</h2>
+                            <h2 className="text-xl font-semibold border-b border-zinc-800 pb-4">Step 3: Arbitration & Penalties</h2>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <h3 className="font-medium text-emerald-400">Delay Penalties</h3>
+                                    <div>
+                                        <label className="block text-sm font-medium text-zinc-400 mb-2">Payee Late Penalty (BPS / Day)</label>
+                                        <p className="text-xs text-zinc-500 mb-2">100 BPS = 1%. Deducted from seller if they miss the deadline.</p>
+                                        <input
+                                            type="number" value={payeePenaltyBps} onChange={e => setPayeePenaltyBps(Number(e.target.value))}
+                                            className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-white focus:outline-none focus:border-red-500/50"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-zinc-400 mb-2">Payer Late Review Penalty (BPS / Day)</label>
+                                        <p className="text-xs text-zinc-500 mb-2">100 BPS = 1%. Deducted from buyer if they delay reviewing submitted work past the Review Period.</p>
+                                        <input
+                                            type="number" value={payerPenaltyBps} onChange={e => setPayerPenaltyBps(Number(e.target.value))}
+                                            className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-white focus:outline-none focus:border-red-500/50"
+                                        />
+                                    </div>
+                                    <div className="flex gap-4">
+                                        <div className="flex-1">
+                                            <label className="block text-sm font-medium text-zinc-400 mb-2">Review Period (Days)</label>
+                                            <input
+                                                type="number" value={reviewPeriod} onChange={e => setReviewPeriod(Number(e.target.value))}
+                                                className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-white focus:outline-none focus:border-emerald-500/50"
+                                            />
+                                        </div>
+                                        <div className="flex-1">
+                                            <label className="block text-sm font-medium text-zinc-400 mb-2">Dispute Window (Days)</label>
+                                            <input
+                                                type="number" value={disputeWindow} onChange={e => setDisputeWindow(Number(e.target.value))}
+                                                className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-white focus:outline-none focus:border-emerald-500/50"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <h3 className="font-medium text-emerald-400">Arbitration Config</h3>
+                                    <div>
+                                        <label className="block text-sm font-medium text-zinc-400 mb-2">Arbiter Address</label>
+                                        <input
+                                            type="text" value={arbiterAddress} onChange={e => setArbiterAddress(e.target.value)}
+                                            className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-white focus:outline-none focus:border-emerald-500/50 font-mono text-xs"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-zinc-400 mb-2">Arbitration Fee (BPS)</label>
+                                        <p className="text-xs text-zinc-500 mb-2">Typically 100-500 BPS (1% to 5%). Paid to arbiter upon resolving disputes.</p>
+                                        <input
+                                            type="number" value={arbitrationFeeBps} onChange={e => setArbitrationFeeBps(Number(e.target.value))}
+                                            className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-white focus:outline-none focus:border-emerald-500/50"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-zinc-400 mb-2">Arbiter Adapter (Advanced)</label>
+                                        <input
+                                            type="text" value={arbitrationAdapter} onChange={e => setArbitrationAdapter(e.target.value)}
+                                            className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-white focus:outline-none focus:border-emerald-500/50 font-mono text-xs"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-between pt-4 border-t border-zinc-800 text-sm">
+                                <button onClick={() => setStep(2)} className="text-zinc-400 hover:text-white font-medium px-4">Back</button>
+                                <button
+                                    onClick={() => setStep(4)}
+                                    className="bg-white hover:bg-zinc-200 text-black font-semibold py-3 px-6 rounded-xl transition-all"
+                                >
+                                    Review Contract
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {step === 4 && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                            <h2 className="text-xl font-semibold border-b border-zinc-800 pb-4">Step 4: Payee & Contract Preview</h2>
 
                             {/* Payee Details */}
                             <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6">
@@ -360,7 +470,7 @@ export default function CustomEscrowPage() {
                             </div>
 
                             <div className="flex justify-between pt-4 border-t border-zinc-800">
-                                <button onClick={() => setStep(2)} className="text-zinc-400 hover:text-white font-medium px-4">Back</button>
+                                <button onClick={() => setStep(3)} className="text-zinc-400 hover:text-white font-medium px-4">Back</button>
                                 <button
                                     onClick={handleDeploy}
                                     disabled={!payeeAddress || isPending || isConfirming}

@@ -14,12 +14,15 @@ interface IMilestoneEscrow is IArbitrableEscrow {
         bytes32 deliverableHash;
         uint256 disputeId;
         bytes32 conditionHash; // Hash of the verification condition (0 if none)
+        uint256 submittedAt;   // Timestamp when deliverable was submitted
     }
 
     struct EscrowConfig {
-        uint256 arbitrationFee;
+        uint256 arbitrationFeeBps;      // Percentage scale (e.g., 1 to 5 bps) for the arbiter fee
+        uint256 payerPenaltyBps;        // Penalty rate if payer delays releasing funds
+        uint256 payeePenaltyBps;        // Penalty rate if payee delays delivery past deadline
         uint256 disputeWindow;
-        uint256 automaticReleaseTime;
+        uint256 reviewPeriod;           // Time payer has to review before auto-release
     }
 
     event MilestoneAdded(uint256 indexed milestoneId, uint256 amount);
@@ -39,12 +42,9 @@ interface IMilestoneEscrow is IArbitrableEscrow {
         address _arbitrationAdapter,
         address _token, // address(0) for native ETH
         address _verificationOracle,
-        EscrowConfig calldata _config
-    ) external;
-
-    function addMilestones(
-        uint256[] calldata amounts, 
-        string[] calldata descriptions, 
+        EscrowConfig calldata _config,
+        uint256[] calldata amounts,
+        string[] calldata descriptions,
         uint256[] calldata deadlines,
         bytes32[] calldata conditionHashes
     ) external;

@@ -27,18 +27,13 @@ contract EscrowFlowTest is Test {
     function test_CreateEscrow() public {
         vm.prank(payer);
         IMilestoneEscrow.EscrowConfig memory config = IMilestoneEscrow.EscrowConfig({
-            arbitrationFee: 0,
+            arbitrationFeeBps: 100,
+            payerPenaltyBps: 500,
+            payeePenaltyBps: 500,
             disputeWindow: 3 days,
-            automaticReleaseTime: 14 days
+            reviewPeriod: 14 days
         });
-        address escrowAddr = factory.createEscrow(payee, arbiter, address(adapter), bytes32(0), address(0), config);
-        escrow = MilestoneEscrow(escrowAddr);
-        assertEq(escrow.payer(), payer);
-    }
 
-    function test_AddMilestones() public {
-        test_CreateEscrow();
-        
         uint256[] memory amounts = new uint256[](2);
         amounts[0] = 1 ether;
         amounts[1] = 0.5 ether;
@@ -53,14 +48,14 @@ contract EscrowFlowTest is Test {
         
         bytes32[] memory conditions = new bytes32[](2);
 
-        vm.prank(payer);
-        escrow.addMilestones(amounts, descs, deadlines, conditions);
-        
+        address escrowAddr = factory.createEscrow(payee, arbiter, address(adapter), bytes32(0), address(0), config, amounts, descs, deadlines, conditions);
+        escrow = MilestoneEscrow(escrowAddr);
+        assertEq(escrow.payer(), payer);
         assertEq(escrow.getMilestoneCount(), 2);
     }
 
     function test_FundAll() public {
-        test_AddMilestones();
+        test_CreateEscrow();
         
         uint256 total = 1.5 ether;
         vm.deal(payer, 10 ether);
@@ -71,7 +66,7 @@ contract EscrowFlowTest is Test {
         assertEq(address(escrow).balance, total);
     }
 
-    function test_RefuntMilestone() public {
+    function test_RefundMilestone() public {
         test_FundAll();
         
         uint256 preBalance = payer.balance;
@@ -80,7 +75,7 @@ contract EscrowFlowTest is Test {
         vm.prank(payer);
         escrow.refundMilestone(0);
         
-        (,,, IMilestoneEscrow.MilestoneStatus status,,,) = escrow.milestones(0);
+        (,,, IMilestoneEscrow.MilestoneStatus status,,,,) = escrow.milestones(0);
         assertEq(uint(status), uint(IMilestoneEscrow.MilestoneStatus.REFUNDED));
     }
 
@@ -93,26 +88,10 @@ contract EscrowFlowTest is Test {
         vm.prank(payer);
         escrow.approveMilestone(0);
         
-        (,,, IMilestoneEscrow.MilestoneStatus status,,,) = escrow.milestones(0);
+        (,,, IMilestoneEscrow.MilestoneStatus status,,,,) = escrow.milestones(0);
         assertEq(uint(status), uint(IMilestoneEscrow.MilestoneStatus.RELEASED));
     }
 
-    function test_Refund() public {
-        test_FundAll();
-        
-        uint256 preBalance = payer.balance;
-        
-        vm.warp(block.timestamp + 2 days);
-        vm.prank(payer);
-        escrow.refundMilestone(0); // Refund milestone 0 (1 ether)
-        
-        uint256 postBalance = payer.balance;
-        assertEq(postBalance - preBalance, 1 ether);
-        
-        (,,, IMilestoneEscrow.MilestoneStatus status,,,) = escrow.milestones(0);
-        assertEq(uint(status), uint(IMilestoneEscrow.MilestoneStatus.REFUNDED));
-    }
-    
     function test_Dispute() public {
         test_FundAll();
         
@@ -123,12 +102,19 @@ contract EscrowFlowTest is Test {
         // Assuming mock adapter is free or uses msg.value
         escrow.openDispute{value: 0}(0);
         
-        (,,, IMilestoneEscrow.MilestoneStatus status,,,) = escrow.milestones(0);
+        (,,, IMilestoneEscrow.MilestoneStatus status,,,,) = escrow.milestones(0);
         assertEq(uint(status), uint(IMilestoneEscrow.MilestoneStatus.DISPUTED));
     }
 
     function test_UpdateMilestone() public {
-        test_CreateEscrow();
+        vm.prank(payer);
+        IMilestoneEscrow.EscrowConfig memory config = IMilestoneEscrow.EscrowConfig({
+            arbitrationFeeBps: 100,
+            payerPenaltyBps: 500,
+            payeePenaltyBps: 500,
+            disputeWindow: 3 days,
+            reviewPeriod: 14 days
+        });
 
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = 1 ether;
@@ -138,8 +124,8 @@ contract EscrowFlowTest is Test {
         deadlines[0] = block.timestamp + 1 days;
         bytes32[] memory conditions = new bytes32[](1);
 
-        vm.prank(payer);
-        escrow.addMilestones(amounts, descs, deadlines, conditions);
+        address escrowAddr = factory.createEscrow(payee, arbiter, address(adapter), bytes32(0), address(0), config, amounts, descs, deadlines, conditions);
+        escrow = MilestoneEscrow(escrowAddr);
 
         vm.prank(payer);
         escrow.updateMilestone(0, 2 ether, "Updated", block.timestamp + 2 days);

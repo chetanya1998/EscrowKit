@@ -22,10 +22,22 @@ export default function DisputeClientPage() {
     const { address: userAddress } = useAccount();
 
     // 1. Fetch Dispute Details from Adapter
-    // Note: We need the Adapter address. For now assuming a constant or specific one.
-    // In strict implementation, we'd need to know WHICH adapter. 
-    // For MVP, we use the known SimpleArbiterAdapter.
-    const adapterAddress = "0x..." // TODO: Replace with real address
+    // Note: In strict implementation, we'd need to know WHICH adapter and use events to find the escrow.
+    // For MVP, we use the known SimpleArbiterAdapter address.
+    const adapterAddress = process.env.NEXT_PUBLIC_ARBITER_ADAPTER_ADDRESS as `0x${string}`;
+
+    const { data: hash, writeContract, isPending } = useWriteContract();
+    const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
+
+    const handleRuling = (resolutionType: number) => {
+        if (!adapterAddress) return alert("Adapter address not configured");
+        writeContract({
+            address: adapterAddress,
+            abi: ARBITER_ADAPTER_ABI, // We will need to import this properly
+            functionName: 'resolveDispute',
+            args: [disputeId, resolutionType] // 4 = RELEASED, 5 = REFUNDED
+        });
+    };
 
     // Mock Data for UI Dev (since we might not have a live dispute to test easily)
     const dispute = {
@@ -132,16 +144,23 @@ export default function DisputeClientPage() {
                                 </p>
 
                                 <div className="space-y-2">
-                                    <Button className="w-full justify-start bg-emerald-900/20 text-emerald-500 hover:bg-emerald-900/40 border border-emerald-900/50">
-                                        <Check className="h-4 w-4 mr-2" /> Release to Freelancer <span className="ml-auto text-xs opacity-70">Full Amount</span>
+                                    <Button
+                                        onClick={() => handleRuling(4)}
+                                        disabled={isPending || isConfirming || isConfirmed}
+                                        className="w-full justify-start bg-emerald-900/20 text-emerald-500 hover:bg-emerald-900/40 border border-emerald-900/50"
+                                    >
+                                        <Check className="h-4 w-4 mr-2" /> Release to Freelancer <span className="ml-auto text-xs opacity-70">Full Amount (Status 4)</span>
                                     </Button>
-                                    <Button className="w-full justify-start bg-red-900/20 text-red-500 hover:bg-red-900/40 border border-red-900/50">
-                                        <X className="h-4 w-4 mr-2" /> Refund to Client <span className="ml-auto text-xs opacity-70">Full Amount</span>
+                                    <Button
+                                        onClick={() => handleRuling(5)}
+                                        disabled={isPending || isConfirming || isConfirmed}
+                                        className="w-full justify-start bg-red-900/20 text-red-500 hover:bg-red-900/40 border border-red-900/50"
+                                    >
+                                        <X className="h-4 w-4 mr-2" /> Refund to Client <span className="ml-auto text-xs opacity-70">Full Amount (Status 5)</span>
                                     </Button>
-                                    <Button variant="outline" className="w-full justify-start border-neutral-700 hover:bg-neutral-800">
-                                        <Scale className="h-4 w-4 mr-2" /> Split Funds (50/50) <span className="ml-auto text-xs opacity-70">Compromise</span>
-                                    </Button>
-                                    {/* Create detailed split UI later */}
+
+                                    {(isPending || isConfirming) && <div className="text-center text-xs text-amber-500 mt-4 animate-pulse">Processing Ruling Transaction...</div>}
+                                    {isConfirmed && <div className="text-center text-xs text-emerald-500 mt-4">Dispute Successfully Resolved!</div>}
                                 </div>
 
                                 <Separator className="bg-red-900/20" />

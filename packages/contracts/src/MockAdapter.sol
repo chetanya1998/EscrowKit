@@ -20,7 +20,7 @@ contract MockArbitrationAdapter is IArbitrationAdapter {
         return _disputeCount;
     }
 
-    function getDisputeCost() external pure returns (uint256) {
+    function getDisputeCost(address /*escrow*/, uint256 /*milestoneId*/) external pure override returns (uint256) {
         return 0;
     }
 

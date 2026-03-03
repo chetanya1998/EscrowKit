@@ -7,6 +7,7 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagm
 import { Address, formatEther, parseEther } from 'viem';
 import { useEscrow, Milestone } from '@/hooks/useEscrow';
 import DashboardLayout from "@/components/layout/DashboardLayout"
+import DOMPurify from 'isomorphic-dompurify';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -210,7 +211,7 @@ export default function EscrowClientPage() {
                                                             <Lock className="h-4 w-4" />}
                                                 </div>
                                                 <div>
-                                                    <h3 className={cn("font-semibold text-lg", isActive ? "text-neutral-50" : "text-neutral-400")}>{m.description} <span className="text-sm font-normal text-neutral-600">#{index + 1}</span></h3>
+                                                    <h3 className={cn("font-semibold text-lg", isActive ? "text-neutral-50" : "text-neutral-400")}>{DOMPurify.sanitize(m.description)} <span className="text-sm font-normal text-neutral-600">#{index + 1}</span></h3>
                                                     <p className="text-sm text-neutral-500 hidden sm:block">Implementation of the landing page and components.</p>
                                                 </div>
                                             </div>

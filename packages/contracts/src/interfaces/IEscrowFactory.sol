@@ -14,7 +14,11 @@ interface IEscrowFactory {
         address arbitrationAdapter,
         bytes32 detailsHash,
         address verificationOracle,
-        IMilestoneEscrow.EscrowConfig calldata config
+        IMilestoneEscrow.EscrowConfig calldata config,
+        uint256[] calldata amounts,
+        string[] calldata descriptions,
+        uint256[] calldata deadlines,
+        bytes32[] calldata conditionHashes
     ) external payable returns (address);
 
     function createRentalEscrow(
@@ -28,4 +32,5 @@ interface IEscrowFactory {
 
     function getEscrowCount() external view returns (uint256);
     function getEscrowAt(uint256 index) external view returns (address);
+    function isFactoryPaused() external view returns (bool);
 }

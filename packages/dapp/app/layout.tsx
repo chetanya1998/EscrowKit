@@ -20,8 +20,25 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cspHeader = `
+    default-src 'self' wss: https:;
+    script-src 'self' 'unsafe-eval' 'unsafe-inline';
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' blob: data: https:;
+    font-src 'self' data: https:;
+    connect-src 'self' wss: https:;
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    upgrade-insecure-requests;
+  `.replace(/\s{2,}/g, ' ').trim();
+
   return (
     <html lang="en">
+      <head>
+        <meta httpEquiv="Content-Security-Policy" content={cspHeader} />
+      </head>
       <body className={`${inter.variable} ${outfit.variable} font-sans`}>
         <Providers>
           {children}

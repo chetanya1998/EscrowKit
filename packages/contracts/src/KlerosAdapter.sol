@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 import "./interfaces/IArbitrationAdapter.sol";
 import "./interfaces/IArbitrator.sol";
 import "./interfaces/IArbitrable.sol";
 import "./interfaces/IArbitrableEscrow.sol";
 
-contract KlerosAdapter is IArbitrationAdapter, IArbitrable, Ownable {
+contract KlerosAdapter is IArbitrationAdapter, IArbitrable, AccessControl {
     IArbitrator public arbitrator;
     bytes public arbitratorExtraData;
     
@@ -25,7 +25,8 @@ contract KlerosAdapter is IArbitrationAdapter, IArbitrable, Ownable {
     event MetaEvidence(uint256 indexed _metaEvidenceID, string _evidence);
     event Evidence(IArbitrator indexed _arbitrator, uint256 indexed _disputeID, address indexed _party, string _evidence);
 
-    constructor(address _arbitrator, bytes memory _arbitratorExtraData) Ownable(msg.sender) {
+    constructor(address _arbitrator, bytes memory _arbitratorExtraData) {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         arbitrator = IArbitrator(_arbitrator);
         arbitratorExtraData = _arbitratorExtraData;
     }
@@ -75,7 +76,7 @@ contract KlerosAdapter is IArbitrationAdapter, IArbitrable, Ownable {
         IArbitrableEscrow(d.escrow).rule(d.active ? _disputeID : 0, _ruling);
     }
 
-    function getDisputeCost() external view override returns (uint256) {
+    function getDisputeCost(address /*escrow*/, uint256 /*milestoneId*/) external view override returns (uint256) {
         return arbitrator.arbitrationCost(arbitratorExtraData);
     }
 
@@ -84,7 +85,7 @@ contract KlerosAdapter is IArbitrationAdapter, IArbitrable, Ownable {
     }
     
     // Admin functions to update arbitrator if needed
-    function setArbitrator(address _arbitrator, bytes memory _extraData) external onlyOwner {
+    function setArbitrator(address _arbitrator, bytes memory _extraData) external onlyRole(DEFAULT_ADMIN_ROLE) {
         arbitrator = IArbitrator(_arbitrator);
         arbitratorExtraData = _extraData;
     }

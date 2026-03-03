@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EscrowsModule } from './escrows/escrows.module';
@@ -9,8 +11,20 @@ import { PublicApiModule } from './public-api/public-api.module';
 import { WebhookModule } from './webhook/webhook.module';
 
 @Module({
-  imports: [EscrowsModule, UsersModule, EvidenceModule, PulsarModule, PublicApiModule, WebhookModule],
+  imports: [
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 100, // 100 requests per minute
+    }]),
+    EscrowsModule, UsersModule, EvidenceModule, PulsarModule, PublicApiModule, WebhookModule
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    }
+  ],
 })
 export class AppModule { }

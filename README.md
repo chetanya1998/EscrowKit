@@ -578,3 +578,24 @@ Built with **Docusaurus**. Contains documentation for:
 - **ERC-20 token support in dApp:** The wizard defaults to ETH (`address(0)`). Token-based escrows require additional UI for token approval flows.
 - **KlerosAdapter bug:** In `rule()`, there is a potential bug: `IArbitrableEscrow(d.escrow).rule(d.active ? _disputeID : 0, _ruling)` — `d.active` is set to `false` before this line, so it always passes `0` as the disputeId.
 - **No historical event backfill** in the indexer — only real-time events from when the indexer starts.
+
+---
+
+## 13. Multi-Layer Security Enhancements 🛡️
+
+To protect the non-custodial engine, EscrowKit employs a fully integrated 3-layer security system guarding against unverified payloads, smart contract vulnerabilities, and frontend exploits.
+
+### Layer 1: Smart Contracts (The Vault)
+- **Pausable Circuit Breakers**: `EscrowFactory` and `MilestoneEscrow` utilize OpenZeppelin's `Pausable`. The system can be frozen by the `PAUSER_ROLE` in the event of an impending attack, blocking all internal distributions while protecting locked user deposits.
+- **Granular Access Control**: Administrative tasks utilize OpenZeppelin `AccessControl` rather than basic `Ownable`. Roles (`DEFAULT_ADMIN_ROLE`, `PAUSER_ROLE`) are explicitly separated.
+- **BPS Fee Ceilings**: Malicious or accidental logic faults altering dynamic Arbiter Fees or Delay Penalties are natively blocked by strict integer upper bounds built directly into contract `initialize()` loops (\<= 1000 BPS / 10%).
+
+### Layer 2: Backend API (The Bridge)
+- **DDoS Mitigation (Throttling)**: Endpoints natively use `@nestjs/throttler` rejecting traffic scaling beyond 100 reqs/minute per user. 
+- **Header Hardening**: `helmet` is equipped locally across the NestJS REST framework, dropping over 14+ standardized exploitive headers (like No-Sniff/HSTS).
+- **Strict DTO Truncation**: Inputs entering the backend are scrubbed tightly. Using `class-validator` passing global pipes with `whitelist` and `forbidNonWhitelisted`, raw injected parameters not part of definitions are deleted immediately.
+- **CORS Allowlist**: API blocks open scraping architecture out of the box by isolating acceptable REST requests purely up to explicitly allowed frontend IPs and subdomains.
+
+### Layer 3: Next.js dApp (The Surface)
+- **Content Security Policy**: `layout.tsx` embeds native CSP configurations locking external connections (XSS) and disallowing unverified `script-src` / `frame-ancestors` from performing browser clickjacking.
+- **Isomorphic DOM Sanitization**: Rendering arbitrary text strings pulled from the blockchain (like Milestone descriptions) passes natively through `isomorphic-dompurify`. Any underlying `<script>` insertions submitted historically on-chain are wiped out before they pass to the DOM tree.

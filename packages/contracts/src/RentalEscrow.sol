@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interfaces/IRentalEscrow.sol";
 import "./interfaces/IArbitrationAdapter.sol";
+import "./interfaces/IEscrowFactory.sol";
 
 contract RentalEscrow is
     Initializable,
@@ -24,6 +25,7 @@ contract RentalEscrow is
 
     uint256 public depositAmount;
     RentalConfig public config;
+    IEscrowFactory public factory;
 
     RentalStatus public status;
     uint256 public claimAmount;
@@ -42,6 +44,11 @@ contract RentalEscrow is
 
     modifier inStatus(RentalStatus _status) {
         require(status == _status, "Invalid status");
+        _;
+    }
+
+    modifier whenNotGlobalPaused() {
+        require(!factory.isFactoryPaused(), "System is paused");
         _;
     }
 
@@ -68,6 +75,7 @@ contract RentalEscrow is
         arbitrationAdapter = _arbitrationAdapter;
         depositAmount = _depositAmount;
         config = _config;
+        factory = IEscrowFactory(msg.sender);
         
         if (_token != address(0)) {
             token = IERC20(_token);
@@ -76,7 +84,7 @@ contract RentalEscrow is
         status = RentalStatus.AWAITING_DEPOSIT;
     }
 
-    function deposit() external payable onlyPayer inStatus(RentalStatus.AWAITING_DEPOSIT) {
+    function deposit() external payable onlyPayer inStatus(RentalStatus.AWAITING_DEPOSIT) whenNotGlobalPaused {
         if (address(token) == address(0)) {
             require(msg.value == depositAmount, "Incorrect ETH amount");
         } else {
@@ -89,7 +97,7 @@ contract RentalEscrow is
     }
 
     // Landlord claims damages or full deposit at end of lease
-    function claim(uint256 amount, string calldata reason) external onlyPayee inStatus(RentalStatus.ACTIVE) {
+    function claim(uint256 amount, string calldata reason) external onlyPayee inStatus(RentalStatus.ACTIVE) whenNotGlobalPaused {
         require(amount <= depositAmount, "Claim exceeds deposit");
         
         claimAmount = amount;
@@ -100,7 +108,7 @@ contract RentalEscrow is
     }
 
     // Tenant accepts the claim (or deadline passes - public function could trigger if deadline passed)
-    function acceptClaim() external {
+    function acceptClaim() external whenNotGlobalPaused {
         // Can be called by Payer to accept explicitly
         // OR by Payee if deadline passed
         
@@ -113,7 +121,7 @@ contract RentalEscrow is
     }
 
     // Tenant disputes the claim
-    function disputeClaim() external payable onlyPayer inStatus(RentalStatus.CLAIM_PENDING) {
+    function disputeClaim() external payable onlyPayer inStatus(RentalStatus.CLAIM_PENDING) whenNotGlobalPaused {
         status = RentalStatus.DISPUTED;
         
         disputeId = 0;
@@ -126,7 +134,7 @@ contract RentalEscrow is
     }
 
     // Arbiter resolves split manually
-    function resolveDispute(uint256 payeeAmount) public nonReentrant {
+    function resolveDispute(uint256 payeeAmount) public nonReentrant whenNotGlobalPaused {
         require(
             msg.sender == arbiter || msg.sender == address(this),
             "Not authorized"

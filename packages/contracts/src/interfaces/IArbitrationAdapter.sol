@@ -8,6 +8,6 @@ interface IArbitrationAdapter {
         bytes calldata evidence
     ) external payable returns (uint256 disputeId);
 
-    function getDisputeCost() external view returns (uint256);
+    function getDisputeCost(address escrow, uint256 milestoneId) external view returns (uint256);
     function getArbiter() external view returns (address);
 }
