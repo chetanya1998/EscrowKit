@@ -15,6 +15,7 @@ model Escrow {
   arbiter            String?
   arbitrationAdapter String?
   factoryAddress     String
+  adminAddress       String?
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
   milestones         Milestone[]

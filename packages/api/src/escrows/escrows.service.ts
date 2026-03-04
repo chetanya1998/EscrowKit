@@ -5,18 +5,36 @@ import { PrismaService } from '../prisma/prisma.service';
 export class EscrowsService {
     constructor(private prisma: PrismaService) { }
 
-    async findAll(party?: string) {
+    async findAll(party?: string, role?: string) {
         if (party) {
-            return this.prisma.escrow.findMany({
-                where: {
-                    OR: [
-                        { payer: { equals: party, mode: 'insensitive' } },
-                        { payee: { equals: party, mode: 'insensitive' } },
-                        { arbiter: { equals: party, mode: 'insensitive' } }
-                    ]
-                },
-                include: { milestones: true }
-            });
+            if (role === 'admin') {
+                return this.prisma.escrow.findMany({
+                    where: { adminAddress: { equals: party, mode: 'insensitive' } },
+                    include: { milestones: true, events: true }
+                });
+            } else if (role === 'payer') {
+                return this.prisma.escrow.findMany({
+                    where: { payer: { equals: party, mode: 'insensitive' } },
+                    include: { milestones: true }
+                });
+            } else if (role === 'payee') {
+                return this.prisma.escrow.findMany({
+                    where: { payee: { equals: party, mode: 'insensitive' } },
+                    include: { milestones: true }
+                });
+            } else {
+                return this.prisma.escrow.findMany({
+                    where: {
+                        OR: [
+                            { payer: { equals: party, mode: 'insensitive' } },
+                            { payee: { equals: party, mode: 'insensitive' } },
+                            { arbiter: { equals: party, mode: 'insensitive' } },
+                            { adminAddress: { equals: party, mode: 'insensitive' } }
+                        ]
+                    },
+                    include: { milestones: true }
+                });
+            }
         }
         return this.prisma.escrow.findMany({ include: { milestones: true } });
     }

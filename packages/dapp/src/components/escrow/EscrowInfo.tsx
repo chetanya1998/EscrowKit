@@ -38,11 +38,11 @@ export function EscrowInfo({ details, address }: EscrowInfoProps) {
                     <div className="space-y-2">
                         <div>
                             <span className="text-gray-600 inline-block mr-2">Arb Fee:</span>
-                            <span>{details.config ? formatEther(details.config.arbitrationFee) : '0'} ETH</span>
+                            <span>{(details as any).config ? formatEther((details as any).config.arbitrationFee) : '0'} ETH</span>
                         </div>
                         <div>
                             <span className="text-gray-600 inline-block mr-2">Dispute Window:</span>
-                            <span>{details.config ? Number(details.config.disputeWindow) / 3600 : 0} Hours</span>
+                            <span>{(details as any).config ? Number((details as any).config.disputeWindow) / 3600 : 0} Hours</span>
                         </div>
                         <div>
                             <span className="text-gray-600 inline-block mr-2">Token:</span>

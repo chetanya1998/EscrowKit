@@ -12,13 +12,20 @@ const FALLBACK_STATS: UsageStats = {
 };
 
 async function fetchStats(address: string): Promise<UsageStats> {
-    const res = await fetch(`${API_BASE_URL}/users/${address}/stats`);
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    const headers = token ? { Authorization: `Bearer ${token}` } as HeadersInit : undefined;
+    const res = await fetch(`${API_BASE_URL}/users/${address}/stats`, { headers });
     if (!res.ok) throw new Error('Failed to fetch stats');
     return res.json();
 }
 
-async function fetchEscrows(address: string): Promise<Transaction[]> {
-    const res = await fetch(`${API_BASE_URL}/users/${address}/escrows`);
+async function fetchEscrows(address: string, role?: string): Promise<Transaction[]> {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+    const headers = token ? { Authorization: `Bearer ${token}` } as HeadersInit : undefined;
+    const url = new URL(`${API_BASE_URL}/users/${address}/escrows`);
+    if (role) url.searchParams.append('role', role);
+
+    const res = await fetch(url.toString(), { headers });
     if (!res.ok) throw new Error('Failed to fetch escrows');
     const data = await res.json();
 
@@ -34,24 +41,23 @@ async function fetchEscrows(address: string): Promise<Transaction[]> {
     }));
 }
 
-export function useDashboardData() {
+export function useDashboardData(role?: 'payer' | 'payee' | 'admin') {
     const { address } = useAccount();
     const targetAddress = address || '0x1234567890123456789012345678901234567890';
 
     const statsQuery = useQuery({
-        queryKey: ['dashboard-stats', targetAddress],
+        queryKey: ['dashboard-stats', targetAddress, role],
         queryFn: () => fetchStats(targetAddress),
         enabled: !!targetAddress,
         staleTime: 5 * 60 * 1000,      // Data stays fresh for 5 minutes
         gcTime: 30 * 60 * 1000,         // Cache persists for 30 minutes
         retry: 2,                        // Retry twice on failure
-        retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
         placeholderData: FALLBACK_STATS, // Show zeros instead of nothing
     });
 
     const transactionsQuery = useQuery({
-        queryKey: ['dashboard-transactions', targetAddress],
-        queryFn: () => fetchEscrows(targetAddress),
+        queryKey: ['dashboard-transactions', targetAddress, role],
+        queryFn: () => fetchEscrows(targetAddress, role),
         enabled: !!targetAddress,
         staleTime: 5 * 60 * 1000,
         gcTime: 30 * 60 * 1000,

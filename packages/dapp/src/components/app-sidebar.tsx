@@ -1,7 +1,8 @@
 "use client"
 
-import { Shield, Home, LayoutTemplate, History, Settings, FileText } from "lucide-react"
+import { Shield, Home, LayoutTemplate, History, Settings, FileText, UserCircle, Briefcase, Lock } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 
 import {
     Sidebar,
@@ -16,41 +17,44 @@ import {
     SidebarFooter,
 } from "@/components/ui/sidebar"
 
-// Menu items.
-const items = [
+// Menu items grouped by Roles
+const userItems = [
     {
-        title: "Home",
+        title: "Overview",
         url: "/dashboard",
         icon: Home,
     },
     {
-        title: "Templates",
-        url: "/dashboard/templates",
+        title: "Payer View",
+        url: "/dashboard/payer",
+        icon: UserCircle,
+    },
+    {
+        title: "Payee View",
+        url: "/dashboard/payee",
+        icon: Briefcase,
+    },
+]
+
+const adminItems = [
+    {
+        title: "Integrator Dashboard",
+        url: "/dashboard/admin",
         icon: LayoutTemplate,
     },
+]
+
+const superAdminItems = [
     {
-        title: "Active Escrows",
-        url: "/dashboard/escrows",
-        icon: Shield,
-    },
-    {
-        title: "Disputes",
-        url: "/dashboard/disputes",
-        icon: FileText,
-    },
-    {
-        title: "Transactions",
-        url: "/dashboard/transactions",
-        icon: History,
-    },
-    {
-        title: "Settings",
-        url: "/dashboard/settings",
-        icon: Settings,
+        title: "Protocol Mastery",
+        url: "/dashboard/super-admin",
+        icon: Lock,
     },
 ]
 
 export function AppSidebar() {
+    const pathname = usePathname();
+
     return (
         <Sidebar variant="inset">
             <SidebarHeader className="border-b p-4">
@@ -61,12 +65,48 @@ export function AppSidebar() {
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel>Menu</SidebarGroupLabel>
+                    <SidebarGroupLabel>User Area</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {items.map((item) => (
+                            {userItems.map((item) => (
                                 <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild tooltip={item.title}>
+                                    <SidebarMenuButton asChild tooltip={item.title} isActive={pathname === item.url || pathname.startsWith(item.url + '/') && item.url !== '/dashboard'}>
+                                        <Link href={item.url}>
+                                            <item.icon />
+                                            <span>{item.title}</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            ))}
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+
+                <SidebarGroup>
+                    <SidebarGroupLabel>Marketplace Integrators</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            {adminItems.map((item) => (
+                                <SidebarMenuItem key={item.title}>
+                                    <SidebarMenuButton asChild tooltip={item.title} isActive={pathname?.startsWith(item.url)}>
+                                        <Link href={item.url}>
+                                            <item.icon />
+                                            <span>{item.title}</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            ))}
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+
+                <SidebarGroup>
+                    <SidebarGroupLabel>Super Admin</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            {superAdminItems.map((item) => (
+                                <SidebarMenuItem key={item.title}>
+                                    <SidebarMenuButton asChild tooltip={item.title} isActive={pathname?.startsWith(item.url)}>
                                         <Link href={item.url}>
                                             <item.icon />
                                             <span>{item.title}</span>
