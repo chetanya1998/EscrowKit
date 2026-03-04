@@ -11,26 +11,27 @@ export default function TransactionsPage() {
     const { transactions, isLoading } = useDashboardData()
 
     if (isLoading) return (
-        
-            <div className="flex h-[50vh] items-center justify-center text-neutral-500">
-                Loading activity...
-            </div>
-        
+
+        <div className="flex h-[50vh] items-center justify-center text-neutral-500">
+            Loading activity...
+        </div>
+
     )
 
     return (
-        
-            <div className="flex flex-col gap-8">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-neutral-50 mb-2">Transaction History</h1>
-                    <p className="text-neutral-400">Ledger of all your contract interactions.</p>
-                </div>
 
-                <Card className="bg-neutral-900 border-neutral-800">
-                    <CardHeader>
-                        <CardTitle className="text-neutral-50">Recent Transactions</CardTitle>
-                    </CardHeader>
-                    <CardContent>
+        <div className="flex flex-col gap-8">
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight text-neutral-50 mb-2">Transaction History</h1>
+                <p className="text-neutral-400">Ledger of all your contract interactions.</p>
+            </div>
+
+            <Card className="bg-neutral-900 border-neutral-800">
+                <CardHeader>
+                    <CardTitle className="text-neutral-50">Recent Transactions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow className="border-neutral-800 hover:bg-transparent">
@@ -46,8 +47,8 @@ export default function TransactionsPage() {
                                     <TableRow key={tx.id} className="border-neutral-800 hover:bg-neutral-800/50">
                                         <TableCell>
                                             <div className={`h-8 w-8 rounded-full flex items-center justify-center ${tx.type === 'funded' ? 'bg-red-500/10 text-red-500' :
-                                                    tx.type === 'released' ? 'bg-emerald-500/10 text-emerald-500' :
-                                                        'bg-neutral-800 text-neutral-400'
+                                                tx.type === 'released' ? 'bg-emerald-500/10 text-emerald-500' :
+                                                    'bg-neutral-800 text-neutral-400'
                                                 }`}>
                                                 {tx.type === 'funded' ? <ArrowOut className="h-4 w-4" /> :
                                                     tx.type === 'released' ? <ArrowDownLeft className="h-4 w-4" /> :
@@ -72,9 +73,10 @@ export default function TransactionsPage() {
                                 )}
                             </TableBody>
                         </Table>
-                    </CardContent>
-                </Card>
-            </div>
-        
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+
     )
 }

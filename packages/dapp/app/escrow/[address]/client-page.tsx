@@ -269,6 +269,16 @@ export default function EscrowClientPage() {
                                                         />
                                                     </>
                                                 )}
+
+                                                {m.status === 6 && (
+                                                    <div className="w-full flex justify-end">
+                                                        <Link href={`/dashboard/disputes/${address}`}>
+                                                            <Button variant="outline" className="border-red-500/50 text-red-500 hover:bg-red-500/10">
+                                                                <AlertTriangle className="mr-2 h-4 w-4" /> View Resolution Case
+                                                            </Button>
+                                                        </Link>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -418,7 +428,16 @@ function RentalEscrowView({ address, details, rentalDetails, refetch }: { addres
                                 {status === 0 && <span className="text-neutral-400">Awaiting Deposit</span>}
                                 {status === 1 && <span className="text-emerald-500 font-bold text-xl">Active Lease</span>}
                                 {status === 2 && <span className="text-amber-500 font-bold text-xl">Claim Pending</span>}
-                                {status === 3 && <span className="text-red-500 font-bold text-xl">Disputed</span>}
+                                {status === 3 && (
+                                    <div className="flex flex-col items-center gap-3">
+                                        <span className="text-red-500 font-bold text-xl">Disputed</span>
+                                        <Link href={`/dashboard/disputes/${address}`}>
+                                            <Button variant="outline" className="border-red-500/20 text-red-400 hover:bg-red-500/10">
+                                                View Case Details
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                )}
                                 {status === 4 && <span className="text-neutral-400 font-bold text-xl">Ended</span>}
                             </div>
 
@@ -519,7 +538,7 @@ function ServiceEscrowView({ address, details, serviceDetails, refetch }: { addr
             address,
             abi: SERVICE_ESCROW_ABI,
             functionName: 'fund',
-            value: serviceDetails.depositAmount, 
+            value: serviceDetails.depositAmount,
         });
     };
 
@@ -571,7 +590,16 @@ function ServiceEscrowView({ address, details, serviceDetails, refetch }: { addr
                                 {status === 2 && <span className="text-amber-500 font-bold text-xl">In Review</span>}
                                 {status === 3 && <span className="text-emerald-500 font-bold text-xl">Approved</span>}
                                 {status === 4 && <span className="text-emerald-500 font-bold text-xl">Released</span>}
-                                {status === 6 && <span className="text-red-500 font-bold text-xl">Disputed</span>}
+                                {status === 6 && (
+                                    <div className="flex flex-col items-center gap-3">
+                                        <span className="text-red-500 font-bold text-xl">Disputed</span>
+                                        <Link href={`/dashboard/disputes/${address}`}>
+                                            <Button variant="outline" className="border-red-500/20 text-red-400 hover:bg-red-500/10">
+                                                View Case Details
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="space-y-3">
@@ -633,7 +661,7 @@ function LeaseEscrowView({ address, details, leaseDetails, refetch }: { address:
             address,
             abi: LEASE_ESCROW_ABI,
             functionName: 'deposit',
-            value: leaseDetails.totalDeposited, 
+            value: leaseDetails.totalDeposited,
         });
     };
 
@@ -668,7 +696,16 @@ function LeaseEscrowView({ address, details, leaseDetails, refetch }: { address:
                             <div className="flex flex-col items-center justify-center p-6 bg-neutral-950/50 rounded-lg border border-neutral-800">
                                 {status === 0 && <span className="text-neutral-400">Awaiting Full Lease Deposit</span>}
                                 {status === 1 && <span className="text-emerald-500 font-bold text-xl">Active Lease</span>}
-                                {status === 2 && <span className="text-red-500 font-bold text-xl">Disputed</span>}
+                                {status === 2 && (
+                                    <div className="flex flex-col items-center gap-3">
+                                        <span className="text-red-500 font-bold text-xl">Disputed</span>
+                                        <Link href={`/dashboard/disputes/${address}`}>
+                                            <Button variant="outline" className="border-red-500/20 text-red-400 hover:bg-red-500/10">
+                                                View Case Details
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                )}
                                 {status === 3 && <span className="text-neutral-500 font-bold text-xl">Ended</span>}
                             </div>
 

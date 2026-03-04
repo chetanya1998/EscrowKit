@@ -58,38 +58,40 @@ export default function DisputesPage() {
                             </p>
                         </div>
                     ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="border-neutral-800 hover:bg-transparent">
-                                    <TableHead className="text-neutral-500 font-medium">Case ID</TableHead>
-                                    <TableHead className="text-neutral-500 font-medium">Project</TableHead>
-                                    <TableHead className="text-neutral-500 font-medium">Amount Locked</TableHead>
-                                    <TableHead className="text-neutral-500 font-medium">Status</TableHead>
-                                    <TableHead className="text-right"></TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {disputes.map((tx: any) => (
-                                    <TableRow key={tx.id} className="border-neutral-800 hover:bg-neutral-800/50">
-                                        <TableCell className="font-medium text-neutral-300">#{tx.id}</TableCell>
-                                        <TableCell className="text-neutral-300">{tx.description || "Escrow Contract"}</TableCell>
-                                        <TableCell className="text-neutral-50 font-medium">{tx.amount} {tx.currency}</TableCell>
-                                        <TableCell>
-                                            <Badge variant="destructive" className="bg-red-500/10 text-red-500 border-red-500/20">
-                                                Dispute Open
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <Link href={`/dashboard/disputes/${tx.id}`}>
-                                                <Button variant="outline" size="sm" className="border-neutral-700 hover:bg-neutral-800">
-                                                    View Case
-                                                </Button>
-                                            </Link>
-                                        </TableCell>
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="border-neutral-800 hover:bg-transparent">
+                                        <TableHead className="text-neutral-500 font-medium">Case ID</TableHead>
+                                        <TableHead className="text-neutral-500 font-medium">Project</TableHead>
+                                        <TableHead className="text-neutral-500 font-medium">Amount Locked</TableHead>
+                                        <TableHead className="text-neutral-500 font-medium">Status</TableHead>
+                                        <TableHead className="text-right"></TableHead>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {disputes.map((tx: any) => (
+                                        <TableRow key={tx.id} className="border-neutral-800 hover:bg-neutral-800/50">
+                                            <TableCell className="font-medium text-neutral-300">#{tx.id}</TableCell>
+                                            <TableCell className="text-neutral-300">{tx.description || "Escrow Contract"}</TableCell>
+                                            <TableCell className="text-neutral-50 font-medium">{tx.amount} {tx.currency}</TableCell>
+                                            <TableCell>
+                                                <Badge variant="destructive" className="bg-red-500/10 text-red-500 border-red-500/20">
+                                                    Dispute Open
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Link href={`/dashboard/disputes/${tx.id}`}>
+                                                    <Button variant="outline" size="sm" className="border-neutral-700 hover:bg-neutral-800">
+                                                        View Case
+                                                    </Button>
+                                                </Link>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
                     )}
                 </CardContent>
             </Card>
