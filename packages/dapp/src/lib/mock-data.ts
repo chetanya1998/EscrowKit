@@ -18,7 +18,7 @@ export interface UsageStats {
     disputeRate: string;
 }
 
-const mockTransactions: Transaction[] = [
+export const mockTransactions: Transaction[] = [
     {
         id: 'tx_1',
         date: '2023-10-25',

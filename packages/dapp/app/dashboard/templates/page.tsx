@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Briefcase, Home, Shield, FileText, ArrowRight } from "lucide-react"
+import { Briefcase, Home, Shield, FileText, ArrowRight, Settings } from "lucide-react"
 import Link from "next/link"
 
 const templates = [
@@ -45,6 +45,16 @@ const templates = [
         href: "/create/lease",
         color: "text-amber-500",
         bg: "bg-amber-500/10",
+    },
+    {
+        id: "custom",
+        title: "Custom Escrow",
+        description: "Configure dynamic arbitration fees, custom delay penalties, review periods, and unique dispute windows.",
+        icon: Settings,
+        bestFor: "Complex Agreements, Unique Requirements",
+        href: "/create/custom",
+        color: "text-zinc-500",
+        bg: "bg-zinc-500/10",
     },
 ]
 
