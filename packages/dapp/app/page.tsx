@@ -127,48 +127,89 @@ const ParticleConstellation = () => {
     canvas.width = width;
     canvas.height = height;
 
-    const particles: { x: number, y: number, vx: number, vy: number }[] = [];
-    const particleCount = width < 768 ? 40 : 80;
+    let mouseX = width / 2;
+    let mouseY = height / 2;
+    let targetMouseX = width / 2;
+    let targetMouseY = height / 2;
+
+    const particles: { x: number, y: number, z: number, vx: number, vy: number, vz: number, size: number }[] = [];
+    const particleCount = width < 768 ? 50 : 120; // Increased count for better 3D depth
 
     for (let i = 0; i < particleCount; i++) {
+      // Z axis from 0.1 (far) to 2 (near)
+      const z = Math.random() * 2 + 0.1;
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
+        z: z,
         vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5
+        vy: (Math.random() - 0.5) * 0.5,
+        vz: (Math.random() - 0.5) * 0.02,
+        size: Math.random() * 1.5 + 0.5
       });
     }
 
     let rafId: number;
     const animate = () => {
       ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = 'rgba(16, 185, 129, 0.4)';
-      ctx.strokeStyle = 'rgba(16, 185, 129, 0.15)';
-      ctx.lineWidth = 1;
+
+      // Smooth mouse interpolation
+      mouseX += (targetMouseX - mouseX) * 0.05;
+      mouseY += (targetMouseY - mouseY) * 0.05;
+
+      const dxMouse = (mouseX - width / 2) * 0.08;
+      const dyMouse = (mouseY - height / 2) * 0.08;
 
       particles.forEach((p, i) => {
         p.x += p.vx;
         p.y += p.vy;
+        p.z += p.vz;
+
+        // Bounce Z
+        if (p.z < 0.1 || p.z > 2.5) p.vz *= -1;
 
         if (p.x < 0) p.x = width;
         if (p.x > width) p.x = 0;
         if (p.y < 0) p.y = height;
         if (p.y > height) p.y = 0;
 
+        // Apply 3D perspective
+        const scale = 1 / p.z;
+
+        // Parallax shift based on Z depth and mouse position
+        const px = p.x + dxMouse * p.z;
+        const py = p.y + dyMouse * p.z;
+
+        // Opacity based on Z (far away = more transparent)
+        const opacity = Math.min(Math.max((2.5 - p.z) * 0.4, 0.1), 0.8);
+
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(16, 185, 129, ${opacity})`;
+        ctx.arc(px, py, p.size * scale, 0, Math.PI * 2);
         ctx.fill();
 
         for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j];
+
           const dx = p.x - p2.x;
           const dy = p.y - p2.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
+          const dz = p.z - p2.z;
+          // Scale Z distance to prioritize drawing connections on the same focal plane
+          const dist3D = Math.sqrt(dx * dx + dy * dy + dz * dz * 50);
 
-          if (dist < 150) {
+          if (dist3D < 120) {
+            const scale2 = 1 / p2.z;
+            const px2 = p2.x + dxMouse * p2.z;
+            const py2 = p2.y + dyMouse * p2.z;
+
+            const avgZ = (p.z + p2.z) / 2;
+            const connOpacity = Math.max(0, 0.15 - dist3D / 800) * Math.min(1, 1.5 / avgZ);
+
             ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(16, 185, 129, ${connOpacity})`;
+            ctx.lineWidth = 1 * ((scale + scale2) / 2);
+            ctx.moveTo(px, py);
+            ctx.lineTo(px2, py2);
             ctx.stroke();
           }
         }
@@ -185,17 +226,24 @@ const ParticleConstellation = () => {
       canvas.height = height;
     };
 
+    const handleMouseMove = (e: MouseEvent) => {
+      targetMouseX = e.clientX;
+      targetMouseY = e.clientY;
+    };
+
     window.addEventListener('resize', handleResize);
+    window.addEventListener('mousemove', handleMouseMove);
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
 
   return (
     <div className="fixed inset-0 z-0 bg-[#010101] pointer-events-none">
       <div className="absolute inset-0 opacity-[0.25] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-60" />
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-60 pointer-events-auto" />
     </div>
   );
 };
@@ -223,106 +271,116 @@ const PremiumCard = ({ children, className = '', highlight = false }: { children
  * FULL DASHBOARD SIMULATION
  */
 const DashboardSimulation = () => (
-  <div className="relative w-full aspect-auto md:aspect-[16/9] lg:aspect-[21/9] bg-[#0c0c0c] rounded-3xl border border-white/10 overflow-hidden shadow-2xl group flex flex-col md:block">
-    {/* Fade overlay for "Faded Product Experience" */}
-    <div className="absolute inset-0 bg-gradient-to-t from-[#010101] via-transparent to-transparent z-20 pointer-events-none opacity-80" />
-    <div className="absolute inset-0 bg-gradient-to-r from-[#010101] via-transparent to-[#010101] z-20 pointer-events-none opacity-50" />
+  <div className="relative w-full aspect-auto md:aspect-[16/9] lg:aspect-[21/9] z-20 group" style={{ perspective: '2000px' }}>
+    <div
+      className="w-full h-full bg-[#0c0c0c] rounded-3xl border border-white/10 flex flex-col md:block shadow-2xl transition-all duration-700 ease-out hover:!transform-none hover:scale-[1.02] md:shadow-[-30px_50px_80px_-20px_rgba(0,0,0,0.8)] hover:shadow-[0_0_80px_rgba(16,185,129,0.15)] relative"
+      style={{
+        transform: typeof window !== 'undefined' && window.innerWidth >= 768 ? 'rotateX(12deg) rotateY(-12deg) rotateZ(2deg)' : 'none',
+        transformStyle: 'preserve-3d'
+      }}
+    >
+      <div className="absolute inset-0 rounded-3xl overflow-hidden bg-[#0c0c0c]">
+        {/* Fade overlay for "Faded Product Experience" */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#010101] via-transparent to-transparent z-20 pointer-events-none opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#010101] via-transparent to-[#010101] z-20 pointer-events-none opacity-50" />
 
-    <div className="flex h-full text-xs flex-col md:flex-row">
-      {/* Sidebar */}
-      <div className="w-64 bg-[#111] border-r border-white/5 p-4 flex flex-col gap-6 hidden md:flex">
-        <div className="flex items-center gap-2 px-2">
-          <div className="w-6 h-6 bg-emerald-500 rounded-md" />
-          <span className="font-bold text-white tracking-widest uppercase">EscrowKit</span>
-        </div>
-        <div className="flex flex-col gap-1">
-          <div className="px-3 py-2 bg-emerald-500/10 text-emerald-400 rounded-lg font-bold flex items-center gap-3">
-            <LayoutDashboard size={14} /> Overview
-          </div>
-          <div className="px-3 py-2 text-zinc-500 hover:text-white flex items-center gap-3 transition-colors">
-            <FileText size={14} /> Contracts
-          </div>
-          <div className="px-3 py-2 text-zinc-500 hover:text-white flex items-center gap-3 transition-colors">
-            <CreditCard size={14} /> Payments
-          </div>
-          <div className="px-3 py-2 text-zinc-500 hover:text-white flex items-center gap-3 transition-colors">
-            <Settings size={14} /> Settings
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 bg-[#0c0c0c] flex flex-col">
-        {/* Header */}
-        <div className="h-16 border-b border-white/5 flex items-center justify-between px-6 shrink-0">
-          <div className="text-zinc-400 font-medium">Dashboard / Overview</div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 rounded-full border border-white/5">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-              <span className="text-zinc-400 font-mono">0x8a...42b</span>
+        <div className="flex h-full text-xs flex-col md:flex-row relative z-10">
+          {/* Sidebar */}
+          <div className="w-64 bg-[#111] border-r border-white/5 p-4 flex flex-col gap-6 hidden md:flex">
+            <div className="flex items-center gap-2 px-2">
+              <div className="w-6 h-6 bg-emerald-500 rounded-md" />
+              <span className="font-bold text-white tracking-widest uppercase">EscrowKit</span>
             </div>
-            <Bell size={16} className="text-zinc-500" />
-          </div>
-        </div>
-
-        {/* Dashboard Content */}
-        <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 pb-20 md:pb-6">
-          {/* Stats */}
-          <div className="col-span-1 md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-            <div className="bg-zinc-900/40 p-5 rounded-2xl border border-white/5">
-              <div className="text-zinc-500 mb-1 font-bold uppercase tracking-wider text-[10px]">Total Volume</div>
-              <div className="text-2xl font-bold text-white">12.5 ETH</div>
-            </div>
-            <div className="bg-zinc-900/40 p-5 rounded-2xl border border-white/5">
-              <div className="text-zinc-500 mb-1 font-bold uppercase tracking-wider text-[10px]">Active Deals</div>
-              <div className="text-2xl font-bold text-emerald-400">8 Active</div>
-            </div>
-            <div className="bg-zinc-900/40 p-5 rounded-2xl border border-white/5">
-              <div className="text-zinc-500 mb-1 font-bold uppercase tracking-wider text-[10px]">Pending Actions</div>
-              <div className="text-2xl font-bold text-amber-500">2 Actions</div>
+            <div className="flex flex-col gap-1">
+              <div className="px-3 py-2 bg-emerald-500/10 text-emerald-400 rounded-lg font-bold flex items-center gap-3">
+                <LayoutDashboard size={14} /> Overview
+              </div>
+              <div className="px-3 py-2 text-zinc-500 hover:text-white flex items-center gap-3 transition-colors">
+                <FileText size={14} /> Contracts
+              </div>
+              <div className="px-3 py-2 text-zinc-500 hover:text-white flex items-center gap-3 transition-colors">
+                <CreditCard size={14} /> Payments
+              </div>
+              <div className="px-3 py-2 text-zinc-500 hover:text-white flex items-center gap-3 transition-colors">
+                <Settings size={14} /> Settings
+              </div>
             </div>
           </div>
 
-          {/* Activity Feed */}
-          <div className="col-span-2 bg-zinc-900/40 rounded-2xl border border-white/5 p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-bold text-white text-sm">Recent Transactions</h3>
-              <MoreHorizontal size={14} className="text-zinc-500" />
-            </div>
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center justify-between p-3 hover:bg-white/5 rounded-xl transition-colors cursor-pointer group/item">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-emerald-500 group-hover/item:bg-emerald-500 group-hover/item:text-black transition-colors">
-                      <ArrowRight size={12} />
-                    </div>
-                    <div>
-                      <div className="text-white font-bold">Milestone Release</div>
-                      <div className="text-zinc-500 text-[10px]">0x71...3A9 • 2m ago</div>
-                    </div>
-                  </div>
-                  <div className="text-emerald-400 font-mono">+1.2 ETH</div>
+          {/* Main Content */}
+          <div className="flex-1 flex flex-col z-10 relative bg-transparent">
+            {/* Header */}
+            <div className="h-16 border-b border-white/5 flex items-center justify-between px-6 shrink-0 bg-[#0c0c0c]/80 backdrop-blur-sm relative z-20">
+              <div className="text-zinc-400 font-medium">Dashboard / Overview</div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 rounded-full border border-white/5">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                  <span className="text-zinc-400 font-mono">0x8a...42b</span>
                 </div>
-              ))}
+                <Bell size={16} className="text-zinc-500" />
+              </div>
             </div>
-          </div>
 
-          {/* Action Card */}
-          <div className="col-span-1 bg-gradient-to-br from-emerald-900/20 to-zinc-900/40 rounded-2xl border border-emerald-500/20 p-6 flex flex-col justify-center text-center">
-            <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4 text-black shadow-lg shadow-emerald-500/20">
-              <Plus size={24} />
+            {/* Dashboard Content */}
+            <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 pb-20 md:pb-6 relative z-10">
+              {/* Stats */}
+              <div className="col-span-1 md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                <div className="bg-zinc-900/40 p-5 rounded-2xl border border-white/5 backdrop-blur-sm">
+                  <div className="text-zinc-500 mb-1 font-bold uppercase tracking-wider text-[10px]">Total Volume</div>
+                  <div className="text-2xl font-bold text-white">12.5 ETH</div>
+                </div>
+                <div className="bg-zinc-900/40 p-5 rounded-2xl border border-white/5 backdrop-blur-sm">
+                  <div className="text-zinc-500 mb-1 font-bold uppercase tracking-wider text-[10px]">Active Deals</div>
+                  <div className="text-2xl font-bold text-emerald-400">8 Active</div>
+                </div>
+                <div className="bg-zinc-900/40 p-5 rounded-2xl border border-white/5 backdrop-blur-sm">
+                  <div className="text-zinc-500 mb-1 font-bold uppercase tracking-wider text-[10px]">Pending Actions</div>
+                  <div className="text-2xl font-bold text-amber-500">2 Actions</div>
+                </div>
+              </div>
+
+              {/* Activity Feed */}
+              <div className="col-span-2 bg-zinc-900/40 rounded-2xl border border-white/5 p-6 backdrop-blur-sm">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="font-bold text-white text-sm">Recent Transactions</h3>
+                  <MoreHorizontal size={14} className="text-zinc-500" />
+                </div>
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center justify-between p-3 hover:bg-white/5 rounded-xl transition-colors cursor-pointer group/item">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-emerald-500 group-hover/item:bg-emerald-500 group-hover/item:text-black transition-colors">
+                          <ArrowRight size={12} />
+                        </div>
+                        <div>
+                          <div className="text-white font-bold">Milestone Release</div>
+                          <div className="text-zinc-500 text-[10px]">0x71...3A9 • 2m ago</div>
+                        </div>
+                      </div>
+                      <div className="text-emerald-400 font-mono">+1.2 ETH</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Card */}
+              <div className="col-span-1 bg-gradient-to-br from-emerald-900/20 to-zinc-900/40 rounded-2xl border border-emerald-500/20 p-6 flex flex-col justify-center text-center backdrop-blur-sm">
+                <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4 text-black shadow-lg shadow-emerald-500/20 transform transition-transform group-hover:scale-110">
+                  <Plus size={24} />
+                </div>
+                <h3 className="font-bold text-white mb-2">New Escrow</h3>
+                <p className="text-zinc-500 mb-4 leading-relaxed">Create a milestone-based contract in seconds.</p>
+                <button className="bg-emerald-500 text-black font-bold py-2 rounded-lg hover:bg-emerald-400 transition-colors">Start Now</button>
+              </div>
             </div>
-            <h3 className="font-bold text-white mb-2">New Escrow</h3>
-            <p className="text-zinc-500 mb-4 leading-relaxed">Create a milestone-based contract in seconds.</p>
-            <button className="bg-emerald-500 text-black font-bold py-2 rounded-lg hover:bg-emerald-400 transition-colors">Start Now</button>
           </div>
         </div>
       </div>
-    </div>
 
-    {/* Floating Interaction Hint */}
-    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 px-6 py-2 bg-zinc-900/80 backdrop-blur-md rounded-full border border-white/10 text-[10px] font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2 animate-bounce w-max max-w-[90%] justify-center whitespace-nowrap">
-      <LayoutDashboard size={12} className="text-emerald-500" /> Interactive Preview
+      {/* Floating Interaction Hint - Now outside the clipping area to show in 3D properly */}
+      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-2 bg-zinc-900/80 backdrop-blur-md rounded-full border border-white/10 text-[10px] font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2 animate-bounce w-max max-w-[90%] justify-center whitespace-nowrap shadow-xl transform translate-z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+        <LayoutDashboard size={12} className="text-emerald-500" /> Interactive Mode
+      </div>
     </div>
   </div>
 );
