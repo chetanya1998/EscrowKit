@@ -62,7 +62,7 @@ export function useDashboardData() {
 
     return {
         stats: statsQuery.data ?? FALLBACK_STATS,
-        transactions: transactionsQuery.data ?? [],
+        transactions: transactionsQuery.data ?? mockTransactions,
         isLoading: statsQuery.isLoading || transactionsQuery.isLoading,
         isFetching: statsQuery.isFetching || transactionsQuery.isFetching,
         error: statsQuery.error || transactionsQuery.error,
