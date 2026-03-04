@@ -453,9 +453,9 @@ export default function App() {
 
       {/* Hero Section */}
       <section className="relative z-10 pt-20 pb-20 md:pt-28 md:pb-32 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           {/* Left Column: Text & CTAs */}
-          <div className="text-center lg:text-left flex flex-col items-center lg:items-start">
+          <div className="lg:col-span-5 text-center lg:text-left flex flex-col items-center lg:items-start">
             <FadeIn delay={100}>
               <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-bold tracking-[0.4em] uppercase text-emerald-400 mb-8 lg:mb-14 backdrop-blur-md shadow-lg shadow-emerald-500/10">
                 <Zap size={12} className="fill-emerald-400" /> The Trustless Marketplace Engine
@@ -508,8 +508,8 @@ export default function App() {
           </div>
 
           {/* Right Column: Dashboard Preview */}
-          <FadeIn delay={500} className="w-full mt-12 lg:mt-0 xl:scale-105 xl:origin-center">
-            <div id="dashboard" className="relative w-full max-w-2xl mx-auto">
+          <FadeIn delay={500} className="lg:col-span-7 w-full mt-12 lg:mt-0 xl:scale-105 xl:origin-center">
+            <div id="dashboard" className="relative w-full mx-auto">
               <DashboardSimulation />
             </div>
           </FadeIn>
