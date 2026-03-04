@@ -910,7 +910,7 @@ export default function App() {
           </div>
 
           <div className="flex gap-8 md:gap-12 text-[11px] font-bold uppercase tracking-[0.3em] text-zinc-300 flex-wrap justify-center">
-            <a href="/docs" className="hover:text-emerald-400 transition-colors">Docs</a>
+            <Link href="/docs" className="hover:text-emerald-400 transition-colors">Docs</Link>
             <a href="#roadmap" className="hover:text-emerald-400 transition-colors">Roadmap</a>
             <a href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="hover:text-emerald-400 transition-colors">Contribute</a>
             <a href="https://github.com/chetanya1998/EscrowKit/blob/main/LICENSE" target="_blank" className="hover:text-emerald-400 transition-colors">License</a>

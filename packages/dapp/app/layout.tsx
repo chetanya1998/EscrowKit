@@ -35,7 +35,7 @@ export default function RootLayout({
   `.replace(/\s{2,}/g, ' ').trim();
 
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <meta httpEquiv="Content-Security-Policy" content={cspHeader} />
       </head>
