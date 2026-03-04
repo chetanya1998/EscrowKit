@@ -38,7 +38,7 @@ jobs:
       - name: Prepare for Static Export
         run: |
           rm -rf packages/dapp/app/escrow
-          rm -rf packages/dapp/app/dispute
+          rm -rf packages/dapp/app/dashboard/disputes/\[id\]
 
       - name: Build
         env:
