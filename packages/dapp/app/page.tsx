@@ -573,14 +573,14 @@ export default function App() {
           </FadeIn>
           <FadeIn delay={400}>
             <div className="flex items-center justify-center gap-4 mb-10">
-              <a href="#get-started" className="bg-emerald-500 text-black h-14 px-12 rounded-full font-bold text-base hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all flex items-center gap-3">
-                <ArrowRight size={18} /> Get Started — Free
+              <a href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="bg-emerald-500 text-black h-14 px-12 rounded-full font-bold text-base hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all flex items-center gap-3">
+                <ArrowRight size={18} /> Explore the Project
               </a>
             </div>
           </FadeIn>
           <FadeIn delay={500}>
             <div className="flex flex-wrap items-center justify-center gap-3 mb-16">
-              {['Non-custodial', 'Milestone-based', 'Dispute-ready', 'Open-source', 'Transparent'].map(item => (
+              {['Non-custodial', 'Milestone-based', 'Open-source', 'Transparent'].map(item => (
                 <div key={item} className="flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900/60 border border-white/5">
                   <CheckCircle2 size={11} className="text-emerald-500 shrink-0" />
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">{item}</span>
@@ -1016,8 +1016,8 @@ export default function App() {
                 Integrate milestone payments, dispute resolution and on-chain escrow into any product — in minutes.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="/dashboard" className="bg-emerald-500 text-black h-14 px-10 rounded-full font-bold text-base hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all flex items-center gap-3">
-                  <ArrowRight size={18} /> Start for Free
+                <a href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="bg-emerald-500 text-black h-14 px-10 rounded-full font-bold text-base hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all flex items-center gap-3">
+                  <ArrowRight size={18} /> Explore the Project
                 </a>
                 <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="h-14 px-10 rounded-full font-bold text-base border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-white/5 flex items-center gap-3">
                   <Github size={18} /> View on GitHub

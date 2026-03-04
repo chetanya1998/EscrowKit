@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: "EscrowKit — Smart Escrow Engine",
   description: "Trustless milestone-based payments for the future of work. Built on Ethereum.",
   icons: {
-    icon: process.env.NEXT_PUBLIC_DEPLOY_TARGET === "gh-pages" ? "/EscrowKit/escrowkit-logo.png" : "/escrowkit-logo.png",
+    icon: process.env.NEXT_PUBLIC_DEPLOY_TARGET === "gh-pages" ? "/EscrowKit/escrowkit-logo.svg" : "/escrowkit-logo.svg",
   },
 };
 
