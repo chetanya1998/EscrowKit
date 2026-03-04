@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "./MilestoneEscrow.sol";
 import "./RentalEscrow.sol";
+import "./ServiceEscrow.sol";
+import "./LeaseEscrow.sol";
 import "./interfaces/IEscrowFactory.sol";
 
 contract EscrowFactory is IEscrowFactory, AccessControl, Pausable {
@@ -14,6 +16,8 @@ contract EscrowFactory is IEscrowFactory, AccessControl, Pausable {
 
     address public implementation;
     address public rentalImplementation;
+    address public serviceImplementation;
+    address public leaseImplementation;
     address[] public escrows;
 
     constructor() {
@@ -22,6 +26,8 @@ contract EscrowFactory is IEscrowFactory, AccessControl, Pausable {
 
         implementation = address(new MilestoneEscrow());
         rentalImplementation = address(new RentalEscrow());
+        serviceImplementation = address(new ServiceEscrow());
+        leaseImplementation = address(new LeaseEscrow());
     }
 
     function pause() external onlyRole(PAUSER_ROLE) {
@@ -88,6 +94,58 @@ contract EscrowFactory is IEscrowFactory, AccessControl, Pausable {
             arbitrationAdapter,
             token, // Can specify token or 0 for ETH
             depositAmount,
+            config
+        );
+
+        escrows.push(clone);
+        emit EscrowCreated(clone, msg.sender, payee, arbiter);
+        
+        return clone;
+    }
+
+    function createServiceEscrow(
+        address payee,
+        address arbiter,
+        address arbitrationAdapter,
+        address token,
+        uint256 depositAmount,
+        uint256 deadline,
+        IServiceEscrow.ServiceConfig calldata config
+    ) external payable whenNotPaused returns (address) {
+        address clone = Clones.clone(serviceImplementation);
+
+        ServiceEscrow(clone).initialize(
+            msg.sender,
+            payee,
+            arbiter,
+            arbitrationAdapter,
+            token, // Can specify token or 0 for ETH
+            depositAmount,
+            deadline,
+            config
+        );
+
+        escrows.push(clone);
+        emit EscrowCreated(clone, msg.sender, payee, arbiter);
+        
+        return clone;
+    }
+
+    function createLeaseEscrow(
+        address payee,
+        address arbiter,
+        address arbitrationAdapter,
+        address token,
+        ILeaseEscrow.LeaseConfig calldata config
+    ) external payable whenNotPaused returns (address) {
+        address clone = Clones.clone(leaseImplementation);
+
+        LeaseEscrow(clone).initialize(
+            msg.sender,
+            payee,
+            arbiter,
+            arbitrationAdapter,
+            token, // Can specify token or 0 for ETH
             config
         );
 

@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { ArrowLeft, MessageSquare, FileText, CheckCircle2, Clock, Lock, AlertTriangle, ChevronRight, Play, Check, ShieldCheck, Activity } from "lucide-react"
+import { ArrowLeft, MessageSquare, FileText, CheckCircle2, Clock, Lock, AlertTriangle, ChevronRight, Play, Check, ShieldCheck, Activity, Loader2 } from "lucide-react"
 import { cn, getExplorerUrl } from "@/lib/utils"
 import Link from 'next/link';
 import { MILESTONE_ESCROW_ABI } from '@/lib/constants';
@@ -27,7 +27,7 @@ export default function EscrowClientPage() {
     const router = useRouter();
     const address = params.address as Address;
     const { address: userAddress } = useAccount();
-    const { milestones, details, rentalDetails, type, isLoading, refetch, isError } = useEscrow(address);
+    const { milestones, details, rentalDetails, serviceDetails, leaseDetails, type, isLoading, refetch, isError } = useEscrow(address);
 
     const isPayer = userAddress && details?.payer && userAddress.toLowerCase() === details.payer.toLowerCase();
     const isPayee = userAddress && details?.payee && userAddress.toLowerCase() === details.payee.toLowerCase();
@@ -100,7 +100,7 @@ export default function EscrowClientPage() {
         return (
             <DashboardLayout>
                 <div className="flex h-[50vh] items-center justify-center text-neutral-500">
-                    Loading details...
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading details...
                 </div>
             </DashboardLayout>
         )
@@ -109,6 +109,16 @@ export default function EscrowClientPage() {
     // --- RENTAL VIEW COMPONENT ---
     if (type === 'rental' && rentalDetails) {
         return <RentalEscrowView address={address} details={details} rentalDetails={rentalDetails} refetch={refetch} />
+    }
+
+    // --- SERVICE VIEW COMPONENT ---
+    if (type === 'service' && serviceDetails) {
+        return <ServiceEscrowView address={address} details={details} serviceDetails={serviceDetails} refetch={refetch} />
+    }
+
+    // --- LEASE VIEW COMPONENT ---
+    if (type === 'lease' && leaseDetails) {
+        return <LeaseEscrowView address={address} details={details} leaseDetails={leaseDetails} refetch={refetch} />
     }
 
     // --- EMPTY STATE: INITIALIZATION ---
@@ -481,5 +491,210 @@ function ParticipantRow({ label, address, isYou, isBadge }: { label: string, add
                 </div>
             )}
         </div>
+    )
+}
+
+// --- SERVICE VIEW COMPONENT ---
+import { SERVICE_ESCROW_ABI } from '@/lib/constants';
+import { ServiceDetails } from '@/hooks/useEscrow';
+
+function ServiceEscrowView({ address, details, serviceDetails, refetch }: { address: `0x${string}`, details: EscrowDetails, serviceDetails: ServiceDetails, refetch: () => void }) {
+    const router = useRouter();
+    const { address: userAddress } = useAccount();
+    const isBuyer = userAddress && details.payer && userAddress.toLowerCase() === details.payer.toLowerCase();
+    const isProvider = userAddress && details.payee && userAddress.toLowerCase() === details.payee.toLowerCase();
+
+    // 0=PENDING, 1=FUNDED, 2=SUBMITTED, 3=APPROVED, 4=RELEASED, 5=REFUNDED, 6=DISPUTED
+    const status = serviceDetails.status;
+
+    const { writeContract, isPending, data: hash } = useWriteContract();
+    const { isSuccess } = useWaitForTransactionReceipt({ hash });
+
+    React.useEffect(() => {
+        if (isSuccess) refetch();
+    }, [isSuccess, refetch]);
+
+    const handleFund = () => {
+        writeContract({
+            address,
+            abi: SERVICE_ESCROW_ABI,
+            functionName: 'fund',
+            value: serviceDetails.depositAmount, 
+        });
+    };
+
+    const handleSubmit = () => {
+        // Mock hash
+        const mockHash = "0x" + "1".repeat(64);
+        writeContract({
+            address,
+            abi: SERVICE_ESCROW_ABI,
+            functionName: 'submitService',
+            args: [mockHash],
+        });
+    }
+
+    const handleApprove = () => {
+        writeContract({
+            address,
+            abi: SERVICE_ESCROW_ABI,
+            functionName: 'approveService',
+        });
+    }
+
+    return (
+        <DashboardLayout>
+            <div className="max-w-6xl mx-auto w-full space-y-8">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <Button variant="ghost" className="pl-0 text-neutral-400 hover:text-neutral-50 mb-2" onClick={() => router.push('/dashboard/escrows')}>
+                            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
+                        </Button>
+                        <h1 className="text-3xl font-bold text-neutral-50 flex items-center gap-3">
+                            Service Escrow <Badge variant="outline" className="text-purple-400 border-purple-900 bg-purple-900/10">Service</Badge>
+                        </h1>
+                        <div className="flex items-center gap-2 mt-2 text-sm text-neutral-400">
+                            <Lock className="h-3 w-3 text-emerald-500" /> Contract ID: {address}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-2">
+                    <Card className="bg-neutral-900 border-neutral-800">
+                        <CardHeader>
+                            <CardTitle className="text-neutral-100 flex items-center gap-2"><Activity className="h-5 w-5 text-purple-500" /> Work Status</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <div className="flex flex-col items-center justify-center p-6 bg-neutral-950/50 rounded-lg border border-neutral-800">
+                                {status === 0 && <span className="text-neutral-400">Awaiting Deposit</span>}
+                                {status === 1 && <span className="text-blue-400 font-bold text-xl">Work in Progress</span>}
+                                {status === 2 && <span className="text-amber-500 font-bold text-xl">In Review</span>}
+                                {status === 3 && <span className="text-emerald-500 font-bold text-xl">Approved</span>}
+                                {status === 4 && <span className="text-emerald-500 font-bold text-xl">Released</span>}
+                                {status === 6 && <span className="text-red-500 font-bold text-xl">Disputed</span>}
+                            </div>
+
+                            <div className="space-y-3">
+                                {isBuyer && status === 0 && (
+                                    <Button onClick={handleFund} disabled={isPending} className="w-full bg-emerald-600 hover:bg-emerald-700">Fund Service</Button>
+                                )}
+                                {isProvider && status === 1 && (
+                                    <Button onClick={handleSubmit} disabled={isPending} className="w-full bg-blue-600 hover:bg-blue-700">Submit Deliverable</Button>
+                                )}
+                                {isBuyer && status === 2 && (
+                                    <Button onClick={handleApprove} disabled={isPending} className="w-full bg-purple-600 hover:bg-purple-700">Approve & Release</Button>
+                                )}
+                                {status === 2 && (
+                                    <div className="bg-amber-900/10 border border-amber-900/30 p-3 rounded text-sm text-amber-500 mt-4">
+                                        Review Period Active. Provider can auto-release if not approved in time.
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="bg-neutral-900 border-neutral-800">
+                        <CardHeader><CardTitle className="text-neutral-100">Service Details</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex justify-between text-sm"><span className="text-neutral-400">Deposit Total</span><span className="font-mono text-neutral-50">{formatEther(serviceDetails.depositAmount)} ETH</span></div>
+                            <Separator className="bg-neutral-800" />
+                            <ParticipantRow label="Buyer" address={details.payer} isYou={isBuyer} />
+                            <ParticipantRow label="Provider" address={details.payee} isYou={isProvider} />
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </DashboardLayout>
+    )
+}
+
+// --- LEASE VIEW COMPONENT ---
+import { LEASE_ESCROW_ABI } from '@/lib/constants';
+import { LeaseDetails } from '@/hooks/useEscrow';
+
+function LeaseEscrowView({ address, details, leaseDetails, refetch }: { address: `0x${string}`, details: EscrowDetails, leaseDetails: LeaseDetails, refetch: () => void }) {
+    const router = useRouter();
+    const { address: userAddress } = useAccount();
+    const isLessee = userAddress && details.payer && userAddress.toLowerCase() === details.payer.toLowerCase();
+    const isLessor = userAddress && details.payee && userAddress.toLowerCase() === details.payee.toLowerCase();
+
+    // 0=AWAITING_DEPOSIT, 1=ACTIVE, 2=DISPUTED, 3=ENDED
+    const status = leaseDetails.status;
+
+    const { writeContract, isPending, data: hash } = useWriteContract();
+    const { isSuccess } = useWaitForTransactionReceipt({ hash });
+
+    React.useEffect(() => {
+        if (isSuccess) refetch();
+    }, [isSuccess, refetch]);
+
+    const handleDeposit = () => {
+        writeContract({
+            address,
+            abi: LEASE_ESCROW_ABI,
+            functionName: 'deposit',
+            value: leaseDetails.totalDeposited, 
+        });
+    };
+
+    const handleClaim = () => {
+        writeContract({
+            address,
+            abi: LEASE_ESCROW_ABI,
+            functionName: 'claimPeriodPayment',
+        });
+    }
+
+    return (
+        <DashboardLayout>
+            <div className="max-w-6xl mx-auto w-full space-y-8">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <Button variant="ghost" className="pl-0 text-neutral-400 hover:text-neutral-50 mb-2" onClick={() => router.push('/dashboard/escrows')}>
+                            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
+                        </Button>
+                        <h1 className="text-3xl font-bold text-neutral-50 flex items-center gap-3">
+                            Lease Escrow <Badge variant="outline" className="text-amber-400 border-amber-900 bg-amber-900/10">Lease</Badge>
+                        </h1>
+                    </div>
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-2">
+                    <Card className="bg-neutral-900 border-neutral-800">
+                        <CardHeader>
+                            <CardTitle className="text-neutral-100 flex items-center gap-2"><Activity className="h-5 w-5 text-amber-500" /> Lease Status</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <div className="flex flex-col items-center justify-center p-6 bg-neutral-950/50 rounded-lg border border-neutral-800">
+                                {status === 0 && <span className="text-neutral-400">Awaiting Full Lease Deposit</span>}
+                                {status === 1 && <span className="text-emerald-500 font-bold text-xl">Active Lease</span>}
+                                {status === 2 && <span className="text-red-500 font-bold text-xl">Disputed</span>}
+                                {status === 3 && <span className="text-neutral-500 font-bold text-xl">Ended</span>}
+                            </div>
+
+                            <div className="space-y-3">
+                                {isLessee && status === 0 && (
+                                    <Button onClick={handleDeposit} disabled={isPending} className="w-full bg-emerald-600 hover:bg-emerald-700">Deposit Full Lease Term</Button>
+                                )}
+                                {isLessor && status === 1 && (
+                                    <Button onClick={handleClaim} disabled={isPending} className="w-full bg-amber-600 hover:bg-amber-700">Claim Period Payout</Button>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="bg-neutral-900 border-neutral-800">
+                        <CardHeader><CardTitle className="text-neutral-100">Lease Details</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex justify-between text-sm"><span className="text-neutral-400">Total Escrowed</span><span className="font-mono text-neutral-50">{formatEther(leaseDetails.totalDeposited)} ETH</span></div>
+                            <div className="flex justify-between text-sm"><span className="text-neutral-400">Claims Logged</span><span className="font-mono text-neutral-50">{Number(leaseDetails.currentPeriod)} Periods</span></div>
+                            <Separator className="bg-neutral-800" />
+                            <ParticipantRow label="Lessee" address={details.payer} isYou={isLessee} />
+                            <ParticipantRow label="Lessor" address={details.payee} isYou={isLessor} />
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </DashboardLayout>
     )
 }

@@ -4,6 +4,8 @@ pragma solidity ^0.8.20;
 
 import "./IMilestoneEscrow.sol";
 import "./IRentalEscrow.sol";
+import "./IServiceEscrow.sol";
+import "./ILeaseEscrow.sol";
 
 interface IEscrowFactory {
     event EscrowCreated(address indexed escrowAddress, address indexed payer, address indexed payee, address arbiter);
@@ -28,6 +30,24 @@ interface IEscrowFactory {
         address token,
         uint256 depositAmount,
         IRentalEscrow.RentalConfig calldata config
+    ) external payable returns (address);
+
+    function createServiceEscrow(
+        address payee,
+        address arbiter,
+        address arbitrationAdapter,
+        address token,
+        uint256 depositAmount,
+        uint256 deadline,
+        IServiceEscrow.ServiceConfig calldata config
+    ) external payable returns (address);
+
+    function createLeaseEscrow(
+        address payee,
+        address arbiter,
+        address arbitrationAdapter,
+        address token,
+        ILeaseEscrow.LeaseConfig calldata config
     ) external payable returns (address);
 
     function getEscrowCount() external view returns (uint256);

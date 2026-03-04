@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { ArrowRight, ArrowLeft } from "lucide-react"
+import { ArrowRight, ArrowLeft, Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,6 +18,11 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+
+import { useWriteContract, useWaitForTransactionReceipt } from "wagmi"
+import { parseEther } from "viem"
+import { useRouter } from "next/navigation"
+import { FACTORY_ADDRESS, FACTORY_ABI } from "@/lib/constants"
 
 const formSchema = z.object({
     lessorAddress: z.string().min(42, "Invalid Ethereum address").max(42, "Invalid Ethereum address"),
@@ -33,6 +38,7 @@ const formSchema = z.object({
 })
 
 export default function CreateLeaseEscrow() {
+    const router = useRouter()
     const [step, setStep] = useState(1)
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -45,9 +51,44 @@ export default function CreateLeaseEscrow() {
         },
     })
 
+    const { data: hash, writeContract, isPending, error } = useWriteContract()
+    const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash })
+
+    useEffect(() => {
+        if (isSuccess) {
+            router.push('/dashboard/escrows')
+        }
+    }, [isSuccess, router])
+
     function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
-        // Implementation for LeaseEscrow deployment here...
+        const arbiter = '0x0000000000000000000000000000000000000000' as `0x${string}`;
+        const adapter = '0x0000000000000000000000000000000000000000' as `0x${string}`;
+        const token = '0x0000000000000000000000000000000000000000' as `0x${string}`;
+
+        // Duration is an interval in seconds
+        const periodDurationSeconds = Number(values.periodDurationDays) * 86400;
+
+        // The Leases required the expected amount to be passed as msg.value if it's ETH
+        const expectedTotal = Number(values.totalPeriods) * Number(values.amountPerPeriod);
+
+        writeContract({
+            address: FACTORY_ADDRESS as `0x${string}`,
+            abi: FACTORY_ABI,
+            functionName: 'createLeaseEscrow',
+            args: [
+                values.lessorAddress as `0x${string}`,
+                arbiter,
+                adapter,
+                token,
+                {
+                    totalPeriods: BigInt(values.totalPeriods),
+                    periodDuration: BigInt(periodDurationSeconds),
+                    amountPerPeriod: parseEther(values.amountPerPeriod),
+                    arbitrationFeeBps: BigInt(500) // 5% default
+                }
+            ],
+            value: parseEther(expectedTotal.toString()) // Send ETH
+        });
     }
 
     return (
@@ -92,6 +133,7 @@ export default function CreateLeaseEscrow() {
                                     type="button"
                                     onClick={() => form.trigger('lessorAddress').then((valid) => valid && setStep(2))}
                                     className="bg-white text-black hover:bg-neutral-200"
+                                    disabled={isPending || isConfirming}
                                 >
                                     Configure Schedule <ArrowRight className="ml-2 h-4 w-4" />
                                 </Button>
@@ -158,13 +200,19 @@ export default function CreateLeaseEscrow() {
                                         </FormItem>
                                     )}
                                 />
+                                {error && (
+                                    <div className="text-red-500 text-sm p-3 bg-red-500/10 border border-red-500/20 rounded">
+                                        {(error as any).shortMessage || error.message}
+                                    </div>
+                                )}
                             </CardContent>
                             <CardFooter className="flex justify-between border-t border-neutral-800 pt-6">
-                                <Button type="button" variant="ghost" onClick={() => setStep(1)} className="text-neutral-400">
+                                <Button type="button" variant="ghost" onClick={() => setStep(1)} className="text-neutral-400" disabled={isPending || isConfirming}>
                                     <ArrowLeft className="mr-2 h-4 w-4" /> Back
                                 </Button>
-                                <Button type="submit" className="bg-amber-500 hover:bg-amber-600 text-white">
-                                    Deploy Escrow
+                                <Button type="submit" className="bg-amber-500 hover:bg-amber-600 text-white" disabled={isPending || isConfirming}>
+                                    {isPending || isConfirming ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                    {isPending ? 'Confirming...' : isConfirming ? 'Deploying...' : 'Deploy Escrow'}
                                 </Button>
                             </CardFooter>
                         </Card>
