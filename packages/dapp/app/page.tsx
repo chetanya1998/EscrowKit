@@ -278,10 +278,9 @@ const DashboardSimulation = () => (
         transform: typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'rotateX(8deg) rotateY(-18deg) rotateZ(4deg)' : 'none',
       }}
     >
-      <div className="relative rounded-3xl overflow-hidden bg-[#0c0c0c] w-full h-full">
-        {/* Fade overlay for "Faded Product Experience" */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#010101] via-transparent to-transparent z-20 pointer-events-none opacity-80" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#010101] via-transparent to-[#010101] z-20 pointer-events-none opacity-50" />
+      <div className="relative bg-[#0c0c0c] rounded-3xl overflow-visible">
+        {/* Bottom-fade overlay*/}
+        <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[#010101] to-transparent z-20 pointer-events-none opacity-80 rounded-b-3xl" />
 
         <div className="flex text-xs flex-col md:flex-row relative z-10 transform-style-3d transition-all duration-700 translate-z-[20px] group-hover:translate-z-[40px]">
           {/* Sidebar */}
@@ -464,8 +463,8 @@ export default function App() {
 
             <FadeIn delay={200}>
               <h1 className="font-heading font-bold tracking-tighter mb-6 md:mb-8">
-                <span className="block text-6xl md:text-8xl lg:text-9xl text-emerald-500 mb-4 drop-shadow-[0_0_25px_rgba(16,185,129,0.3)]">EscrowKit</span>
-                <span className="block text-2xl md:text-5xl lg:text-5xl text-white font-medium opacity-90 leading-tight">The Trustless Marketplace Engine</span>
+                <span className="block text-5xl md:text-7xl lg:text-8xl text-emerald-500 mb-4 drop-shadow-[0_0_25px_rgba(16,185,129,0.3)]">EscrowKit</span>
+                <span className="block text-xl md:text-3xl lg:text-4xl text-white font-medium opacity-90 leading-tight">The Trustless Marketplace Engine</span>
               </h1>
             </FadeIn>
 
