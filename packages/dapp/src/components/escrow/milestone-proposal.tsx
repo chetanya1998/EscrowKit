@@ -14,6 +14,7 @@ import { Loader2, Plus, PenTool, CheckCircle, XCircle } from "lucide-react"
 import { toast } from "sonner"
 import { parseEther, formatEther } from "viem"
 import { MILESTONE_ESCROW_ABI } from "@/lib/constants"
+import { API_BASE_URL } from '@/lib/utils'
 
 interface MilestoneDraft {
     id: string
@@ -53,7 +54,7 @@ export function MilestoneProposal({ escrowAddress, role }: MilestoneProposalProp
 
     const fetchDrafts = async () => {
         try {
-            const res = await fetch(`http://localhost:3001/api/v1/drafts/${escrowAddress}`)
+            const res = await fetch(`${API_BASE_URL}/api/v1/drafts/${escrowAddress}`)
             if (res.ok) {
                 const data = await res.json()
                 setDrafts(data)
@@ -67,7 +68,7 @@ export function MilestoneProposal({ escrowAddress, role }: MilestoneProposalProp
         if (!address || !title || !amount) return
         setLoading(true)
         try {
-            const res = await fetch(`http://localhost:3001/api/v1/drafts`, {
+            const res = await fetch(`${API_BASE_URL}/api/v1/drafts`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -135,7 +136,7 @@ export function MilestoneProposal({ escrowAddress, role }: MilestoneProposalProp
             })
 
             // Send signature to backend
-            const res = await fetch(`http://localhost:3001/api/v1/drafts/${draft.id}/sign`, {
+            const res = await fetch(`${API_BASE_URL}/api/v1/drafts/${draft.id}/sign`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ signature, signer: address })

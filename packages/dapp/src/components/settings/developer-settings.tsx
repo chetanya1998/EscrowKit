@@ -1,8 +1,9 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
 import { useAccount } from "wagmi"
+import { useToast } from "@/components/ui/use-toast"
+import { API_BASE_URL } from '@/lib/utils'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -41,7 +42,7 @@ export function DeveloperSettings() {
     const fetchKeys = async () => {
         if (!address) return
         try {
-            const res = await fetch(`http://localhost:3001/users/${address}/keys`)
+            const res = await fetch(`${API_BASE_URL}/users/${address}/keys`)
             if (res.ok) {
                 const data = await res.json()
                 setKeys(data)
@@ -54,7 +55,7 @@ export function DeveloperSettings() {
     const fetchStats = async () => {
         if (!address) return
         try {
-            const res = await fetch(`http://localhost:3001/users/${address}/analytics`)
+            const res = await fetch(`${API_BASE_URL}/users/${address}/analytics`)
             if (res.ok) {
                 const data = await res.json()
                 setStats(data)
@@ -68,7 +69,7 @@ export function DeveloperSettings() {
         if (!address || !newKeyName) return
         setLoading(true)
         try {
-            const res = await fetch(`http://localhost:3001/users/${address}/keys`, {
+            const res = await fetch(`${API_BASE_URL}/users/${address}/keys`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name: newKeyName })
@@ -90,7 +91,7 @@ export function DeveloperSettings() {
     const revokeKey = async (keyId: string) => {
         if (!address) return
         try {
-            const res = await fetch(`http://localhost:3001/users/${address}/keys/${keyId}`, {
+            const res = await fetch(`${API_BASE_URL}/users/${address}/keys/${keyId}`, {
                 method: "DELETE"
             })
             if (res.ok) {
