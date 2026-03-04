@@ -268,117 +268,133 @@ const PremiumCard = ({ children, className = '', highlight = false }: { children
 };
 
 /**
- * FULL DASHBOARD SIMULATION
+ * FULL DASHBOARD SIMULATION — Browser-chrome Premium Frame
  */
 const DashboardSimulation = () => (
-  <div className="relative w-full z-20 group" style={{ perspective: '2000px' }}>
-    <div
-      className="w-full bg-[#0c0c0c] rounded-3xl border border-white/10 flex flex-col md:block shadow-2xl transition-all duration-700 ease-out hover:!transform-none hover:scale-[1.05] md:shadow-[-30px_50px_80px_-20px_rgba(0,0,0,0.8)] hover:shadow-[0_0_80px_rgba(16,185,129,0.15)] relative transform-style-3d"
-      style={{
-        transform: typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'rotateX(8deg) rotateY(-18deg) rotateZ(4deg)' : 'none',
-      }}
-    >
-      <div className="relative bg-[#0c0c0c] rounded-3xl overflow-visible">
-        {/* Bottom-fade overlay*/}
-        <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[#010101] to-transparent z-20 pointer-events-none opacity-80 rounded-b-3xl" />
+  <div className="relative w-full z-20 group" style={{ perspective: '1400px' }}>
+    {/* Ambient Glow behind the dashboard */}
+    <div className="absolute -inset-4 bg-emerald-500/10 blur-3xl rounded-full z-0 opacity-60" />
 
-        <div className="flex text-xs flex-col md:flex-row relative z-10 transform-style-3d transition-all duration-700 translate-z-[20px] group-hover:translate-z-[40px]">
-          {/* Sidebar */}
-          <div className="w-64 bg-[#111] border-r border-white/5 p-4 flex flex-col gap-6 hidden md:flex">
-            <div className="flex items-center gap-2 px-2">
-              <div className="w-6 h-6 bg-emerald-500 rounded-md" />
-              <span className="font-bold text-white tracking-widest uppercase">EscrowKit</span>
+    {/* Browser Chrome Wrapper */}
+    <div
+      className="relative w-full rounded-2xl border border-white/10 shadow-[0_40px_120px_-20px_rgba(0,0,0,0.8)] transition-all duration-700 ease-out group-hover:scale-[1.02] group-hover:shadow-[0_40px_120px_-10px_rgba(16,185,129,0.25)] overflow-hidden z-10"
+      style={{ transform: 'rotateX(12deg) scale(0.95)', transformOrigin: 'bottom center', transformStyle: 'preserve-3d' }}
+    >
+      {/* Browser Top Bar */}
+      <div className="flex items-center gap-3 px-4 py-3 bg-[#111] border-b border-white/[0.08] shrink-0">
+        {/* Traffic Lights */}
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-full bg-red-500/80" />
+          <div className="w-3 h-3 rounded-full bg-amber-500/80" />
+          <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
+        </div>
+        {/* URL Bar */}
+        <div className="flex-1 max-w-xs mx-auto flex items-center gap-2 px-3 py-1 bg-[#1a1a1a] rounded-md border border-white/[0.06] text-[11px] text-zinc-500 font-mono">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+          app.escrowkit.xyz/dashboard
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <Search size={12} className="text-zinc-600" />
+          <Bell size={12} className="text-zinc-600" />
+        </div>
+      </div>
+
+      {/* Dashboard App Content */}
+      <div className="flex text-xs bg-[#0c0c0c]">
+        {/* Sidebar */}
+        <div className="w-52 bg-[#111]/90 border-r border-white/[0.05] p-4 flex flex-col gap-5 shrink-0">
+          <div className="flex items-center gap-2 px-1">
+            <div className="w-6 h-6 bg-emerald-500 rounded-md shrink-0" />
+            <span className="font-bold text-white tracking-wider text-[11px] uppercase">EscrowKit</span>
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <div className="px-3 py-2 bg-emerald-500/10 text-emerald-400 rounded-lg font-bold flex items-center gap-2.5">
+              <LayoutDashboard size={13} /> Overview
             </div>
-            <div className="flex flex-col gap-1">
-              <div className="px-3 py-2 bg-emerald-500/10 text-emerald-400 rounded-lg font-bold flex items-center gap-3">
-                <LayoutDashboard size={14} /> Overview
+            <div className="px-3 py-2 text-zinc-500 flex items-center gap-2.5">
+              <FileText size={13} /> Contracts
+            </div>
+            <div className="px-3 py-2 text-zinc-500 flex items-center gap-2.5">
+              <CreditCard size={13} /> Payments
+            </div>
+            <div className="px-3 py-2 text-zinc-500 flex items-center gap-2.5">
+              <Settings size={13} /> Settings
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Topbar */}
+          <div className="h-12 border-b border-white/[0.05] flex items-center justify-between px-5 bg-[#0c0c0c]/80 backdrop-blur-sm shrink-0">
+            <span className="text-zinc-400 font-medium text-[11px]">Dashboard / Overview</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-900 rounded-full border border-white/5">
+                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                <span className="text-zinc-400 font-mono text-[10px]">0x8a...42b</span>
               </div>
-              <div className="px-3 py-2 text-zinc-500 hover:text-white flex items-center gap-3 transition-colors">
-                <FileText size={14} /> Contracts
-              </div>
-              <div className="px-3 py-2 text-zinc-500 hover:text-white flex items-center gap-3 transition-colors">
-                <CreditCard size={14} /> Payments
-              </div>
-              <div className="px-3 py-2 text-zinc-500 hover:text-white flex items-center gap-3 transition-colors">
-                <Settings size={14} /> Settings
-              </div>
+              <Bell size={12} className="text-zinc-500" />
             </div>
           </div>
 
-          {/* Main Content */}
-          <div className="flex-1 flex flex-col z-10 relative bg-transparent">
-            {/* Header */}
-            <div className="h-16 border-b border-white/5 flex items-center justify-between px-6 shrink-0 bg-[#0c0c0c]/80 backdrop-blur-sm relative z-20 transform-style-3d transition-all duration-700 translate-z-[10px] group-hover:translate-z-[20px]">
-              <div className="text-zinc-400 font-medium">Dashboard / Overview</div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 rounded-full border border-white/5">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                  <span className="text-zinc-400 font-mono">0x8a...42b</span>
-                </div>
-                <Bell size={16} className="text-zinc-500" />
+          {/* Dashboard Grid */}
+          <div className="p-5 grid grid-cols-3 gap-4">
+            {/* Stat Cards */}
+            <div className="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
+              <div className="text-zinc-500 text-[9px] font-bold uppercase tracking-widest mb-1">Total Volume</div>
+              <div className="text-xl font-bold text-white">12.5 ETH</div>
+              <div className="text-[9px] text-emerald-400 mt-1">↑ +12% this week</div>
+            </div>
+            <div className="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
+              <div className="text-zinc-500 text-[9px] font-bold uppercase tracking-widest mb-1">Active Deals</div>
+              <div className="text-xl font-bold text-emerald-400">8</div>
+              <div className="text-[9px] text-zinc-500 mt-1">3 pending approval</div>
+            </div>
+            <div className="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
+              <div className="text-zinc-500 text-[9px] font-bold uppercase tracking-widest mb-1">Pending</div>
+              <div className="text-xl font-bold text-amber-400">2</div>
+              <div className="text-[9px] text-zinc-500 mt-1">Requires action</div>
+            </div>
+
+            {/* Recent Transactions */}
+            <div className="col-span-2 bg-zinc-900/50 rounded-xl border border-white/5 p-4">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-semibold text-white text-[11px]">Recent Transactions</h3>
+                <MoreHorizontal size={12} className="text-zinc-500" />
+              </div>
+              <div className="space-y-2">
+                {[{ addr: '0x71...3A9', amt: '+1.2 ETH', time: '2m ago', color: 'text-emerald-400' }, { addr: '0x42...F1B', amt: '-0.5 ETH', time: '1h ago', color: 'text-zinc-400' }, { addr: '0xA3...C4D', amt: '+3.0 ETH', time: '3h ago', color: 'text-emerald-400' }].map((tx, i) => (
+                  <div key={i} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center text-emerald-500">
+                        <ArrowRight size={9} />
+                      </div>
+                      <div>
+                        <div className="text-white font-medium text-[10px]">Milestone Release</div>
+                        <div className="text-zinc-600 text-[9px]">{tx.addr} • {tx.time}</div>
+                      </div>
+                    </div>
+                    <div className={`font-mono text-[10px] font-bold ${tx.color}`}>{tx.amt}</div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Dashboard Content */}
-            <div className="p-4 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 pb-20 md:pb-6 relative z-10 transform-style-3d">
-              {/* Stats */}
-              <div className="col-span-1 md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 transform-style-3d transition-all duration-700 translate-z-[30px] group-hover:translate-z-[60px]">
-                <div className="bg-zinc-900/40 p-5 rounded-2xl border border-white/5 backdrop-blur-sm shadow-xl">
-                  <div className="text-zinc-500 mb-1 font-bold uppercase tracking-wider text-[10px]">Total Volume</div>
-                  <div className="text-2xl font-bold text-white">12.5 ETH</div>
-                </div>
-                <div className="bg-zinc-900/40 p-5 rounded-2xl border border-white/5 backdrop-blur-sm shadow-xl">
-                  <div className="text-zinc-500 mb-1 font-bold uppercase tracking-wider text-[10px]">Active Deals</div>
-                  <div className="text-2xl font-bold text-emerald-400">8 Active</div>
-                </div>
-                <div className="bg-zinc-900/40 p-5 rounded-2xl border border-white/5 backdrop-blur-sm shadow-xl">
-                  <div className="text-zinc-500 mb-1 font-bold uppercase tracking-wider text-[10px]">Pending Actions</div>
-                  <div className="text-2xl font-bold text-amber-500">2 Actions</div>
-                </div>
+            {/* Action Card */}
+            <div className="col-span-1 bg-gradient-to-br from-emerald-900/30 to-zinc-900/60 rounded-xl border border-emerald-500/20 p-4 flex flex-col items-center justify-center text-center gap-2">
+              <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-black shadow-lg shadow-emerald-500/30">
+                <Plus size={18} />
               </div>
-
-              {/* Activity Feed */}
-              <div className="col-span-2 bg-zinc-900/40 rounded-2xl border border-white/5 p-6 backdrop-blur-sm shadow-xl transition-all duration-700 translate-z-[20px] group-hover:translate-z-[50px]">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="font-bold text-white text-sm">Recent Transactions</h3>
-                  <MoreHorizontal size={14} className="text-zinc-500" />
-                </div>
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center justify-between p-3 hover:bg-white/5 rounded-xl transition-colors cursor-pointer group/item">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-emerald-500 group-hover/item:bg-emerald-500 group-hover/item:text-black transition-colors">
-                          <ArrowRight size={12} />
-                        </div>
-                        <div>
-                          <div className="text-white font-bold">Milestone Release</div>
-                          <div className="text-zinc-500 text-[10px]">0x71...3A9 • 2m ago</div>
-                        </div>
-                      </div>
-                      <div className="text-emerald-400 font-mono">+1.2 ETH</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Action Card */}
-              <div className="col-span-1 bg-gradient-to-br from-emerald-900/20 to-zinc-900/40 rounded-2xl border border-emerald-500/20 p-6 flex flex-col justify-center text-center backdrop-blur-sm shadow-xl transition-all duration-700 translate-z-[40px] group-hover:translate-z-[80px]">
-                <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4 text-black shadow-lg shadow-emerald-500/20 transform transition-transform group-hover:scale-110">
-                  <Plus size={24} />
-                </div>
-                <h3 className="font-bold text-white mb-2">New Escrow</h3>
-                <p className="text-zinc-500 mb-4 leading-relaxed">Create a milestone-based contract in seconds.</p>
-                <button className="bg-emerald-500 text-black font-bold py-2 rounded-lg hover:bg-emerald-400 transition-colors">Start Now</button>
-              </div>
+              <div className="font-bold text-white text-[11px]">New Escrow</div>
+              <div className="text-zinc-500 text-[9px] leading-relaxed">Create a milestone-based contract in seconds.</div>
+              <button className="bg-emerald-500 text-black font-bold text-[9px] px-3 py-1.5 rounded-lg w-full hover:bg-emerald-400 transition-colors">Start Now</button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Floating Interaction Hint - Now outside the clipping area to show in 3D properly */}
-      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-2 bg-zinc-900/80 backdrop-blur-md rounded-full border border-white/10 text-[10px] font-bold uppercase tracking-widest text-zinc-400 flex items-center gap-2 animate-bounce w-max max-w-[90%] justify-center whitespace-nowrap shadow-xl transform translate-z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-        <LayoutDashboard size={12} className="text-emerald-500" /> Interactive Mode
-      </div>
+      {/* Bottom Fade Overlay */}
+      <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-[#010101] to-transparent z-30 pointer-events-none" />
     </div>
   </div>
 );
@@ -451,68 +467,51 @@ export default function App() {
       )}
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-20 pb-20 md:pt-28 md:pb-32 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          {/* Left Column: Text & CTAs */}
-          <div className="lg:col-span-5 text-center lg:text-left flex flex-col items-center lg:items-start">
-            <FadeIn delay={100}>
-              <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-bold tracking-[0.4em] uppercase text-emerald-400 mb-8 lg:mb-14 backdrop-blur-md shadow-lg shadow-emerald-500/10">
-                <Zap size={12} className="fill-emerald-400" /> The Trustless Marketplace Engine
-              </div>
-            </FadeIn>
-
-            <FadeIn delay={200}>
-              <h1 className="font-heading font-bold tracking-tighter mb-6 md:mb-8">
-                <span className="block text-5xl md:text-7xl lg:text-8xl text-emerald-500 mb-4 drop-shadow-[0_0_25px_rgba(16,185,129,0.3)]">EscrowKit</span>
-                <span className="block text-xl md:text-3xl lg:text-4xl text-white font-medium opacity-90 leading-tight">The Trustless Marketplace Engine</span>
-              </h1>
-            </FadeIn>
-
-            <FadeIn delay={300}>
-              <p className="text-zinc-300 text-lg md:text-xl lg:text-2xl max-w-2xl lg:max-w-xl mb-8 lg:mb-12 min-h-[3.2em] leading-relaxed font-light">
-                {subheadline}
-              </p>
-            </FadeIn>
-
-            <FadeIn delay={400}>
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 md:gap-6 w-full lg:w-auto px-4 lg:px-0">
-                <a href="#get-started" className="w-full sm:w-auto">
-                  <button className="bg-emerald-500 text-black h-14 md:h-16 px-8 md:px-12 rounded-full font-bold text-base md:text-lg hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all flex items-center justify-center gap-3 w-full">
-                    <ArrowRight size={20} /> Get Started
-                  </button>
-                </a>
-                <a href="#integrate" className="w-full sm:w-auto">
-                  <button className="h-14 md:h-16 px-8 md:px-12 rounded-full font-bold text-base md:text-lg border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-white/5 flex items-center justify-center gap-3 w-full">
-                    <Code2 size={20} /> Integrate API
-                  </button>
-                </a>
-              </div>
-            </FadeIn>
-
-            <FadeIn delay={600}>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-wrap items-center justify-center lg:justify-start gap-3 md:gap-4 mt-12 w-full">
-                {[
-                  'Non-custodial',
-                  'Milestone-based',
-                  'Disputes',
-                  'Open-source'
-                ].map(item => (
-                  <div key={item} className="flex items-center gap-2 justify-center px-3 md:px-4 py-2 md:py-2.5 rounded-full bg-zinc-900/50 border border-white/5 w-full sm:w-auto">
-                    <CheckCircle2 size={12} className="text-emerald-500 shrink-0" />
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-300 text-center whitespace-nowrap">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </FadeIn>
+      <section className="relative z-10 pt-20 pb-16 md:pt-28 md:pb-24 px-6 max-w-6xl mx-auto text-center">
+        <FadeIn delay={100}>
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-bold tracking-[0.4em] uppercase text-emerald-400 mb-10 backdrop-blur-md shadow-lg shadow-emerald-500/10">
+            <Zap size={12} className="fill-emerald-400" /> The Trustless Marketplace Engine
           </div>
-
-          {/* Right Column: Dashboard Preview */}
-          <FadeIn delay={500} className="lg:col-span-7 w-full mt-12 lg:mt-0 xl:scale-105 xl:origin-center">
-            <div id="dashboard" className="relative w-full mx-auto">
-              <DashboardSimulation />
-            </div>
-          </FadeIn>
-        </div>
+        </FadeIn>
+        <FadeIn delay={200}>
+          <h1 className="font-heading font-bold tracking-tighter mb-6">
+            <span className="block text-6xl md:text-8xl lg:text-[7rem] text-emerald-500 mb-3 drop-shadow-[0_0_30px_rgba(16,185,129,0.35)]">EscrowKit</span>
+            <span className="block text-2xl md:text-4xl lg:text-5xl text-white font-medium opacity-90">The Trustless Marketplace Engine</span>
+          </h1>
+        </FadeIn>
+        <FadeIn delay={300}>
+          <p className="text-zinc-300 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-light">{subheadline}</p>
+        </FadeIn>
+        <FadeIn delay={400}>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 mb-10">
+            <a href="#get-started">
+              <button className="bg-emerald-500 text-black h-14 px-10 rounded-full font-bold text-base hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all flex items-center gap-3">
+                <ArrowRight size={18} /> Get Started — Free
+              </button>
+            </a>
+            <a href="#integrate">
+              <button className="h-14 px-10 rounded-full font-bold text-base border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-white/5 flex items-center gap-3">
+                <Code2 size={18} /> View Docs
+              </button>
+            </a>
+          </div>
+        </FadeIn>
+        <FadeIn delay={500}>
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-16">
+            {['Non-custodial', 'Milestone-based', 'Dispute-ready', 'Open-source', 'Transparent'].map(item => (
+              <div key={item} className="flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900/60 border border-white/5">
+                <CheckCircle2 size={11} className="text-emerald-500 shrink-0" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">{item}</span>
+              </div>
+            ))}
+          </div>
+        </FadeIn>
+        {/* Full-width dashboard preview */}
+        <FadeIn delay={600}>
+          <div id="dashboard" className="relative w-full max-w-5xl mx-auto">
+            <DashboardSimulation />
+          </div>
+        </FadeIn>
       </section>
 
       {/* HOW IT WORKS: ANIMATED STEPS */}
@@ -556,10 +555,10 @@ export default function App() {
             </FadeIn>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* PROBLEM SECTION */}
-      <section className="relative z-10 py-20 md:py-32 px-6 border-t border-white/5">
+      < section className="relative z-10 py-20 md:py-32 px-6 border-t border-white/5" >
         <div className="max-w-6xl mx-auto">
           <FadeIn>
             <h2 className="text-4xl md:text-5xl font-bold mb-16 tracking-tighter text-white text-center">Online work fails because trust is missing.</h2>
@@ -590,10 +589,10 @@ export default function App() {
             </p>
           </FadeIn>
         </div>
-      </section>
+      </section >
 
       {/* WHAT IT IS SECTION */}
-      <section className="relative z-10 py-20 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5">
+      < section className="relative z-10 py-20 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5" >
         <div className="max-w-4xl mx-auto text-center">
           <FadeIn>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-widest border border-emerald-500/20 mb-6">
@@ -605,10 +604,10 @@ export default function App() {
             </p>
           </FadeIn>
         </div>
-      </section>
+      </section >
 
       {/* AUDIENCE SECTION */}
-      <section id="audience" className="relative z-10 py-20 md:py-32 px-6 border-t border-white/5">
+      < section id="audience" className="relative z-10 py-20 md:py-32 px-6 border-t border-white/5" >
         <div className="max-w-6xl mx-auto">
           <FadeIn>
             <h2 className="text-4xl md:text-5xl font-bold mb-16 tracking-tighter text-white text-center">Who it{"'"}s for.</h2>
@@ -652,10 +651,10 @@ export default function App() {
             </FadeIn>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* USE CASES SECTION */}
-      <section className="relative z-10 py-20 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5">
+      < section className="relative z-10 py-20 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5" >
         <div className="max-w-6xl mx-auto">
           <FadeIn>
             <h2 className="text-4xl md:text-5xl font-bold mb-16 tracking-tighter text-white text-center">What you can build with it.</h2>
@@ -678,10 +677,10 @@ export default function App() {
             ))}
           </div>
         </div>
-      </section>
+      </section >
 
       {/* KEY FEATURES SECTION */}
-      <section id="features" className="relative z-10 py-20 md:py-32 px-6 border-t border-white/5">
+      < section id="features" className="relative z-10 py-20 md:py-32 px-6 border-t border-white/5" >
         <div className="max-w-6xl mx-auto">
           <FadeIn>
             <h2 className="text-4xl md:text-5xl font-bold mb-16 tracking-tighter text-white text-center">Key features.</h2>
@@ -708,10 +707,10 @@ export default function App() {
             ))}
           </div>
         </div>
-      </section>
+      </section >
 
       {/* INTEGRATION SECTION */}
-      <section id="integrate" className="relative z-10 py-20 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5">
+      < section id="integrate" className="relative z-10 py-20 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5" >
         <div className="max-w-6xl mx-auto">
           <FadeIn>
             <h2 className="text-4xl md:text-5xl font-bold mb-16 tracking-tighter text-white text-center">Integrate EscrowKit into your product.</h2>
@@ -743,10 +742,10 @@ export default function App() {
             </FadeIn>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* REFINED OPEN SOURCE / DEVELOPER SECTION */}
-      <section id="open-source" className="relative z-10 py-20 md:py-40 px-6">
+      < section id="open-source" className="relative z-10 py-20 md:py-40 px-6" >
         <div className="max-w-7xl mx-auto">
           <FadeIn>
             <div className="text-center mb-24">
@@ -834,10 +833,10 @@ export default function App() {
             </FadeIn>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* ROADMAP SECTION */}
-      <section id="roadmap" className="relative z-10 py-16 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5">
+      < section id="roadmap" className="relative z-10 py-16 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5" >
         <div className="max-w-5xl mx-auto">
           <FadeIn>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
@@ -875,10 +874,10 @@ export default function App() {
             </FadeIn>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* CREDIBILITY SECTION */}
-      <section className="relative z-10 py-20 md:py-32 px-6 border-t border-white/5 bg-[#050505]">
+      < section className="relative z-10 py-20 md:py-32 px-6 border-t border-white/5 bg-[#050505]" >
         <div className="max-w-4xl mx-auto text-center">
           <FadeIn>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-12 tracking-tight">Built for strong foundations.</h2>
@@ -901,10 +900,10 @@ export default function App() {
             ))}
           </div>
         </div>
-      </section>
+      </section >
 
       {/* CTA SECTION */}
-      <section id="get-started" className="relative z-10 py-24 px-6 border-t border-white/5">
+      < section id="get-started" className="relative z-10 py-24 px-6 border-t border-white/5" >
         <div className="max-w-4xl mx-auto text-center">
           <FadeIn>
             <div className="w-20 h-20 mx-auto mb-8 bg-zinc-900 rounded-2xl flex items-center justify-center border border-white/10 shadow-2xl">
@@ -923,10 +922,10 @@ export default function App() {
             </div>
           </FadeIn>
         </div>
-      </section>
+      </section >
 
       {/* FAQ SECTION */}
-      <section className="relative z-10 py-20 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5">
+      < section className="relative z-10 py-20 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5" >
         <div className="max-w-3xl mx-auto">
           <FadeIn>
             <h2 className="text-4xl md:text-5xl font-bold mb-16 tracking-tighter text-white text-center">FAQ</h2>
@@ -950,10 +949,10 @@ export default function App() {
             ))}
           </div>
         </div>
-      </section>
+      </section >
 
       {/* Footer */}
-      <footer className="relative z-10 py-12 px-6 md:py-24 md:px-12 border-t border-white/10 bg-[#000000]">
+      < footer className="relative z-10 py-12 px-6 md:py-24 md:px-12 border-t border-white/10 bg-[#000000]" >
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10 md:gap-16">
           <div className="flex flex-col gap-5 text-center md:text-left">
             <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="flex items-center gap-3 justify-center md:justify-start hover:opacity-80 transition-opacity">
@@ -979,8 +978,8 @@ export default function App() {
             © 2024 EscrowKit
           </div>
         </div>
-      </footer>
-    </div>
+      </footer >
+    </div >
   );
 }
 
