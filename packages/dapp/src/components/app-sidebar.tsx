@@ -25,30 +25,30 @@ const userItems = [
         icon: Home,
     },
     {
-        title: "Payer View",
-        url: "/dashboard/payer",
-        icon: UserCircle,
+        title: "My Escrows",
+        url: "/dashboard/escrows",
+        icon: Briefcase,
     },
     {
-        title: "Payee View",
-        url: "/dashboard/payee",
-        icon: Briefcase,
+        title: "Transactions",
+        url: "/dashboard/transactions",
+        icon: History,
     },
 ]
 
 const adminItems = [
     {
-        title: "Integrator Dashboard",
-        url: "/dashboard/admin",
+        title: "Templates",
+        url: "/dashboard/templates",
         icon: LayoutTemplate,
     },
 ]
 
 const superAdminItems = [
     {
-        title: "Protocol Mastery",
-        url: "/dashboard/super-admin",
-        icon: Lock,
+        title: "Settings",
+        url: "/dashboard/settings",
+        icon: Settings,
     },
 ]
 
