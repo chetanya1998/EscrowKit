@@ -11,6 +11,7 @@ import Link from "next/link"
 
 export default function DashboardPage() {
     const { stats, transactions, isLoading, isFetching, error } = useDashboardData()
+    const isGithubPages = process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'gh-pages';
 
     if (isLoading) return (
         <div className="flex h-[50vh] items-center justify-center text-neutral-500">
@@ -27,7 +28,7 @@ export default function DashboardPage() {
                     <p className="text-neutral-400">Monitor and manage your secure milestone-based payments.</p>
                 </div>
 
-                {error && (
+                {!isGithubPages && error && (
                     <div className="flex items-center gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
                         <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
                         <p className="text-sm text-amber-400">
