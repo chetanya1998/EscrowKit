@@ -400,6 +400,84 @@ const DashboardSimulation = () => (
 );
 
 /**
+ * ISOMETRIC GRAPHIC ELEMENTS
+ * Wireframe-style decorative SVGs inspired by technical product illustration style.
+ */
+
+// FIG 0.2 — Stacked flat layers with circle cutout
+const IsoStackedLayers = ({ className = '' }: { className?: string }) => (
+  <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <g opacity="0.35">
+      {/* Bottom layer */}
+      <path d="M100 170L20 130V110L100 150L180 110V130L100 170Z" stroke="currentColor" strokeWidth="1" />
+      <path d="M20 110L100 150L180 110L100 70L20 110Z" stroke="currentColor" strokeWidth="1" fill="none" />
+      {/* Middle layer */}
+      <path d="M100 145L20 105V85L100 125L180 85V105L100 145Z" stroke="currentColor" strokeWidth="1" />
+      <path d="M20 85L100 125L180 85L100 45L20 85Z" stroke="currentColor" strokeWidth="1" fill="none" />
+      {/* Top flat layer */}
+      <path d="M100 115L20 75V60L100 100L180 60V75L100 115Z" stroke="currentColor" strokeWidth="1" />
+      <path d="M20 60L100 100L180 60L100 20L20 60Z" stroke="currentColor" strokeWidth="1" fill="none" />
+      {/* Circle on top layer */}
+      <ellipse cx="100" cy="58" rx="28" ry="16" stroke="currentColor" strokeWidth="0.8" />
+      {/* Lines inside circle */}
+      {[6, 12, 18, 24].map((y, i) => (
+        <line key={i} x1={82} y1={52 + y / 2} x2={118} y2={52 + y / 2} stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
+      ))}
+    </g>
+    <text x="10" y="190" fill="currentColor" fontSize="7" fontFamily="monospace" opacity="0.4">FIG 0.2</text>
+  </svg>
+);
+
+// FIG 0.3 — Isometric cubes cluster
+const IsoCubes = ({ className = '' }: { className?: string }) => (
+  <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <g opacity="0.35">
+      {/* Large back cube */}
+      <path d="M100 40L140 64V108L100 132L60 108V64L100 40Z" stroke="currentColor" strokeWidth="1" />
+      <path d="M100 40V132" stroke="currentColor" strokeWidth="0.5" />
+      <path d="M60 64L100 88L140 64" stroke="currentColor" strokeWidth="0.5" />
+      {/* Small left cube */}
+      <path d="M52 108L80 124V155L52 170L24 155V124L52 108Z" stroke="currentColor" strokeWidth="0.9" />
+      <path d="M52 108V170" stroke="currentColor" strokeWidth="0.4" />
+      <path d="M24 124L52 140L80 124" stroke="currentColor" strokeWidth="0.4" />
+      {/* Small bottom cube */}
+      <path d="M148 108L176 124V155L148 170L120 155V124L148 108Z" stroke="currentColor" strokeWidth="0.9" />
+      <path d="M148 108V170" stroke="currentColor" strokeWidth="0.4" />
+      <path d="M120 124L148 140L176 124" stroke="currentColor" strokeWidth="0.4" />
+      {/* Highlight hash marks on top of big cube */}
+      <line x1="88" y1="64" x2="100" y2="71" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
+      <line x1="100" y1="71" x2="112" y2="64" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
+    </g>
+    <text x="10" y="196" fill="currentColor" fontSize="7" fontFamily="monospace" opacity="0.4">FIG 0.3</text>
+  </svg>
+);
+
+// FIG 0.4 — Stacked curved card sheets (fan)
+const IsoStackedCards = ({ className = '' }: { className?: string }) => (
+  <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <g opacity="0.35">
+      {Array.from({ length: 9 }, (_, i) => {
+        const offset = i * 10;
+        return (
+          <g key={i}>
+            <path
+              d={`M${50 + offset} ${160 - offset * 0.5}L${50 + offset} ${60 - offset * 0.5}Q${50 + offset + 10} ${50 - offset * 0.5} ${60 + offset} ${55 - offset * 0.5}L${120 + offset} ${25 - offset * 0.5}L${120 + offset} ${125 - offset * 0.5}Q${120 + offset + 5} ${145 - offset * 0.5} ${110 + offset} ${148 - offset * 0.5}Z`}
+              stroke="currentColor" strokeWidth={i === 8 ? 1.2 : 0.6}
+              opacity={0.3 + i * 0.07}
+            />
+          </g>
+        );
+      })}
+      {/* Horizontal lines on front card */}
+      {[0, 12, 24, 36, 48, 60, 72, 84, 96].map((y, i) => (
+        <line key={i} x1="58" y1={75 + y} x2="108" y2={48 + y} stroke="currentColor" strokeWidth="0.5" opacity="0.3" />
+      ))}
+    </g>
+    <text x="10" y="196" fill="currentColor" fontSize="7" fontFamily="monospace" opacity="0.4">FIG 0.4</text>
+  </svg>
+);
+
+/**
  * ANIMATED STEPS COMPONENT
  */
 const AnimatedStep = ({ number, title, desc }: { number: string, title: string, desc: string }) => (
@@ -411,6 +489,7 @@ const AnimatedStep = ({ number, title, desc }: { number: string, title: string, 
     <p className="text-zinc-400 text-base leading-relaxed max-w-xs">{desc}</p>
   </div>
 );
+
 
 /**
  * MAIN PAGE
@@ -425,7 +504,7 @@ export default function App() {
       <ParticleConstellation />
 
       {/* Navigation */}
-      <nav className="relative z-50 h-20 md:h-24 px-4 md:px-16 flex items-center justify-between border-b border-white/[0.08] bg-[#010101]/40 backdrop-blur-xl">
+      <nav className="sticky top-0 z-50 h-20 md:h-24 px-4 md:px-16 flex items-center justify-between border-b border-white/[0.08] bg-[#010101]/80 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 flex items-center justify-center">
             {/* Inline SVG Logo - always renders */}
@@ -467,7 +546,15 @@ export default function App() {
       )}
 
       {/* Hero Section */}
-      <section className="relative z-10 pt-20 pb-16 md:pt-28 md:pb-24 px-6 max-w-6xl mx-auto text-center">
+      <section className="relative z-10 pt-20 pb-16 md:pt-28 md:pb-24 px-6 max-w-6xl mx-auto text-center overflow-visible">
+        {/* Isometric decoration — left side */}
+        <div className="absolute -left-16 top-24 pointer-events-none hidden xl:block">
+          <IsoStackedLayers className="w-56 h-56 text-emerald-400" />
+        </div>
+        {/* Isometric decoration — right side */}
+        <div className="absolute -right-16 top-16 pointer-events-none hidden xl:block">
+          <IsoCubes className="w-60 h-60 text-emerald-400" />
+        </div>
         <FadeIn delay={100}>
           <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[10px] font-bold tracking-[0.4em] uppercase text-emerald-400 mb-10 backdrop-blur-md shadow-lg shadow-emerald-500/10">
             <Zap size={12} className="fill-emerald-400" /> The Trustless Marketplace Engine
@@ -483,15 +570,10 @@ export default function App() {
           <p className="text-zinc-300 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-light">{subheadline}</p>
         </FadeIn>
         <FadeIn delay={400}>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 mb-10">
+          <div className="flex items-center justify-center gap-4 mb-10">
             <a href="#get-started">
-              <button className="bg-emerald-500 text-black h-14 px-10 rounded-full font-bold text-base hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all flex items-center gap-3">
+              <button className="bg-emerald-500 text-black h-14 px-12 rounded-full font-bold text-base hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all flex items-center gap-3">
                 <ArrowRight size={18} /> Get Started — Free
-              </button>
-            </a>
-            <a href="#integrate">
-              <button className="h-14 px-10 rounded-full font-bold text-base border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-white/5 flex items-center gap-3">
-                <Code2 size={18} /> View Docs
               </button>
             </a>
           </div>
@@ -515,7 +597,14 @@ export default function App() {
       </section>
 
       {/* HOW IT WORKS: ANIMATED STEPS */}
-      <section id="how" className="relative z-10 py-20 md:py-40 px-6 bg-[#030303]/50 border-t border-white/5">
+      <section id="how" className="relative z-10 py-20 md:py-40 px-6 bg-[#030303]/50 border-t border-white/5 overflow-hidden">
+        {/* Decorative ISO graphics */}
+        <div className="absolute -right-8 top-12 opacity-60 pointer-events-none hidden lg:block">
+          <IsoStackedCards className="w-48 h-48 text-white" />
+        </div>
+        <div className="absolute -left-4 bottom-20 opacity-50 pointer-events-none hidden lg:block">
+          <IsoStackedLayers className="w-40 h-40 text-emerald-500" />
+        </div>
         <div className="max-w-6xl mx-auto text-center">
           <FadeIn>
             <h2 className="text-4xl md:text-5xl font-bold mb-8 tracking-tighter text-white">How it works.</h2>
@@ -558,7 +647,11 @@ export default function App() {
       </section >
 
       {/* PROBLEM SECTION */}
-      < section className="relative z-10 py-20 md:py-32 px-6 border-t border-white/5" >
+      <section className="relative z-10 py-20 md:py-32 px-6 border-t border-white/5 overflow-hidden">
+        {/* Decorative ISO graphic */}
+        <div className="absolute right-4 bottom-8 opacity-40 pointer-events-none hidden lg:block">
+          <IsoCubes className="w-44 h-44 text-emerald-400" />
+        </div>
         <div className="max-w-6xl mx-auto">
           <FadeIn>
             <h2 className="text-4xl md:text-5xl font-bold mb-16 tracking-tighter text-white text-center">Online work fails because trust is missing.</h2>
