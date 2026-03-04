@@ -81,7 +81,7 @@ export default function DisputesPage() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <Link href={`/dashboard/disputes/${tx.id}`}>
+                                                <Link href={`/dashboard/dispute?id=${tx.id}`}>
                                                     <Button variant="outline" size="sm" className="border-neutral-700 hover:bg-neutral-800">
                                                         View Case
                                                     </Button>

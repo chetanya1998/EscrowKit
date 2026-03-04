@@ -82,7 +82,7 @@ export default function EscrowsPage() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Link href={`/escrow/${tx.counterparty || tx.id}`}> {/* Link logic needs refinement, ideally link by ID but mock data uses ID */}
+                                            <Link href={`/escrow?address=${tx.counterparty || tx.id}`}> {/* Link logic needs refinement, ideally link by ID but mock data uses ID */}
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-neutral-500 hover:text-neutral-300">
                                                     <ArrowUpRight className="h-4 w-4" />
                                                 </Button>
