@@ -1,5 +1,5 @@
 # EscrowKit: The Trustless Marketplace Engine 🛡️
-> **Last Updated:** February 18, 2026  
+> **Last Updated:** March 4, 2026  
 > **Status:** Active Development — Core features implemented, deployed on Railway
 
 ---
@@ -34,6 +34,44 @@ The project is organized as a **pnpm + Turborepo monorepo** with the following p
 
 ---
 
+## 📖 For Non-Technical Users: How to Get Started
+
+If you are looking to use EscrowKit to secure a transaction (like hiring a freelancer, buying a high-value item, or renting property), you don't need any coding or smart contract experience.
+
+### 1. Connect Your Wallet
+Visit the EscrowKit web dashboard and connect your Web3 wallet (like MetaMask, Coinbase Wallet, or WalletConnect).
+
+### 2. Access the Custom Escrow Builder (Crucial Feature)
+Click **"Create Escrow"**. This launches our highly customizable, no-code **Custom Escrow Builder**. This 3-step wizard allows you to define the exact rules of your escrow without writing any code:
+
+*   **Step 0 — Template Selection:** Start by picking a base template. 
+    *   *Freelance & Services Template:* Use this when paying someone for milestone-based work.
+    *   *Rental Deposit Template:* Use this to hold a security deposit for an item or property rental.
+*   **Step 1 — Configuration:** Add customized rules. Enter the Counterparty's wallet address. For milestone escrows, you define how many milestones, their values, and the deadlines. For rentals, you define the total deposit and the dispute window. You also select an **Arbiter** (a trusted third party or a decentralized court like Kleros) who resolves disputes.
+*   **Step 2 — Review & Deploy:** Review the mathematical breakdown of your custom escrow. Follow the on-screen prompts to automatically deploy your bespoke smart contract to the blockchain.
+
+### 3. Deploy & Fund
+Once deployed, deposit the funds into the secure smart contract. The funds are locked and can only be released when both parties agree or an Arbiter steps in.
+
+### 4. Release Payment
+Once the work is done (or the rental period ends securely), click "Approve" to release the funds directly to the recipient. If something goes wrong, click "Dispute" to call the Arbiter.
+
+---
+
+## 💼 For Founders: How to Integrate EscrowKit into Your Project
+
+If you are building a marketplace, an Upwork clone, a DAO platform, or a P2P rental site, EscrowKit acts as your backend engine for payments. You never need to hold licenses for money transmission because the smart contracts natively hold the funds (**Non-Custodial**).
+
+### Integration Pathways:
+
+1.  **The TypeScript SDK (Direct Web3 Integration):** 
+    If your app has a custom Web3 frontend (React/Next.js/Vue), use our `@escrowkit/sdk-ts`. It allows your frontend to seamlessly build and execute escrow transactions directly through your user's connected wallet.
+2.  **The REST API & Webhooks (Web2.5 Backend Integration):** 
+    If you run a traditional Web2 backend (Node.js, Django, Ruby), use the EscrowKit REST API to track transactions off-chain. Register a secure **Webhook** to listen for `EscrowCreated` or `MilestoneReleased` events, ensuring your database stays in perfectly synced real-time with the blockchain.
+3.  **White-Label / Hosted Interface:** 
+    Send your users directly to the EscrowKit Dashboard to handle the payment flow, similar to a Stripe Checkout experience. Your platform passes the parameters, and EscrowKit handles the blockchain complexity.
+
+---
 
 ## 🏗️ System Architecture
 
@@ -251,7 +289,6 @@ A full authentication system supporting two providers:
 **Google OAuth:**
 - `GET /auth/google` — Initiates Google OAuth flow.
 - `GET /auth/google/callback` — Handles OAuth callback, creates or links user account, returns JWT.
-- Account linking: if a Google email matches an existing email/password account, the Google ID is linked automatically.
 
 **Profile:**
 - `GET /auth/profile` — Returns authenticated user's profile (requires JWT Bearer token).
@@ -285,8 +322,6 @@ Generates encoded calldata for smart contract interactions — useful for backen
 |---|---|---|
 | `/api/v1/webhooks` | POST | Register a new webhook URL with event subscriptions and optional signing secret |
 | `/api/v1/webhooks` | GET | List all registered webhooks for the authenticated user |
-
-Supported webhook events: `EscrowCreated`, `MilestoneReleased`, `DisputeOpened`, etc.
 
 ---
 
@@ -381,32 +416,53 @@ Custom React hooks for contract interactions (4 hooks total).
 
 ---
 
-## 6. TypeScript SDK (`packages/sdk-ts`)
+## 6. Detailed SDK Implementation (`packages/sdk-ts`)
 
 **Tech Stack:** TypeScript, Viem, tsup (bundler)
 
-The SDK provides a developer-friendly `EscrowKitClient` class for integrating EscrowKit into any TypeScript/JavaScript application.
+The SDK provides a heavily typed, developer-friendly `EscrowKitClient` class for integrating EscrowKit into any TypeScript/JavaScript application. It abstracts away ABI encoding, raw contract interactions, and exact gas estimations.
 
-### `EscrowKitClient` Class
+### Integration & Installation
+Integrate the SDK into your project using your preferred package manager (requires `viem` as a peer dependency):
+```bash
+npm install @escrowkit/sdk-ts viem
+```
+
+### `EscrowKitClient` Initialization
+To start using the SDK, configure it with a Viem transport and your chain parameters:
+
 ```typescript
+import { EscrowKitClient } from '@escrowkit/sdk-ts';
+import { createWalletClient, custom, http } from 'viem';
+import { baseSepolia } from 'viem/chains';
+
+const walletClient = createWalletClient({
+    chain: baseSepolia,
+    transport: custom(window.ethereum)
+});
+
 const client = new EscrowKitClient({
-    chain: foundry,
+    chain: baseSepolia,
     transport: http(),
-    factoryAddress: '0x...',
-    walletClient: walletClient, // optional, for write operations
+    factoryAddress: '0xYourFactoryAddress',
+    walletClient: walletClient, // Required for write operations
 });
 ```
 
-**Methods:**
-| Method | Description |
-|---|---|
-| `createEscrow(payee, arbiter?)` | Deploys a new escrow via the factory |
-| `addMilestones(escrowAddress, { amounts, descriptions, deadlines })` | Adds milestones to a deployed escrow |
-| `fund(escrowAddress, amount)` | Funds all pending milestones |
+### Key Capabilities & Methods:
+The SDK handles all complex on-chain interactions automatically.
 
-**Exports:** `EscrowKitClient`, `FACTORY_ABI`, `ESCROW_ABI`, types from `types.ts`
+| Method | Description | Technical Implementation |
+|---|---|---|
+| `createEscrow(config)` | Deploys a new escrow instance via the `EscrowFactory`. | Encodes parameters, submits cloning transaction, and returns the deterministic new address. |
+| `addMilestones(address, milestones)` | Adds milestones to a pending escrow. | Batches arrays of amounts, descriptions, deadlines, and verifies condition hashes natively. |
+| `fund(address, amount)` | Funds pending milestones. | Handles native ETH `msg.value` or automatically manages ERC-20 `approve()` flows before funding. |
+| `approveMilestone(address, id)` | Releases funds for a completed milestone. | Triggers the `releaseMilestone` logic on the smart contract safely. |
+| `openDispute(address, id)` | Initiates the arbitration process. | Pays the `disputeFee` specifically to the configured `ArbitrationAdapter`. |
 
-**`recipes.ts`** — Pre-built workflow recipes for common patterns (e.g., create + fund in one call).
+**Exports:** `EscrowKitClient`, `FACTORY_ABI`, `ESCROW_ABI`, and comprehensively documented types from `types.ts`.
+
+**Workflow Recipes (`recipes.ts`):** We provide pre-built asynchronous workflow recipes for common UI patterns (e.g., deploying an escrow, adding 3 milestones, and funding it all in fully batched sequential transactions).
 
 ---
 
@@ -461,28 +517,54 @@ Triggered on push to `main` and all pull requests.
 - Monorepo-aware configuration to build and serve the dApp and API
 - Environment variables managed in Railway dashboard
 
-### Local Development
+---
+
+## 👨‍💻 For Developers & Open Source Contributors: How to Start
+
+We highly encourage open-source contributions! EscrowKit is broken down into modular packages, meaning you can contribute purely to Smart Contracts, the Frontend, or the Backend APIs.
+
+### Prerequisites to Contribute
+*   **Node.js v20+** & **pnpm 10** (for running the web apps and indexer)
+*   **Foundry** (for compiling and testing smart contracts locally)
+*   **Docker** (for spinning up the local PostgreSQL and Redis DBs)
+
+### Full Local Development Setup
+To boot up the entire Trustless Marketplace Engine locally, follow these steps:
+
 ```bash
-# 1. Start local blockchain
+# 1. Start the local Ethereum blockchain
 anvil
 
-# 2. Deploy contracts
+# 2. Build and Deploy the Smart Contracts locally
 cd packages/contracts
 forge script script/Deploy.s.sol --broadcast --rpc-url http://127.0.0.1:8545
 
-# 3. Start PostgreSQL (Docker)
+# 3. Start PostgreSQL (Database) via Docker
 docker-compose up -d
 
-# 4. Run API
-cd packages/api && pnpm dev
+# 4. Run the REST API Backend
+cd packages/api 
+pnpm install
+pnpm dev
 
-# 5. Run Indexer
-cd packages/indexer && pnpm dev
+# 5. Run the Blockchain Indexer
+cd packages/indexer 
+pnpm install
+pnpm dev
 
-# 6. Run dApp
-cd packages/dapp && pnpm dev
-# → http://localhost:3000
+# 6. Run the Next.js Dashboard (dApp)
+cd packages/dapp 
+pnpm install
+pnpm dev
+# → Visit http://localhost:3000
 ```
+
+### Contributing Workflow
+1. Fork the repository and create your feature branch (`git checkout -b feature/amazing-feature`).
+2. Adhere to the existing ESLint configurations and Run `pnpm format`.
+3. Ensure smart contract changes pass Foundry tests (`forge test`).
+4. Commit your changes (`git commit -m "feat: add amazing feature"`).
+5. Push to the branch and open a Pull Request.
 
 ---
 
