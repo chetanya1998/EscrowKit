@@ -302,7 +302,7 @@ const DashboardSimulation = () => (
       {/* Dashboard App Content */}
       <div className="flex text-xs bg-[#0c0c0c]">
         {/* Sidebar */}
-        <div className="w-52 bg-[#111]/90 border-r border-white/[0.05] p-4 flex flex-col gap-5 shrink-0">
+        <div className="hidden md:flex w-52 bg-[#111]/90 border-r border-white/[0.05] p-4 flex-col gap-5 shrink-0">
           <div className="flex items-center gap-2 px-1">
             <div className="w-6 h-6 bg-emerald-500 rounded-md shrink-0" />
             <span className="font-bold text-white tracking-wider text-[11px] uppercase">EscrowKit</span>
@@ -338,7 +338,7 @@ const DashboardSimulation = () => (
           </div>
 
           {/* Dashboard Grid */}
-          <div className="p-5 grid grid-cols-3 gap-4">
+          <div className="p-4 sm:p-5 grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             {/* Stat Cards */}
             <div className="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
               <div className="text-zinc-500 text-[9px] font-bold uppercase tracking-widest mb-1">Total Volume</div>
@@ -350,7 +350,7 @@ const DashboardSimulation = () => (
               <div className="text-xl font-bold text-emerald-400">8</div>
               <div className="text-[9px] text-zinc-500 mt-1">3 pending approval</div>
             </div>
-            <div className="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
+            <div className="bg-zinc-900/50 p-4 rounded-xl border border-white/5 col-span-2 md:col-span-1">
               <div className="text-zinc-500 text-[9px] font-bold uppercase tracking-widest mb-1">Pending</div>
               <div className="text-xl font-bold text-amber-400">2</div>
               <div className="text-[9px] text-zinc-500 mt-1">Requires action</div>
@@ -381,7 +381,7 @@ const DashboardSimulation = () => (
             </div>
 
             {/* Action Card */}
-            <div className="col-span-1 bg-gradient-to-br from-emerald-900/30 to-zinc-900/60 rounded-xl border border-emerald-500/20 p-4 flex flex-col items-center justify-center text-center gap-2">
+            <div className="col-span-2 md:col-span-1 bg-gradient-to-br from-emerald-900/30 to-zinc-900/60 rounded-xl border border-emerald-500/20 p-4 flex flex-col items-center justify-center text-center gap-2">
               <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-black shadow-lg shadow-emerald-500/30">
                 <Plus size={18} />
               </div>
