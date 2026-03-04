@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
+const inter = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-inter" });
+const outfit = Space_Grotesk({ subsets: ["latin"], variable: "--font-outfit" });
 import { Providers } from "../src/components/providers";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
