@@ -271,19 +271,19 @@ const PremiumCard = ({ children, className = '', highlight = false }: { children
  * FULL DASHBOARD SIMULATION
  */
 const DashboardSimulation = () => (
-  <div className="relative w-full aspect-auto md:aspect-[16/9] lg:aspect-[21/9] z-20 group" style={{ perspective: '2000px' }}>
+  <div className="relative w-full z-20 group" style={{ perspective: '2000px' }}>
     <div
-      className="w-full h-full bg-[#0c0c0c] rounded-3xl border border-white/10 flex flex-col md:block shadow-2xl transition-all duration-700 ease-out hover:!transform-none hover:scale-[1.05] md:shadow-[-30px_50px_80px_-20px_rgba(0,0,0,0.8)] hover:shadow-[0_0_80px_rgba(16,185,129,0.15)] relative transform-style-3d"
+      className="w-full bg-[#0c0c0c] rounded-3xl border border-white/10 flex flex-col md:block shadow-2xl transition-all duration-700 ease-out hover:!transform-none hover:scale-[1.05] md:shadow-[-30px_50px_80px_-20px_rgba(0,0,0,0.8)] hover:shadow-[0_0_80px_rgba(16,185,129,0.15)] relative transform-style-3d"
       style={{
         transform: typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'rotateX(8deg) rotateY(-18deg) rotateZ(4deg)' : 'none',
       }}
     >
-      <div className="absolute inset-0 rounded-3xl overflow-hidden bg-[#0c0c0c]">
+      <div className="relative rounded-3xl overflow-hidden bg-[#0c0c0c] w-full h-full">
         {/* Fade overlay for "Faded Product Experience" */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#010101] via-transparent to-transparent z-20 pointer-events-none opacity-80" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#010101] via-transparent to-[#010101] z-20 pointer-events-none opacity-50" />
 
-        <div className="flex h-full text-xs flex-col md:flex-row relative z-10 transform-style-3d transition-all duration-700 translate-z-[20px] group-hover:translate-z-[40px]">
+        <div className="flex text-xs flex-col md:flex-row relative z-10 transform-style-3d transition-all duration-700 translate-z-[20px] group-hover:translate-z-[40px]">
           {/* Sidebar */}
           <div className="w-64 bg-[#111] border-r border-white/5 p-4 flex flex-col gap-6 hidden md:flex">
             <div className="flex items-center gap-2 px-2">
@@ -508,8 +508,8 @@ export default function App() {
           </div>
 
           {/* Right Column: Dashboard Preview */}
-          <FadeIn delay={500} className="w-full mt-12 lg:mt-0 xl:scale-110 xl:origin-left">
-            <div id="dashboard" className="relative w-full mx-auto">
+          <FadeIn delay={500} className="w-full mt-12 lg:mt-0 xl:scale-105 xl:origin-center">
+            <div id="dashboard" className="relative w-full max-w-2xl mx-auto">
               <DashboardSimulation />
             </div>
           </FadeIn>
