@@ -24,7 +24,7 @@ export default function RootLayout({
   const cspHeader = `
     default-src 'self' wss: https:;
     script-src 'self' 'unsafe-eval' 'unsafe-inline';
-    style-src 'self' 'unsafe-inline';
+    style-src 'self' 'unsafe-inline' https:;
     img-src 'self' blob: data: https:;
     font-src 'self' data: https:;
     connect-src 'self' wss: https:;

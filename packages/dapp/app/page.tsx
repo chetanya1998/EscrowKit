@@ -1086,3 +1086,73 @@ export default function App() {
     </div>
   );
 }
+
+/**
+ * COMPONENT HELPERS
+ */
+
+const DeveloperTerminal = () => (
+  <div className="bg-[#1e1e1e] rounded-2xl border border-white/10 overflow-hidden font-mono text-sm shadow-2xl">
+    <div className="bg-[#2d2d2d] px-4 py-2 flex items-center gap-2 border-b border-white/5">
+      <div className="w-3 h-3 rounded-full bg-red-500" />
+      <div className="w-3 h-3 rounded-full bg-amber-500" />
+      <div className="w-3 h-3 rounded-full bg-green-500" />
+      <div className="ml-2 text-zinc-400 text-xs">escrow-kit-setup — -zsh</div>
+    </div>
+    <div className="p-6 space-y-4">
+      <div className="flex gap-2">
+        <span className="text-emerald-500">➜</span>
+        <span className="text-blue-400">~</span>
+        <span className="text-zinc-300">git clone https://github.com/chetanya1998/EscrowKit.git</span>
+      </div>
+      <div className="text-zinc-500 pl-4">Cloning into 'core'...</div>
+      <div className="flex gap-2">
+        <span className="text-emerald-500">➜</span>
+        <span className="text-blue-400">~/core</span>
+        <span className="text-zinc-300">npm install @escrowkit/sdk</span>
+      </div>
+      <div className="text-zinc-500 pl-4">
+        added 24 packages in 2s<br />
+        <span className="text-emerald-500">✔ Installation complete. Ready to build.</span>
+      </div>
+      <div className="flex gap-2 animate-pulse">
+        <span className="text-emerald-500">➜</span>
+        <span className="text-blue-400">~/core</span>
+        <span className="inline-block w-2 h-4 bg-zinc-500" />
+      </div>
+    </div>
+  </div>
+);
+
+const ContributionCard = ({ icon, title, desc, tag }: { icon: React.ReactNode, title: string, desc: string, tag: string }) => (
+  <div className="bg-zinc-900/30 border border-white/5 p-6 rounded-2xl hover:border-emerald-500/40 transition-all hover:bg-zinc-900/50 group cursor-pointer h-full">
+    <div className="flex justify-between items-start mb-4">
+      <div className="p-3 bg-zinc-900 rounded-xl text-emerald-500 group-hover:bg-emerald-500 group-hover:text-black transition-colors">
+        {icon}
+      </div>
+      <span className="px-2 py-1 bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase rounded border border-emerald-500/20">
+        {tag}
+      </span>
+    </div>
+    <h4 className="text-xl font-bold text-white mb-2">{title}</h4>
+    <p className="text-zinc-400 text-base leading-relaxed mb-4">{desc}</p>
+  </div>
+);
+
+const RoadmapItem = ({ quarter, title, desc, status }: { quarter: string, title: string, desc: string, status: string }) => (
+  <div className="flex flex-col md:flex-row gap-6 md:items-center bg-zinc-900/20 border border-white/5 p-6 rounded-2xl hover:bg-zinc-900/40 transition-colors">
+    <div className="w-32 shrink-0">
+      <div className="text-emerald-500 font-bold text-lg">{quarter}</div>
+      <div className={`text-[10px] uppercase font-bold tracking-wider ${status === 'In Progress' ? 'text-amber-500' : 'text-zinc-600'}`}>
+        {status}
+      </div>
+    </div>
+    <div className="flex-1">
+      <h3 className="text-xl font-bold text-white mb-1">{title}</h3>
+      <p className="text-zinc-400 text-sm">{desc}</p>
+    </div>
+    <div className="shrink-0 flex items-center gap-2 text-zinc-600">
+      <GitBranch size={16} />
+    </div>
+  </div>
+);
