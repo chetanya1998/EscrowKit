@@ -142,9 +142,9 @@ export default function CustomEscrowPage() {
             <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
 
             <div className="max-w-4xl mx-auto mt-8 relative z-10">
-                <Link href="/dashboard" className="text-zinc-500 hover:text-white flex items-center gap-2 mb-8 transition-colors w-fit">
+                <Link href="/dashboard/templates" className="text-zinc-500 hover:text-white flex items-center gap-2 mb-8 transition-colors w-fit">
                     <ArrowLeft className="h-4 w-4" />
-                    Back to Dashboard
+                    Back to Templates
                 </Link>
 
                 <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white to-zinc-500 text-transparent bg-clip-text mb-8">

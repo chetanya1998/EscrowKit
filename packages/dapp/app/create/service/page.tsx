@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { ArrowRight, ArrowLeft, Loader2 } from "lucide-react"
+import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -94,6 +95,10 @@ export default function CreateServiceEscrow() {
     return (
         <div className="max-w-xl mx-auto py-8 px-4">
             <div className="mb-8">
+                <Link href="/dashboard/templates" className="text-neutral-500 hover:text-neutral-300 flex items-center gap-2 mb-6 w-fit transition-colors">
+                    <ArrowLeft className="h-4 w-4" />
+                    Back to Templates
+                </Link>
                 <h1 className="text-3xl font-bold tracking-tight text-neutral-50">Service Contract Template</h1>
                 <p className="text-neutral-400 mt-2">Create an escrow with strict delivery deadlines and automated review periods.</p>
 
