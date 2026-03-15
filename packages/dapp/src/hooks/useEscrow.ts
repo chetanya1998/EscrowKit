@@ -1,5 +1,5 @@
 import { useReadContract, useReadContracts } from 'wagmi';
-import { MILESTONE_ESCROW_ABI, RENTAL_ESCROW_ABI, SERVICE_ESCROW_ABI, LEASE_ESCROW_ABI } from '@/lib/constants';
+import { MILESTONE_ESCROW_ABI, RENTAL_ESCROW_ABI, SERVICE_ESCROW_ABI, LEASE_ESCROW_ABI, B2B_VENDOR_ESCROW_ABI } from '@/lib/constants';
 import { Address } from 'viem';
 
 export interface Milestone {
@@ -42,6 +42,14 @@ export interface LeaseDetails {
     status: number; // 0=AWAITING_DEPOSIT, 1=ACTIVE, 2=DISPUTED, 3=ENDED
 }
 
+export interface B2BVendorDetails {
+    depositAmount: bigint;
+    status: number; // 0=PENDING, 1=FUNDED, 2=SUBMITTED, 3=APPROVED, 4=RELEASED, 5=REFUNDED, 6=DISPUTED
+    submittedAt: bigint;
+    invoiceURI: string;
+    invoiceHash: string;
+}
+
 const MILESTONE_STATUS = [
     'PENDING',
     'SUBMITTED',
@@ -80,9 +88,18 @@ export function useEscrow(address: Address | undefined) {
         functionName: 'lessee',
     });
 
+    // 5. Try to fetch vendor (B2B Vendor Escrow)
+    const { data: b2bVendorData } = useReadContract({
+        address,
+        abi: B2B_VENDOR_ESCROW_ABI,
+        functionName: 'vendor',
+    });
+
     // Heuristic Classification
-    let type: 'milestone' | 'rental' | 'service' | 'lease' | 'loading' = 'loading';
-    if (buyerData) {
+    let type: 'milestone' | 'rental' | 'service' | 'lease' | 'b2b-vendor' | 'loading' = 'loading';
+    if (b2bVendorData) {
+        type = 'b2b-vendor';
+    } else if (buyerData) {
         type = 'service';
     } else if (lesseeData) {
         type = 'lease';
@@ -189,6 +206,31 @@ export function useEscrow(address: Address | undefined) {
         currentPeriod: (leaseCurrentPeriod as bigint) || 0n,
     } : undefined;
 
+    // --- B2B VENDOR ESCROW LOGIC ---
+    const { data: b2bDeposit, refetch: refetchB2b1 } = useReadContract({
+        address, abi: B2B_VENDOR_ESCROW_ABI, functionName: 'depositAmount', query: { enabled: type === 'b2b-vendor' }
+    });
+    const { data: b2bStatus, refetch: refetchB2b2 } = useReadContract({
+        address, abi: B2B_VENDOR_ESCROW_ABI, functionName: 'status', query: { enabled: type === 'b2b-vendor' }
+    });
+    const { data: b2bSubmittedAt } = useReadContract({
+        address, abi: B2B_VENDOR_ESCROW_ABI, functionName: 'submittedAt', query: { enabled: type === 'b2b-vendor' }
+    });
+    const { data: b2bInvoiceURI } = useReadContract({
+        address, abi: B2B_VENDOR_ESCROW_ABI, functionName: 'invoiceURI', query: { enabled: type === 'b2b-vendor' }
+    });
+    const { data: b2bInvoiceHash } = useReadContract({
+        address, abi: B2B_VENDOR_ESCROW_ABI, functionName: 'invoiceHash', query: { enabled: type === 'b2b-vendor' }
+    });
+
+    const b2bVendorDetails: B2BVendorDetails | undefined = type === 'b2b-vendor' && b2bDeposit !== undefined ? {
+        depositAmount: b2bDeposit as bigint,
+        status: Number(b2bStatus || 0),
+        submittedAt: (b2bSubmittedAt as bigint) || 0n,
+        invoiceURI: (b2bInvoiceURI as string) || "",
+        invoiceHash: (b2bInvoiceHash as string) || "",
+    } : undefined;
+
 
     // --- SHARED DETAILS (Generic Mapping) ---
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -196,9 +238,10 @@ export function useEscrow(address: Address | undefined) {
     if (type === 'rental') activeABI = RENTAL_ESCROW_ABI;
     if (type === 'service') activeABI = SERVICE_ESCROW_ABI;
     if (type === 'lease') activeABI = LEASE_ESCROW_ABI;
+    if (type === 'b2b-vendor') activeABI = B2B_VENDOR_ESCROW_ABI;
 
-    const { data: basePayer } = useReadContract({ address, abi: activeABI, functionName: type === 'service' ? 'buyer' : type === 'lease' ? 'lessee' : 'payer' });
-    const { data: basePayee } = useReadContract({ address, abi: activeABI, functionName: type === 'service' ? 'provider' : type === 'lease' ? 'lessor' : 'payee' });
+    const { data: basePayer } = useReadContract({ address, abi: activeABI, functionName: type === 'service' ? 'buyer' : type === 'lease' ? 'lessee' : type === 'b2b-vendor' ? 'buyer' : 'payer' });
+    const { data: basePayee } = useReadContract({ address, abi: activeABI, functionName: type === 'service' ? 'provider' : type === 'lease' ? 'lessor' : type === 'b2b-vendor' ? 'vendor' : 'payee' });
     const { data: arbiter } = useReadContract({ address, abi: activeABI, functionName: 'arbiter' });
     const { data: token } = useReadContract({ address, abi: activeABI, functionName: 'token' });
     const { data: config } = useReadContract({ address, abi: activeABI, functionName: 'config' });
@@ -219,6 +262,7 @@ export function useEscrow(address: Address | undefined) {
         rentalDetails,
         serviceDetails,
         leaseDetails,
+        b2bVendorDetails,
         details,
         isLoading: !type || type === 'loading' || !details,
         isError: false,
@@ -231,6 +275,8 @@ export function useEscrow(address: Address | undefined) {
             refetchService2();
             refetchLease1();
             refetchLease2();
+            refetchB2b1();
+            refetchB2b2();
         }
     };
 }

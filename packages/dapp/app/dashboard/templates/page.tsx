@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Briefcase, Home, Shield, FileText, ArrowRight, Settings } from "lucide-react"
+import { Briefcase, Home, Shield, FileText, ArrowRight, Settings, Truck } from "lucide-react"
 import Link from "next/link"
 
 const templates = [
@@ -55,6 +55,16 @@ const templates = [
         href: "/create/custom",
         color: "text-zinc-500",
         bg: "bg-zinc-500/10",
+    },
+    {
+        id: "b2b-vendor",
+        title: "B2B Vendor Payment",
+        description: "Net-X payment terms with invoice tracking. Auto-releases funds after the payment term duration post-submission.",
+        icon: Truck,
+        bestFor: "Wholesale, B2B Services, Supply Chain",
+        href: "/create/b2b-vendor",
+        color: "text-indigo-500",
+        bg: "bg-indigo-500/10",
     },
 ]
 

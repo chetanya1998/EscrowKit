@@ -8,6 +8,61 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ArrowUpRight } from "lucide-react"
 import Link from "next/link"
+import { useEscrow } from "@/hooks/useEscrow"
+import { Address, formatUnits } from "viem"
+
+function ContractRow({ tx }: { tx: any }) {
+    const { type, b2bVendorDetails } = useEscrow(tx.address as Address);
+
+    let displayAmount = tx.amount;
+    let displayStatus = tx.status;
+    let displayDescription = tx.description || "Escrow #" + tx.id.slice(0, 8);
+
+    if (type === 'b2b-vendor' && b2bVendorDetails) {
+        displayAmount = formatUnits(b2bVendorDetails.depositAmount, 18);
+        const B2B_STATUS = ['PENDING', 'FUNDED', 'SUBMITTED', 'APPROVED', 'RELEASED', 'REFUNDED', 'DISPUTED'];
+        displayStatus = B2B_STATUS[b2bVendorDetails.status]?.toLowerCase() || 'pending';
+        displayDescription = b2bVendorDetails.invoiceURI ? `Invoice: ${b2bVendorDetails.invoiceURI.split('/').pop()}` : "B2B Payment";
+    }
+
+    const isCompleted = displayStatus === 'released' || displayStatus === 'completed';
+    const isPending = displayStatus === 'pending' || displayStatus === 'awaiting_deposit';
+
+    return (
+        <TableRow className="border-neutral-800 hover:bg-neutral-800/50">
+            <TableCell className="font-medium text-neutral-300">
+                <div className="flex flex-col">
+                    <span>{displayDescription}</span>
+                    <span className="text-xs text-neutral-500 font-normal">{tx.date}</span>
+                </div>
+            </TableCell>
+            <TableCell className="text-neutral-400 capitalize">{tx.type === 'created' ? 'Payer' : 'Payee'}</TableCell>
+            <TableCell className="text-neutral-400 font-mono text-xs">{tx.counterparty.slice(0, 6)}...{tx.counterparty.slice(-4)}</TableCell>
+            <TableCell className="text-neutral-50 font-medium">{displayAmount} ETH</TableCell>
+            <TableCell>
+                <Badge
+                    variant={
+                        isCompleted ? 'success' :
+                            isPending ? 'warning' : 'secondary'
+                    }
+                    className={
+                        isCompleted ? 'bg-emerald-500/10 text-emerald-500' :
+                            isPending ? 'bg-amber-500/10 text-amber-500' : 'bg-neutral-800 text-neutral-400'
+                    }
+                >
+                    {displayStatus}
+                </Badge>
+            </TableCell>
+            <TableCell className="text-right">
+                <Link href={`/escrow?address=${tx.address || tx.id}`}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-neutral-500 hover:text-neutral-300">
+                        <ArrowUpRight className="h-4 w-4" />
+                    </Button>
+                </Link>
+            </TableCell>
+        </TableRow>
+    );
+}
 
 export default function EscrowsPage() {
     const { transactions, isLoading, isFetching, error } = useDashboardData()
@@ -57,38 +112,7 @@ export default function EscrowsPage() {
                             </TableHeader>
                             <TableBody>
                                 {transactions?.map((tx: any) => (
-                                    <TableRow key={tx.id} className="border-neutral-800 hover:bg-neutral-800/50">
-                                        <TableCell className="font-medium text-neutral-300">
-                                            <div className="flex flex-col">
-                                                <span>{tx.description || "Escrow #" + tx.id}</span>
-                                                <span className="text-xs text-neutral-500 font-normal">{tx.date}</span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="text-neutral-400 capitalize">{tx.type === 'created' ? 'Payer' : 'Payee'}</TableCell>
-                                        <TableCell className="text-neutral-400 font-mono text-xs">{tx.counterparty.slice(0, 6)}...{tx.counterparty.slice(-4)}</TableCell>
-                                        <TableCell className="text-neutral-50 font-medium">{tx.amount} {tx.currency}</TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                variant={
-                                                    tx.status === 'completed' ? 'success' :
-                                                        tx.status === 'pending' ? 'warning' : 'secondary'
-                                                }
-                                                className={
-                                                    tx.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500' :
-                                                        tx.status === 'pending' ? 'bg-amber-500/10 text-amber-500' : 'bg-neutral-800 text-neutral-400'
-                                                }
-                                            >
-                                                {tx.status}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <Link href={`/escrow?address=${tx.counterparty || tx.id}`}> {/* Link logic needs refinement, ideally link by ID but mock data uses ID */}
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-neutral-500 hover:text-neutral-300">
-                                                    <ArrowUpRight className="h-4 w-4" />
-                                                </Button>
-                                            </Link>
-                                        </TableCell>
-                                    </TableRow>
+                                    <ContractRow key={tx.id} tx={tx} />
                                 ))}
                                 {(!transactions || transactions.length === 0) && (
                                     <TableRow>

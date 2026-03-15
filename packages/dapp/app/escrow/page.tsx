@@ -27,7 +27,7 @@ function EscrowContent() {
     const router = useRouter();
     const address = searchParams.get('address') as Address;
     const { address: userAddress } = useAccount();
-    const { milestones, details, rentalDetails, serviceDetails, leaseDetails, type, isLoading, refetch, isError } = useEscrow(address);
+    const { milestones, details, rentalDetails, serviceDetails, leaseDetails, b2bVendorDetails, type, isLoading, refetch, isError } = useEscrow(address);
 
     const isPayer = userAddress && details?.payer && userAddress.toLowerCase() === details.payer.toLowerCase();
     const isPayee = userAddress && details?.payee && userAddress.toLowerCase() === details.payee.toLowerCase();
@@ -119,6 +119,11 @@ function EscrowContent() {
     // --- LEASE VIEW COMPONENT ---
     if (type === 'lease' && leaseDetails) {
         return <LeaseEscrowView address={address} details={details} leaseDetails={leaseDetails} refetch={refetch} />
+    }
+
+    // --- B2B VENDOR VIEW COMPONENT ---
+    if (type === 'b2b-vendor' && b2bVendorDetails) {
+        return <B2BVendorEscrowView address={address} details={details} b2bVendorDetails={b2bVendorDetails} refetch={refetch} />
     }
 
     // --- EMPTY STATE: INITIALIZATION ---
@@ -743,3 +748,145 @@ function LeaseEscrowView({ address, details, leaseDetails, refetch }: { address:
         </DashboardLayout>
     )
 }
+
+// --- B2B VENDOR VIEW COMPONENT ---
+import { B2B_VENDOR_ESCROW_ABI } from '@/lib/constants';
+import { B2BVendorDetails } from '@/hooks/useEscrow';
+
+function B2BVendorEscrowView({ address, details, b2bVendorDetails, refetch }: { address: `0x${string}`, details: EscrowDetails, b2bVendorDetails: B2BVendorDetails, refetch: () => void }) {
+    const router = useRouter();
+    const { address: userAddress } = useAccount();
+    const isBuyer = userAddress && details.payer && userAddress.toLowerCase() === details.payer.toLowerCase();
+    const isVendor = userAddress && details.payee && userAddress.toLowerCase() === details.payee.toLowerCase();
+
+    // 0=PENDING, 1=FUNDED, 2=SUBMITTED, 3=APPROVED, 4=RELEASED, 5=REFUNDED, 6=DISPUTED
+    const status = b2bVendorDetails.status;
+
+    const { writeContract, isPending, data: hash } = useWriteContract();
+    const { isSuccess } = useWaitForTransactionReceipt({ hash });
+
+    React.useEffect(() => {
+        if (isSuccess) refetch();
+    }, [isSuccess, refetch]);
+
+    const handleFund = () => {
+        writeContract({
+            address,
+            abi: B2B_VENDOR_ESCROW_ABI,
+            functionName: 'fund',
+            value: b2bVendorDetails.depositAmount,
+        });
+    };
+
+    const handleSubmit = () => {
+        writeContract({
+            address,
+            abi: B2B_VENDOR_ESCROW_ABI,
+            functionName: 'submitInvoice',
+        });
+    }
+
+    const handleApprove = () => {
+        writeContract({
+            address,
+            abi: B2B_VENDOR_ESCROW_ABI,
+            functionName: 'approvePayment',
+        });
+    }
+    
+    const handleAutoRelease = () => {
+        writeContract({
+            address,
+            abi: B2B_VENDOR_ESCROW_ABI,
+            functionName: 'autoRelease',
+        });
+    }
+
+    return (
+        <DashboardLayout>
+            <div className="max-w-6xl mx-auto w-full space-y-8">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <Button variant="ghost" className="pl-0 text-neutral-400 hover:text-neutral-50 mb-2" onClick={() => router.push('/dashboard/escrows')}>
+                            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
+                        </Button>
+                        <h1 className="text-3xl font-bold text-neutral-50 flex items-center gap-3">
+                            B2B Vendor Escrow <Badge variant="outline" className="text-indigo-400 border-indigo-900 bg-indigo-900/10">B2B Vendor</Badge>
+                        </h1>
+                        <div className="flex items-center gap-2 mt-2 text-sm text-neutral-400">
+                            <Lock className="h-3 w-3 text-emerald-500" /> Contract ID: {address}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-2">
+                    <Card className="bg-neutral-900 border-neutral-800">
+                        <CardHeader>
+                            <CardTitle className="text-neutral-100 flex items-center gap-2"><Activity className="h-5 w-5 text-indigo-500" /> Payment Status</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <div className="flex flex-col items-center justify-center p-6 bg-neutral-950/50 rounded-lg border border-neutral-800">
+                                {status === 0 && <span className="text-neutral-400">Awaiting Invoice Submission/Funding</span>}
+                                {status === 1 && <span className="text-blue-400 font-bold text-xl">Funded - Awaiting Invoice</span>}
+                                {status === 2 && <span className="text-amber-500 font-bold text-xl">Invoice Submitted</span>}
+                                {status === 3 && <span className="text-emerald-500 font-bold text-xl">Approved - Awaiting Net Term Release</span>}
+                                {status === 4 && <span className="text-emerald-500 font-bold text-xl">Payment Released</span>}
+                                {status === 6 && (
+                                    <div className="flex flex-col items-center gap-3">
+                                        <span className="text-red-500 font-bold text-xl">Disputed</span>
+                                        <Link href={`/dashboard/dispute?id=${address}`}>
+                                            <Button variant="outline" className="border-red-500/20 text-red-400 hover:bg-red-500/10">
+                                                View Case Details
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="space-y-3">
+                                {isBuyer && status === 0 && (
+                                    <Button onClick={handleFund} disabled={isPending} className="w-full bg-emerald-600 hover:bg-emerald-700">Deposit Funds</Button>
+                                )}
+                                {isVendor && (status === 1 || status === 0) && (
+                                    <Button onClick={handleSubmit} disabled={isPending} className="w-full bg-blue-600 hover:bg-blue-700">Submit Invoice Link On-Chain</Button>
+                                )}
+                                {isBuyer && status === 2 && (
+                                    <Button onClick={handleApprove} disabled={isPending} className="w-full bg-indigo-600 hover:bg-indigo-700">Approve Invoice (Starts Net Term)</Button>
+                                )}
+                                {status === 3 && (
+                                    <div className="flex flex-col gap-2">
+                                        <div className="bg-amber-900/10 border border-amber-900/30 p-3 rounded text-sm text-amber-500">
+                                            Net-Term delay ongoing. Payment will be released after the term ends.
+                                        </div>
+                                        <Button onClick={handleAutoRelease} disabled={isPending} className="w-full border-neutral-700 bg-neutral-800 text-neutral-300">
+                                            Attempt Auto-Release
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="bg-neutral-900 border-neutral-800">
+                        <CardHeader><CardTitle className="text-neutral-100">Invoice Details</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex justify-between text-sm"><span className="text-neutral-400">Total Due</span><span className="font-mono text-neutral-50">{formatEther(b2bVendorDetails.depositAmount)} ETH</span></div>
+                            {b2bVendorDetails.invoiceURI && (
+                             <div className="flex flex-col gap-1 text-sm">
+                                 <span className="text-neutral-400">Invoice Link</span>
+                                 <Link href={b2bVendorDetails.invoiceURI} target="_blank" className="font-mono text-indigo-400 truncate hover:underline">
+                                     {b2bVendorDetails.invoiceURI}
+                                 </Link>
+                             </div>
+                            )}
+                            <Separator className="bg-neutral-800" />
+                            <ParticipantRow label="Buyer" address={details.payer} isYou={isBuyer} />
+                            <ParticipantRow label="Vendor" address={details.payee} isYou={isVendor} />
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </DashboardLayout>
+    )
+}
+

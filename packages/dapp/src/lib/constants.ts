@@ -6,6 +6,7 @@ import SimpleArbiterAdapterArtifact from './SimpleArbiterAdapter.json';
 import VerificationOracleArtifact from './VerificationOracle.json';
 import ServiceEscrowArtifact from './ServiceEscrow.json';
 import LeaseEscrowArtifact from './LeaseEscrow.json';
+import B2BVendorEscrowArtifact from './B2BVendorEscrow.json';
 export const FACTORY_ADDRESS = process.env.NEXT_PUBLIC_FACTORY_ADDRESS || "0xec0902d890e0c41b8837d180f923788696942c42";
 export const FACTORY_ABI = EscrowFactoryArtifact.abi as Abi;
 export const MILESTONE_ESCROW_ABI = MilestoneEscrowArtifact.abi as Abi;
@@ -16,3 +17,4 @@ export const VERIFICATION_ORACLE_ADDRESS = process.env.NEXT_PUBLIC_VERIFICATION_
 export const VERIFICATION_ORACLE_ABI = VerificationOracleArtifact.abi as Abi;
 export const SERVICE_ESCROW_ABI = ServiceEscrowArtifact.abi as Abi;
 export const LEASE_ESCROW_ABI = LeaseEscrowArtifact.abi as Abi;
+export const B2B_VENDOR_ESCROW_ABI = B2BVendorEscrowArtifact.abi as Abi;

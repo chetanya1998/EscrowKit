@@ -6,6 +6,7 @@ import "./IMilestoneEscrow.sol";
 import "./IRentalEscrow.sol";
 import "./IServiceEscrow.sol";
 import "./ILeaseEscrow.sol";
+import "./IB2BVendorEscrow.sol";
 
 interface IEscrowFactory {
     event EscrowCreated(address indexed escrowAddress, address indexed payer, address indexed payee, address arbiter);
@@ -48,6 +49,16 @@ interface IEscrowFactory {
         address arbitrationAdapter,
         address token,
         ILeaseEscrow.LeaseConfig calldata config
+    ) external payable returns (address);
+
+    function createB2BVendorEscrow(
+        address vendor,
+        address arbiter,
+        address arbitrationAdapter,
+        address token,
+        uint256 depositAmount,
+        uint256 deadline,
+        IB2BVendorEscrow.B2BConfig calldata config
     ) external payable returns (address);
 
     function getEscrowCount() external view returns (uint256);

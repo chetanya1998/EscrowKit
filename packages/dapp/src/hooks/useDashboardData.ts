@@ -31,6 +31,7 @@ async function fetchEscrows(address: string, role?: string): Promise<Transaction
 
     return data.map((escrow: any) => ({
         id: escrow.id,
+        address: escrow.address,
         date: new Date(escrow.createdAt).toISOString().split('T')[0],
         type: escrow.payer.toLowerCase() === address.toLowerCase() ? 'created' : 'funded',
         description: escrow.milestones[0]?.description,

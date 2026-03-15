@@ -9,6 +9,7 @@ import "./MilestoneEscrow.sol";
 import "./RentalEscrow.sol";
 import "./ServiceEscrow.sol";
 import "./LeaseEscrow.sol";
+import "./B2BVendorEscrow.sol";
 import "./interfaces/IEscrowFactory.sol";
 
 contract EscrowFactory is IEscrowFactory, AccessControl, Pausable {
@@ -18,6 +19,7 @@ contract EscrowFactory is IEscrowFactory, AccessControl, Pausable {
     address public rentalImplementation;
     address public serviceImplementation;
     address public leaseImplementation;
+    address public b2bVendorImplementation;
     address[] public escrows;
 
     constructor() {
@@ -28,6 +30,7 @@ contract EscrowFactory is IEscrowFactory, AccessControl, Pausable {
         rentalImplementation = address(new RentalEscrow());
         serviceImplementation = address(new ServiceEscrow());
         leaseImplementation = address(new LeaseEscrow());
+        b2bVendorImplementation = address(new B2BVendorEscrow());
     }
 
     function pause() external onlyRole(PAUSER_ROLE) {
@@ -151,6 +154,34 @@ contract EscrowFactory is IEscrowFactory, AccessControl, Pausable {
 
         escrows.push(clone);
         emit EscrowCreated(clone, msg.sender, payee, arbiter);
+        
+        return clone;
+    }
+
+    function createB2BVendorEscrow(
+        address vendor,
+        address arbiter,
+        address arbitrationAdapter,
+        address token,
+        uint256 depositAmount,
+        uint256 deadline,
+        IB2BVendorEscrow.B2BConfig calldata config
+    ) external payable whenNotPaused returns (address) {
+        address clone = Clones.clone(b2bVendorImplementation);
+
+        B2BVendorEscrow(clone).initialize(
+            msg.sender,
+            vendor,
+            arbiter,
+            arbitrationAdapter,
+            token,
+            depositAmount,
+            deadline,
+            config
+        );
+
+        escrows.push(clone);
+        emit EscrowCreated(clone, msg.sender, vendor, arbiter);
         
         return clone;
     }

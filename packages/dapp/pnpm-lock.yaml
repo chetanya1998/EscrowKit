@@ -88,7 +88,7 @@ importers:
         version: 3.1.4(@tanstack/query-core@5.90.16)(@tanstack/react-query@5.90.16(react@19.2.3))(@types/react@19.2.7)(react@19.2.3)(typescript@5.9.3)(viem@2.43.5(typescript@5.9.3)(zod@3.24.2))
       zod:
         specifier: ^3.24.2
-        version: 3.24.2
+        version: 4.2.1
     devDependencies:
       '@hookform/resolvers':
         specifier: ^3.10.0
@@ -144,6 +144,9 @@ importers:
       typescript:
         specifier: ^5
         version: 5.9.3
+      zod-validation-error:
+        specifier: ^4.0.2
+        version: 4.0.2(zod@3.24.2)
 
 packages:
 
@@ -11120,6 +11123,10 @@ snapshots:
   yoctocolors@2.1.2: {}
 
   zod-to-json-schema@3.25.1(zod@3.24.2):
+    dependencies:
+      zod: 3.24.2
+
+  zod-validation-error@4.0.2(zod@3.24.2):
     dependencies:
       zod: 3.24.2
 
