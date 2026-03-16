@@ -477,6 +477,71 @@ const IsoStackedCards = ({ className = '' }: { className?: string }) => (
   </svg>
 );
 
+// FIG 0.5 — Isometric Vault (Smart Contracts)
+const IsoVault = ({ className = '' }: { className?: string }) => (
+  <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <g opacity="0.4">
+      {/* Base */}
+      <path d="M100 160L40 125V85L100 120L160 85V125L100 160Z" stroke="currentColor" strokeWidth="1" />
+      <path d="M100 160V120" stroke="currentColor" strokeWidth="1" />
+      <path d="M40 125L100 120L160 125" stroke="currentColor" strokeWidth="1" />
+      {/* Top Lid */}
+      <path d="M100 100L40 65L100 30L160 65L100 100Z" stroke="currentColor" strokeWidth="1" />
+      {/* Inner Vault Lines */}
+      <path d="M100 85L60 62L100 39L140 62L100 85Z" stroke="currentColor" strokeWidth="0.5" />
+      <circle cx="100" cy="62" r="10" stroke="currentColor" strokeWidth="1" />
+      <circle cx="100" cy="62" r="4" fill="currentColor" />
+    </g>
+    <text x="10" y="196" fill="currentColor" fontSize="7" fontFamily="monospace" opacity="0.4">FIG 0.5</text>
+  </svg>
+);
+
+// FIG 0.6 — Isometric Network (Oracles)
+const IsoNetwork = ({ className = '' }: { className?: string }) => (
+  <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <g opacity="0.4">
+      {/* Central Node */}
+      <circle cx="100" cy="100" r="12" stroke="currentColor" strokeWidth="1" />
+      <circle cx="100" cy="100" r="4" fill="currentColor" />
+      
+      {/* Outer Nodes */}
+      {[
+        [100, 40], [160, 70], [160, 130], [100, 160], [40, 130], [40, 70]
+      ].map(([x, y], i) => (
+        <g key={i}>
+          <circle cx={x} cy={y} r="8" stroke="currentColor" strokeWidth="1" />
+          <path d={`M100 100 L${x} ${y}`} stroke="currentColor" strokeWidth="0.5" strokeDasharray="4 4" />
+        </g>
+      ))}
+      
+      {/* Interconnections */}
+       <path d="M100 40 L160 70 L160 130 L100 160 L40 130 L40 70 Z" stroke="currentColor" strokeWidth="0.5" />
+    </g>
+    <text x="10" y="196" fill="currentColor" fontSize="7" fontFamily="monospace" opacity="0.4">FIG 0.6</text>
+  </svg>
+);
+
+// FIG 0.7 — Isometric Scale (Arbitration)
+const IsoScale = ({ className = '' }: { className?: string }) => (
+  <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <g opacity="0.4">
+      {/* Base */}
+      <path d="M100 160L70 145V135L100 150L130 135V145L100 160Z" stroke="currentColor" strokeWidth="1" />
+      {/* Pillar */}
+      <path d="M95 142V50H105V142" stroke="currentColor" strokeWidth="1" />
+      {/* Beam */}
+      <path d="M40 70L100 50L160 70" stroke="currentColor" strokeWidth="1" />
+      {/* Left Pan */}
+      <path d="M40 70L25 110H55L40 70Z" stroke="currentColor" strokeWidth="0.5" />
+      <ellipse cx="40" cy="110" rx="15" ry="5" stroke="currentColor" strokeWidth="1" />
+      {/* Right Pan */}
+      <path d="M160 70L145 110H175L160 70Z" stroke="currentColor" strokeWidth="0.5" />
+      <ellipse cx="160" cy="110" rx="15" ry="5" stroke="currentColor" strokeWidth="1" />
+    </g>
+    <text x="10" y="196" fill="currentColor" fontSize="7" fontFamily="monospace" opacity="0.4">FIG 0.7</text>
+  </svg>
+);
+
 /**
  * ANIMATED STEPS COMPONENT
  */
@@ -489,6 +554,143 @@ const AnimatedStep = ({ number, title, desc }: { number: string, title: string, 
     <p className="text-zinc-400 text-base leading-relaxed max-w-xs">{desc}</p>
   </div>
 );
+
+/**
+ * INTERACTIVE SECURITY LAYERS COMPONENT
+ */
+const SecurityLayers = () => {
+  const [activeLayer, setActiveLayer] = useState(0);
+  
+  const layers = [
+    {
+      title: "Non-Custodial Smart Contracts",
+      desc: "Mathematical locks ensure your funds are cryptographically secured. EscrowKit never holds your money—code governs every transaction, eliminating counterparty risk.",
+      icon: <Lock size={20} />,
+      visual: IsoVault,
+      color: "text-emerald-500",
+      bgHover: "hover:border-emerald-500/30 hover:bg-emerald-500/5",
+      activeBorder: "border-emerald-500",
+      activeBg: "bg-emerald-500/10",
+      glow: "shadow-[0_0_40px_rgba(16,185,129,0.15)]"
+    },
+    {
+      title: "Decentralized Oracles & Verification",
+      desc: "Real-world data and deliverables are verified via decoupled decentralized oracle networks and automated condition checks, preventing any single point of failure.",
+      icon: <Activity size={20} />,
+      visual: IsoNetwork,
+      color: "text-blue-500",
+      bgHover: "hover:border-blue-500/30 hover:bg-blue-500/5",
+      activeBorder: "border-blue-500",
+      activeBg: "bg-blue-500/10",
+      glow: "shadow-[0_0_40px_rgba(59,130,246,0.15)]"
+    },
+    {
+      title: "Pluggable Arbitration Failsafe",
+      desc: "If subjective disputes arise, plug into trusted third-party arbiters or decentralized justice protocols to guarantee fair, immutable resolution without middlemen.",
+      icon: <Scale size={20} />,
+      visual: IsoScale,
+      color: "text-amber-500",
+      bgHover: "hover:border-amber-500/30 hover:bg-amber-500/5",
+      activeBorder: "border-amber-500",
+      activeBg: "bg-amber-500/10",
+      glow: "shadow-[0_0_40px_rgba(245,158,11,0.15)]"
+    },
+    {
+      title: "Data Privacy & Encryption",
+      desc: "Sensitive project details, deliverable IP, and communication metadata are encrypted off-chain, ensuring public transparency ledgers don't expose your private agreements.",
+      icon: <ShieldCheck size={20} />,
+      visual: IsoStackedLayers,
+      color: "text-purple-500",
+      bgHover: "hover:border-purple-500/30 hover:bg-purple-500/5",
+      activeBorder: "border-purple-500",
+      activeBg: "bg-purple-500/10",
+      glow: "shadow-[0_0_40px_rgba(168,85,247,0.15)]"
+    }
+  ];
+
+  const ActiveVisual = layers[activeLayer].visual;
+
+  return (
+    <section className="relative z-10 py-24 md:py-40 px-6 border-t border-white/5 overflow-hidden">
+      {/* Ambient background glow matching active layer */}
+      <div className={`absolute inset-0 bg-gradient-to-b from-transparent to-[#010101] z-0 transition-colors duration-1000 ${
+        activeLayer === 0 ? 'bg-emerald-950/10' :
+        activeLayer === 1 ? 'bg-blue-950/10' :
+        activeLayer === 2 ? 'bg-amber-950/10' :
+        'bg-purple-950/10'
+      }`} />
+      
+      <div className="max-w-7xl mx-auto relative z-10">
+        <FadeIn>
+          <div className="text-center mb-16 md:mb-24">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tighter text-white">Trust, engineered.</h2>
+            <p className="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+              Multiple layers of security work in tandem to protect your transactions from end to end. Explore the architecture below.
+            </p>
+          </div>
+        </FadeIn>
+
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 items-center">
+          {/* Left Column: Interactive Tabs */}
+          <div className="flex-1 space-y-4 w-full max-w-2xl mx-auto lg:mx-0">
+            {layers.map((layer, idx) => {
+              const isActive = activeLayer === idx;
+              return (
+                <FadeIn key={idx} delay={idx * 100}>
+                  <div 
+                    onClick={() => setActiveLayer(idx)}
+                    onMouseEnter={() => setActiveLayer(idx)}
+                    className={`cursor-pointer p-6 md:p-8 rounded-3xl border transition-all duration-300 ${
+                      isActive 
+                        ? `${layer.activeBorder} ${layer.activeBg}` 
+                        : `border-white/5 bg-zinc-900/40 ${layer.bgHover}`
+                    }`}
+                  >
+                    <div className="flex items-center gap-4 mb-2">
+                      <div className={`p-2.5 md:p-3 rounded-xl transition-colors duration-300 ${isActive ? layer.color + " bg-white/10" : "text-zinc-500 bg-zinc-800"}`}>
+                        {layer.icon}
+                      </div>
+                      <h3 className={`text-xl md:text-2xl font-bold transition-colors duration-300 ${isActive ? "text-white" : "text-zinc-300"}`}>
+                        {layer.title}
+                      </h3>
+                    </div>
+                    <div 
+                      className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                        isActive ? "max-h-48 opacity-100 mt-4 md:mt-5" : "max-h-0 opacity-0"
+                      }`}
+                    >
+                      <p className="text-zinc-300 leading-relaxed text-base md:text-lg pl-14 md:pl-16">
+                        {layer.desc}
+                      </p>
+                    </div>
+                  </div>
+                </FadeIn>
+              );
+            })}
+          </div>
+
+          {/* Right Column: Isometric Visuals */}
+          <div className="flex-1 w-full flex justify-center lg:justify-end">
+            <FadeIn delay={200} className="w-full max-w-lg">
+               <div className={`relative w-full aspect-square rounded-[3rem] border border-white/10 bg-zinc-900/30 flex items-center justify-center transition-all duration-700 backdrop-blur-sm ${layers[activeLayer].glow}`}>
+                 {/* Decorative background grid behind SVG */}
+                 <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-[size:1.5rem_1.5rem] rounded-[3rem] overflow-hidden" />
+                 
+                 {/* The SVG Component rendering directly matching the active class */}
+                 <div key={activeLayer} className="animate-in fade-in zoom-in-95 duration-500 relative z-10 w-4/5 h-4/5 flex items-center justify-center text-white">
+                     <ActiveVisual className={`w-full h-full ${layers[activeLayer].color} drop-shadow-2xl transition-all duration-700 hover:scale-110`} />
+                 </div>
+
+                 {/* Topography accent lines */}
+                 <div className="absolute -inset-px border border-white/5 rounded-[3rem] opacity-50 pointer-events-none mix-blend-overlay" />
+               </div>
+            </FadeIn>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 
 /**
@@ -698,6 +900,9 @@ export default function App() {
             </FadeIn>
           </div>
         </section >
+
+        {/* SECURITY LAYERS SECTION (NEW) */}
+        <SecurityLayers />
 
         {/* AUDIENCE SECTION */}
         < section id="audience" className="relative z-10 py-20 md:py-32 px-6 border-t border-white/5" >
