@@ -611,7 +611,7 @@ const SecurityLayers = () => {
   const ActiveVisual = layers[activeLayer].visual;
 
   return (
-    <section className="relative z-10 py-24 md:py-40 px-6 border-t border-white/5 overflow-hidden">
+    <section id="security" className="relative z-10 py-24 md:py-40 px-6 border-t border-white/5 overflow-hidden">
       {/* Ambient background glow matching active layer */}
       <div className={`absolute inset-0 bg-gradient-to-b from-transparent to-[#010101] z-0 transition-colors duration-1000 ${
         activeLayer === 0 ? 'bg-emerald-950/10' :
@@ -721,6 +721,7 @@ export default function App() {
           <a href="#how" className="hover:text-emerald-400 transition-colors">How It Works</a>
           <a href="#audience" className="hover:text-emerald-400 transition-colors">Who It{"'s"} For</a>
           <a href="#features" className="hover:text-emerald-400 transition-colors">Features</a>
+          <a href="#security" className="hover:text-emerald-400 transition-colors">Security</a>
           <a href="#integrate" className="hover:text-emerald-400 transition-colors">Integrate</a>
           <a href="#open-source" className="hover:text-emerald-400 transition-colors">Open Source</a>
         </div>
@@ -742,6 +743,7 @@ export default function App() {
           <a href="#how" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-white hover:text-emerald-400">How It Works</a>
           <a href="#audience" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-white hover:text-emerald-400">Who It{"'s"} For</a>
           <a href="#features" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-white hover:text-emerald-400">Features</a>
+          <a href="#security" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-white hover:text-emerald-400">Security</a>
           <a href="#integrate" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-white hover:text-emerald-400">Integrate</a>
           <a href="#open-source" onClick={() => setIsMenuOpen(false)} className="text-2xl font-bold text-white hover:text-emerald-400">Open Source</a>
         </div>
