@@ -47,7 +47,8 @@ Click **"Create Escrow"**. This launches our highly customizable, no-code **Cust
 *   **Step 0 — Template Selection:** Start by picking a base template. 
     *   *Freelance & Services Template:* Use this when paying someone for milestone-based work.
     *   *Rental Deposit Template:* Use this to hold a security deposit for an item or property rental.
-*   **Step 1 — Configuration:** Add customized rules. Enter the Counterparty's wallet address. For milestone escrows, you define how many milestones, their values, and the deadlines. For rentals, you define the total deposit and the dispute window. You also select an **Arbiter** (a trusted third party or a decentralized court like Kleros) who resolves disputes.
+    *   *B2B Vendor Management Template:* Use this to manage complex supply chain agreements and progressive invoice payments.
+*   **Step 1 — Configuration:** Add customized rules. Enter the Counterparty's wallet address. For milestone escrows, you define how many milestones, their values, and the deadlines. For rentals, you define the total deposit and the dispute window. For B2B vendor escrows, you follow our detailed **4-step wizard** to configure invoice terms, shipment proofs, and arbitration parameters. You also select an **Arbiter** (a trusted third party or a decentralized court like Kleros) who resolves disputes.
 *   **Step 2 — Review & Deploy:** Review the mathematical breakdown of your custom escrow. Follow the on-screen prompts to automatically deploy your bespoke smart contract to the blockchain.
 
 ### 3. Deploy & Fund
@@ -186,7 +187,12 @@ AWAITING_DEPOSIT → ACTIVE → CLAIM_PENDING → ENDED
 
 ---
 
-### 2.4 `KlerosAdapter.sol`
+### 2.4 `B2BVendorEscrow.sol`
+A specialized escrow template tailored for **B2B agreements and vendor payments**, built to manage progressive invoices and supply chain deliverables. Features a comprehensive configuration flow allowing detailed milestone structuring, shipment verification paths, and complex supplier relationships out-of-the-box via a standalone 4-step UI wizard.
+
+---
+
+### 2.5 `KlerosAdapter.sol`
 Integrates with the **Kleros** decentralized arbitration protocol (ERC-792 standard).
 
 - Implements `IArbitrationAdapter` and `IArbitrable`
@@ -198,7 +204,7 @@ Integrates with the **Kleros** decentralized arbitration protocol (ERC-792 stand
 
 ---
 
-### 2.5 `SimpleArbiterAdapter.sol`
+### 2.6 `SimpleArbiterAdapter.sol`
 A lightweight, centralized arbitration adapter for use cases where a trusted human or DAO acts as arbiter.
 
 - Configurable `disputeCost` (fee to open a dispute)
@@ -208,7 +214,7 @@ A lightweight, centralized arbitration adapter for use cases where a trusted hum
 
 ---
 
-### 2.6 `VerificationOracle.sol`
+### 2.7 `VerificationOracle.sol`
 An on-chain registry for trusted verification results. Enables **automated milestone approval** based on off-chain conditions (e.g., a GitHub PR being merged).
 
 - Maintains a mapping of `conditionHash → bool isVerified`
@@ -219,12 +225,12 @@ An on-chain registry for trusted verification results. Enables **automated miles
 
 ---
 
-### 2.7 `ConditionEngine.sol`
+### 2.8 `ConditionEngine.sol`
 A pure library contract with utility functions for condition checking (e.g., `isDeadlinePassed(deadline)`). Used internally by `MilestoneEscrow`.
 
 ---
 
-### 2.8 `MockAdapter.sol`
+### 2.9 `MockAdapter.sol`
 A test-only arbitration adapter that immediately resolves disputes for use in Foundry tests.
 
 ---
@@ -378,13 +384,14 @@ A **3-step guided wizard** for deploying new escrow contracts:
 **Step 0 — Template Selection:**
 - **Freelance & Services** — Milestone-based payments for work completion
 - **Rental Deposit** — Security deposit hold for landlord/tenant scenarios
+- **B2B Vendor Management** — Supply chain agreements and phased invoice payments
 
 **Step 1 — Configuration:**
 - Project/property title
 - Payee wallet address (or ENS)
 - Optional arbiter address
 - For Rental: deposit amount (ETH) and claim window (seconds)
-- For Freelance: arbitration fee, dispute window, automatic release time
+- For Freelance/B2B: arbitration fee, dispute window, automatic release time, and comprehensive 4-step milestone routing
 
 **Step 2 — Review & Deploy:**
 - Summary of all configuration
@@ -588,6 +595,7 @@ Built with **Docusaurus**. Contains documentation for:
 - [x] `EscrowFactory` with EIP-1167 clone pattern for both Milestone and Rental escrows
 - [x] `MilestoneEscrow` — full lifecycle (add, fund, submit, approve, release, refund, dispute)
 - [x] `RentalEscrow` — deposit, claim, accept, dispute, resolve flow
+- [x] `B2BVendorEscrow` — 4-step wizard integration for vendor supply chains and progressive B2B invoices
 - [x] `KlerosAdapter` — full ERC-792 + ERC-1497 integration
 - [x] `SimpleArbiterAdapter` — centralized/trusted arbiter adapter
 - [x] `VerificationOracle` — on-chain condition verification registry
