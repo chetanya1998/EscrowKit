@@ -38,6 +38,8 @@ import {
   Bug
 } from 'lucide-react';
 import Link from 'next/link';
+import { logEvent } from "firebase/analytics";
+import { analytics } from "@/lib/firebase";
 
 /**
  * HOOKS & UTILITIES
@@ -694,12 +696,43 @@ const SecurityLayers = () => {
 
 
 /**
+/**
  * MAIN PAGE
  */
-export default function App() {
-  // const headline = useTypewriter("EscrowKit - The Trustless Marketplace Engine", 45);
-  const subheadline = useTypewriter("Secure, milestone-based payments for marketplaces, freelancing, gigs, and rentals.", 35, 2500);
+export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  // Create refs for sections we want to track
+  const sectionRefs = useRef<(HTMLElement | null)[]>([]);
+
+  useEffect(() => {
+    if (!analytics) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const sectionId = entry.target.id;
+          if (sectionId) {
+            logEvent(analytics, 'section_view', { section: sectionId });
+          }
+        }
+      });
+    }, { threshold: 0.5 }); // Trigger when 50% of the section is visible
+
+    sectionRefs.current.forEach(ref => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  const trackGithubClick = (location: string) => {
+    if (analytics) {
+      logEvent(analytics, 'github_click', { button_location: location });
+    }
+  };
+
+  const subheadline = useTypewriter("Secure, milestone-based payments for marketplaces, freelancing, gigs, and rentals.", 35, 2500);
 
   return (
     <div className="min-h-screen bg-[#010101] text-zinc-100 font-sans selection:bg-emerald-500 selection:text-black antialiased overflow-x-hidden">
@@ -777,7 +810,7 @@ export default function App() {
           </FadeIn>
           <FadeIn delay={400}>
             <div className="flex items-center justify-center gap-4 mb-10">
-              <a href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="bg-emerald-500 text-black h-14 px-12 rounded-full font-bold text-base hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all flex items-center gap-3">
+              <a href="https://github.com/chetanya1998/EscrowKit" target="_blank" onClick={() => trackGithubClick('hero_explore')} className="bg-emerald-500 text-black h-14 px-12 rounded-full font-bold text-base hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all flex items-center gap-3">
                 <ArrowRight size={18} /> Explore the Project
               </a>
             </div>
@@ -801,7 +834,7 @@ export default function App() {
         </section>
 
         {/* HOW IT WORKS: ANIMATED STEPS */}
-        <section id="how" className="relative z-10 py-20 md:py-40 px-6 bg-[#030303]/50 border-t border-white/5 overflow-hidden">
+        <section id="how" ref={el => { sectionRefs.current[0] = el; }} className="relative z-10 py-20 md:py-40 px-6 bg-[#030303]/50 border-t border-white/5 overflow-hidden">
           {/* Decorative ISO graphics */}
           <div className="absolute -right-8 top-12 opacity-60 pointer-events-none hidden lg:block">
             <IsoStackedCards className="w-48 h-48 text-white" />
@@ -1010,7 +1043,7 @@ export default function App() {
         </section >
 
         {/* INTEGRATION SECTION */}
-        < section id="integrate" className="relative z-10 py-20 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5" >
+        < section id="integrate" ref={el => { sectionRefs.current[1] = el; }} className="relative z-10 py-20 md:py-32 px-6 bg-[#030303]/50 border-t border-white/5" >
           <div className="max-w-6xl mx-auto">
             <FadeIn>
               <h2 className="text-4xl md:text-5xl font-bold mb-16 tracking-tighter text-white text-center">Integrate EscrowKit into your product.</h2>
@@ -1070,12 +1103,12 @@ export default function App() {
                   </div>
                   <DeveloperTerminal />
                   <div className="flex flex-col sm:flex-row gap-4 mt-6">
-                    <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="flex-1">
+                    <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank" onClick={() => trackGithubClick('terminal_docs')} className="flex-1">
                       <button className="w-full py-4 rounded-xl bg-zinc-900 border border-white/10 hover:border-emerald-500/50 hover:text-emerald-500 transition-colors text-zinc-400 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg">
                         <BookOpen size={14} /> View Documentation
                       </button>
                     </Link>
-                    <Link href="https://github.com/chetanya1998/EscrowKit/fork" target="_blank" className="flex-1">
+                    <Link href="https://github.com/chetanya1998/EscrowKit/fork" target="_blank" onClick={() => trackGithubClick('terminal_fork')} className="flex-1">
                       <button className="w-full py-4 rounded-xl bg-zinc-900 border border-white/10 hover:border-emerald-500/50 hover:text-emerald-500 transition-colors text-zinc-400 text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg">
                         <Github size={14} /> Fork Repo
                       </button>
@@ -1223,10 +1256,10 @@ export default function App() {
                 Integrate milestone payments, dispute resolution and on-chain escrow into any product — in minutes.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="bg-emerald-500 text-black h-14 px-10 rounded-full font-bold text-base hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all flex items-center gap-3">
+                <a href="https://github.com/chetanya1998/EscrowKit" target="_blank" onClick={() => trackGithubClick('cta_explore')} className="bg-emerald-500 text-black h-14 px-10 rounded-full font-bold text-base hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all flex items-center gap-3">
                   <ArrowRight size={18} /> Explore the Project
                 </a>
-                <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="h-14 px-10 rounded-full font-bold text-base border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-white/5 flex items-center gap-3">
+                <Link href="https://github.com/chetanya1998/EscrowKit" target="_blank" onClick={() => trackGithubClick('cta_github')} className="h-14 px-10 rounded-full font-bold text-base border border-white/20 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-white/5 flex items-center gap-3">
                   <Github size={18} /> View on GitHub
                 </Link>
               </div>
@@ -1280,8 +1313,8 @@ export default function App() {
             <div className="flex gap-8 md:gap-12 text-[11px] font-bold uppercase tracking-[0.3em] text-zinc-300 flex-wrap justify-center">
               <Link href="/docs" className="hover:text-emerald-400 transition-colors">Docs</Link>
               <a href="#roadmap" className="hover:text-emerald-400 transition-colors">Roadmap</a>
-              <a href="https://github.com/chetanya1998/EscrowKit" target="_blank" className="hover:text-emerald-400 transition-colors">Contribute</a>
-              <a href="https://github.com/chetanya1998/EscrowKit/blob/main/LICENSE" target="_blank" className="hover:text-emerald-400 transition-colors">License</a>
+              <a href="https://github.com/chetanya1998/EscrowKit" target="_blank" onClick={() => trackGithubClick('footer_contribute')} className="hover:text-emerald-400 transition-colors">Contribute</a>
+              <a href="https://github.com/chetanya1998/EscrowKit/blob/main/LICENSE" target="_blank" onClick={() => trackGithubClick('footer_license')} className="hover:text-emerald-400 transition-colors">License</a>
             </div>
 
             <div className="text-[10px] font-mono text-zinc-800">
