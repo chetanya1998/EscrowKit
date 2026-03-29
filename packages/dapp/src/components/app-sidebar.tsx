@@ -1,6 +1,6 @@
 "use client"
 
-import { Shield, Home, LayoutTemplate, History, Settings, FileText, UserCircle, Briefcase, Lock } from "lucide-react"
+import { Shield, Home, LayoutTemplate, History, Settings, FileText, UserCircle, Briefcase, Lock, AlertTriangle } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -33,6 +33,11 @@ const userItems = [
         title: "Transactions",
         url: "/dashboard/transactions",
         icon: History,
+    },
+    {
+        title: "Disputes",
+        url: "/dashboard/disputes",
+        icon: AlertTriangle,
     },
 ]
 

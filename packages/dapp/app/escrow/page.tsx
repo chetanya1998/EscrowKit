@@ -159,10 +159,24 @@ function EscrowContent() {
         )
     }
 
+    const hasDispute = milestones.some(m => m.status === 5);
+
     // --- MILESTONE ESCROW VIEW (Default) ---
     return (
         <DashboardLayout>
             <div className="max-w-6xl mx-auto w-full space-y-8">
+                {hasDispute && (
+                    <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 flex items-start gap-4 mb-4">
+                        <AlertTriangle className="h-6 w-6 text-red-500 shrink-0" />
+                        <div className="flex-1">
+                            <h3 className="font-semibold text-red-500 text-lg">Active Dispute</h3>
+                            <p className="text-red-400/80 text-sm mt-1">This escrow contains milestones that have been disputed. Payments are paused until resolution is reached via arbitration.</p>
+                        </div>
+                        <Link href={`/dashboard/dispute?id=${address}`}>
+                            <Button className="bg-red-500 hover:bg-red-600 text-white shadow-none">Review Case</Button>
+                        </Link>
+                    </div>
+                )}
                 {/* Header */}
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>

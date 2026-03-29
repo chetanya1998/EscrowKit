@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Plus, ArrowUpRight, ShieldCheck, Zap, Lock, CheckCircle, LayoutTemplate } from "lucide-react"
+import { Plus, ArrowUpRight, ShieldCheck, Zap, Lock, CheckCircle, LayoutTemplate, AlertTriangle } from "lucide-react"
 import Link from "next/link"
 
 export default function DashboardPage() {
@@ -39,7 +39,7 @@ export default function DashboardPage() {
                 )}
 
                 {/* Metrics Grid */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
                     <Card className="bg-neutral-900 border-neutral-800">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-neutral-400">
@@ -100,6 +100,21 @@ export default function DashboardPage() {
                             </p>
                         </CardContent>
                     </Card>
+
+                    <Card className="bg-neutral-900 border-red-900/50">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-neutral-400">
+                                Active Disputes
+                            </CardTitle>
+                            <AlertTriangle className="h-4 w-4 text-red-500" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-neutral-50">{stats?.activeDisputes || "0"}</div>
+                            <p className="text-xs text-red-500 mt-2">
+                                Needs attention
+                            </p>
+                        </CardContent>
+                    </Card>
                 </div>
 
                 {/* Main Content: Activity + Quick Actions */}
@@ -137,10 +152,12 @@ export default function DashboardPage() {
                                                 <Badge
                                                     variant={
                                                         tx.status === 'completed' ? 'success' :
+                                                        tx.status === 'disputed' ? 'destructive' :
                                                             tx.status === 'pending' ? 'warning' : 'secondary'
                                                     }
                                                     className={
                                                         tx.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500' :
+                                                        tx.status === 'disputed' ? 'bg-red-500/10 text-red-500 border border-red-500/20' :
                                                             tx.status === 'pending' ? 'bg-amber-500/10 text-amber-500' : 'bg-neutral-800 text-neutral-400'
                                                     }
                                                 >
@@ -148,11 +165,19 @@ export default function DashboardPage() {
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <Link href={`/escrow?address=${tx.counterparty || tx.id}`}>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-neutral-500 hover:text-neutral-300">
-                                                        <ArrowUpRight className="h-4 w-4" />
-                                                    </Button>
-                                                </Link>
+                                                {tx.status === 'disputed' ? (
+                                                    <Link href={`/escrow?address=${tx.counterparty || tx.id}&tab=dispute`}>
+                                                        <Button variant="outline" size="sm" className="h-8 text-red-500 border-red-500/20 hover:bg-red-500/10 hover:text-red-400">
+                                                            Resolve
+                                                        </Button>
+                                                    </Link>
+                                                ) : (
+                                                    <Link href={`/escrow?address=${tx.counterparty || tx.id}`}>
+                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-neutral-500 hover:text-neutral-300">
+                                                            <ArrowUpRight className="h-4 w-4" />
+                                                        </Button>
+                                                    </Link>
+                                                )}
                                             </TableCell>
                                         </TableRow>
                                     ))}

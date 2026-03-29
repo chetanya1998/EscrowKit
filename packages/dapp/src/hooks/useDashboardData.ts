@@ -9,6 +9,7 @@ const FALLBACK_STATS: UsageStats = {
     activeEscrows: 5,
     completedEscrows: 32,
     disputeRate: '1.2%',
+    activeDisputes: 1,
 };
 
 async function fetchStats(address: string): Promise<UsageStats> {

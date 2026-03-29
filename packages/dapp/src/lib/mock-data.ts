@@ -8,7 +8,7 @@ export interface Transaction {
     currency: string;
     counterparty: string;
     description?: string;
-    status: 'pending' | 'completed' | 'failed';
+    status: 'pending' | 'completed' | 'failed' | 'disputed';
 }
 
 export interface UsageStats {
@@ -16,6 +16,7 @@ export interface UsageStats {
     activeEscrows: number;
     completedEscrows: number;
     disputeRate: string;
+    activeDisputes: number;
 }
 
 export const mockTransactions: Transaction[] = [
@@ -71,6 +72,7 @@ const mockUsageStats: UsageStats = {
     activeEscrows: 3,
     completedEscrows: 12,
     disputeRate: '2%',
+    activeDisputes: 1,
 };
 
 export const getTransactions = async (): Promise<Transaction[]> => {
