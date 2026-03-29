@@ -1,6 +1,6 @@
 "use client"
 
-import { Shield, Home, LayoutTemplate, History, Settings, FileText, UserCircle, Briefcase, Lock, AlertTriangle } from "lucide-react"
+import { Shield, Home, LayoutTemplate, History, Settings, FileText, UserCircle, Briefcase, Lock, AlertTriangle, Code } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -46,6 +46,11 @@ const adminItems = [
         title: "Templates",
         url: "/dashboard/templates",
         icon: LayoutTemplate,
+    },
+    {
+        title: "Contracts",
+        url: "/dashboard/contracts",
+        icon: Code,
     },
 ]
 
