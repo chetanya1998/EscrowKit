@@ -1,7 +1,8 @@
 "use client"
 
-import { Shield, Home, LayoutTemplate, History, Settings, FileText, UserCircle, Briefcase, Lock, AlertTriangle, Code } from "lucide-react"
+import { Home, LayoutTemplate, History, Settings, FileText, UserCircle, Briefcase, Lock, AlertTriangle, Code } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 
 import {
@@ -68,10 +69,10 @@ export function AppSidebar() {
     return (
         <Sidebar variant="inset">
             <SidebarHeader className="border-b p-4">
-                <div className="flex items-center gap-2">
-                    <Shield className="h-6 w-6 text-primary" />
+                <Link href="/dashboard" className="flex items-center gap-2.5">
+                    <Image src="/escrowkit-logo.svg" alt="EscrowKit" width={28} height={28} className="shrink-0" />
                     <span className="text-xl font-bold font-outfit">EscrowKit</span>
-                </div>
+                </Link>
             </SidebarHeader>
             <SidebarContent>
                 <SidebarGroup>
