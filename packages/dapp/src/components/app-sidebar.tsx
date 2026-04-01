@@ -70,10 +70,9 @@ export function AppSidebar() {
     return (
         <Sidebar variant="inset">
             <SidebarHeader className="border-b p-4">
-                <Link href="/dashboard" className="flex items-center gap-2.5">
+                <Link href="/dashboard" className="flex items-center">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`${basePath}/escrowkit-logo.png`} alt="EscrowKit" width={28} height={28} className="shrink-0" />
-                    <span className="text-xl font-bold font-outfit">EscrowKit</span>
+                    <img src={`${basePath}/escrowkit-brand.png`} alt="EscrowKit" height={32} className="h-8 w-auto" />
                 </Link>
             </SidebarHeader>
             <SidebarContent>
