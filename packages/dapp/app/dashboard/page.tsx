@@ -1,6 +1,7 @@
 
 "use client"
 
+import { useState } from "react"
 import { useDashboardData } from "@/hooks/useDashboardData"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -8,10 +9,13 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Plus, ArrowUpRight, ShieldCheck, Zap, Lock, CheckCircle, LayoutTemplate, AlertTriangle } from "lucide-react"
 import Link from "next/link"
+import { ContractPreviewModal } from "@/components/contract-preview-modal"
 
 export default function DashboardPage() {
     const { stats, transactions, isLoading, isFetching, error } = useDashboardData()
     const isGithubPages = process.env.NEXT_PUBLIC_DEPLOY_TARGET === 'gh-pages';
+    const [selectedTx, setSelectedTx] = useState<any>(null)
+    const [previewOpen, setPreviewOpen] = useState(false)
 
     if (isLoading) return (
         <div className="flex h-[50vh] items-center justify-center text-neutral-500">
@@ -139,7 +143,7 @@ export default function DashboardPage() {
                                 </TableHeader>
                                 <TableBody>
                                     {transactions?.slice(0, 5).map((tx: any) => (
-                                        <TableRow key={tx.id} className="border-neutral-800 hover:bg-neutral-800/50">
+                                        <TableRow key={tx.id} className="border-neutral-800 hover:bg-neutral-800/50 cursor-pointer" onClick={() => { setSelectedTx(tx); setPreviewOpen(true); }}>
                                             <TableCell className="font-medium text-neutral-300">
                                                 <div className="flex flex-col">
                                                     <span>{tx.description || "Escrow #" + tx.id}</span>
@@ -239,6 +243,12 @@ export default function DashboardPage() {
                     </div>
                 </div>
             </div>
+
+            <ContractPreviewModal
+                open={previewOpen}
+                onOpenChange={setPreviewOpen}
+                transaction={selectedTx}
+            />
         </div>
     )
 }
