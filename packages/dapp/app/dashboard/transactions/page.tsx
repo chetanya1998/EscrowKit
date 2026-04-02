@@ -1,25 +1,27 @@
 
 "use client"
 
+import { useState } from "react"
 import { useDashboardData } from "@/hooks/useDashboardData"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { ArrowUpRight, ArrowDownLeft, ArrowUpRight as ArrowOut } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { ArrowUpRight, ArrowDownLeft, ArrowUpRight as ArrowOut, Eye } from "lucide-react"
+import { ContractPreviewModal } from "@/components/contract-preview-modal"
 
 export default function TransactionsPage() {
     const { transactions, isLoading } = useDashboardData()
+    const [selectedTx, setSelectedTx] = useState<any>(null)
+    const [previewOpen, setPreviewOpen] = useState(false)
 
     if (isLoading) return (
-
         <div className="flex h-[50vh] items-center justify-center text-neutral-500">
             Loading activity...
         </div>
-
     )
 
     return (
-
         <div className="flex flex-col gap-8">
             <div>
                 <h1 className="text-3xl font-bold tracking-tight text-neutral-50 mb-2">Transaction History</h1>
@@ -40,6 +42,7 @@ export default function TransactionsPage() {
                                     <TableHead className="text-neutral-500 font-medium">Description</TableHead>
                                     <TableHead className="text-neutral-500 font-medium">Date</TableHead>
                                     <TableHead className="text-neutral-500 font-medium text-right">Amount</TableHead>
+                                    <TableHead className="text-neutral-500 font-medium text-right">Action</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -62,11 +65,22 @@ export default function TransactionsPage() {
                                             }`}>
                                             {tx.type === 'funded' ? '-' : '+'}{tx.amount} {tx.currency}
                                         </TableCell>
+                                        <TableCell className="text-right">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-8 text-xs border-emerald-900/50 bg-emerald-950/20 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all gap-1.5"
+                                                onClick={() => { setSelectedTx(tx); setPreviewOpen(true); }}
+                                            >
+                                                <Eye className="h-3.5 w-3.5" />
+                                                View Details
+                                            </Button>
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                                 {(!transactions || transactions.length === 0) && (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="text-center text-neutral-500 py-12">
+                                        <TableCell colSpan={6} className="text-center text-neutral-500 py-12">
                                             No transactions recorded yet.
                                         </TableCell>
                                     </TableRow>
@@ -76,7 +90,12 @@ export default function TransactionsPage() {
                     </div>
                 </CardContent>
             </Card>
-        </div>
 
+            <ContractPreviewModal
+                open={previewOpen}
+                onOpenChange={setPreviewOpen}
+                transaction={selectedTx}
+            />
+        </div>
     )
 }
