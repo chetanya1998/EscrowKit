@@ -58,6 +58,10 @@ jobs:
         working-directory: packages/api
         run: npx prisma generate --schema=prisma/schema.prisma
 
+      - name: Build Contracts Artifacts (Required for Protocol Generation)
+        working-directory: packages/contracts
+        run: forge build
+
       - name: Verify Protocol Generation
         run: |
           pnpm --filter @escrowkit/protocol generate

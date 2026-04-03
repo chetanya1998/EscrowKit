@@ -1,100 +1,109 @@
 # EscrowKit
 
+Non-custodial escrow infrastructure for marketplaces, freelancers, rentals, and B2B workflows.
+
 > Last updated: April 3, 2026  
-> Status: active development
+> License: MIT (see `LICENSE`)
 
-EscrowKit is a pnpm + Turborepo monorepo for non-custodial escrow flows on Ethereum-compatible networks. The current product focus is milestone escrows, with smart contracts as the source of truth, an indexer that syncs chain state into Postgres, a NestJS API for read models and auth, and a Next.js dapp for wallet-based interaction.
+## Start here (pick your path)
 
-## Latest updates
+- PMs: start at **What It Does** and **Roadmap**.
+- Founders: start at **How You Can Use It** and **Developer Quickstart**.
+- Developers: jump to **Developer Quickstart**.
+- Open source contributors: start at **Contributing** and **Repo Map**.
+- India expansion: jump to **India Readiness Plan**.
 
-### April 2026
+## What it does
 
-- Added `packages/protocol` as the generated ABI and deployment source of truth for the dapp, API, indexer, and SDK.
-- Standardized milestone escrow creation on the v2 flow, where milestones are passed at factory creation time.
-- Added `EscrowCreatedV2(...)` so the indexer can classify escrows by kind and protocol version without ABI guesswork.
-- Made the dapp milestone flow version-aware so new escrows use v2 while legacy milestone escrows still support legacy setup where needed.
-- Added ERC-20 approval-aware funding UX so token escrows now guide users through approve then fund.
-- Removed authenticated dashboard fallback-to-mock behavior and switched dashboard/history views to API/indexer-backed states.
-- Extended the read model with `chainId`, `escrowType`, `protocolVersion`, `tokenAddress`, `detailsHash`, `createdTxHash`, and deterministic event ordering with `blockNumber + logIndex`.
-- Updated the indexer to seed v2 milestones immediately on escrow creation instead of relying on creation-time milestone events that can be missed.
-- Hardened auth with `GET /api/v1/auth/session`, wallet-owner guards on `/users/:address/*`, and hashed API key storage with one-time secret return.
-- Added CI protection for generated protocol artifacts, API tests, dapp typecheck/tests, and repo-wide build validation.
+EscrowKit helps two parties transact with less trust:
 
-## Architecture
+- A payer locks funds into a smart contract.
+- A payee delivers work or a service.
+- Funds are released per milestone when approved.
+- If things go wrong, disputes can be opened and resolved via an arbiter or adapter.
+
+EscrowKit is designed to be **non-custodial**: the platform never holds user funds in a database or operator wallet.
+
+## Who it's for
+
+### PMs (product and ops)
+
+- Understand the end-to-end flow, current capabilities, and what to build next.
+- Plan localization and compliance work for new markets (see **India Readiness Plan**).
+- Use the **Release notes** section to track shipped platform changes.
+
+### Founders (platform builders)
+
+You can use EscrowKit in three ways:
+
+1. Ship the dapp UI as your first "escrow checkout".
+2. Embed escrow into your own UI via the SDK and contracts.
+3. Use the API + indexer as your system-of-record for dashboards, webhooks, reconciliation, and reporting.
+
+### Developers (integrators)
+
+- Smart contracts are the source of truth.
+- The indexer builds a Postgres read model from chain events.
+- The API exposes that read model and handles auth, keys, and integrations.
+- The dapp uses a wallet to execute on-chain writes and uses the API for dashboards/history.
+
+### Open source developers
+
+- The repo is MIT licensed.
+- Contributions are welcome: bug fixes, tests, docs, new escrow types, indexer improvements, and UI/UX work.
+
+## How EscrowKit works (high level)
 
 ```mermaid
 graph TD
-    U["User / Marketplace"] --> D["dApp (Next.js + wagmi)"]
-    D --> C["Escrow Contracts"]
-    C --> I["Indexer (viem + Prisma)"]
+    U["User / Platform"] --> D["dapp (Next.js)"]
+    D -->|Writes| C["Smart contracts"]
+    C -->|Events| I["Indexer (viem)"]
     I --> P[("Postgres")]
-    A["API (NestJS)"] --> P
-    D --> A
-    V["Verification Oracle / Pulsar"] --> C
+    D -->|Reads| A["API (NestJS)"]
+    A --> P
 ```
 
-Runtime flow:
+End-to-end flow:
 
-1. The dapp writes directly to smart contracts.
-2. Contracts emit events.
-3. The indexer consumes those events and writes a queryable read model into Postgres.
-4. The API serves dashboards, user profiles, API keys, evidence, public reads, and auth/session checks.
-5. The dapp mixes direct on-chain interaction with API-backed views.
+1. Create escrow (payer chooses payee, token, milestones, dispute settings).
+2. Fund escrow (ETH or ERC-20).
+3. Payee submits deliverables per milestone.
+4. Payer approves, releasing funds milestone-by-milestone.
+5. Refund or dispute if requirements are not met.
+6. Dashboard/history comes from the indexed Postgres read model.
 
-## Monorepo layout
+## What's implemented today
+
+Core:
+
+- Milestone escrow create/fund/submit/approve/refund/dispute flows.
+- ERC-20 approval-aware funding UX (approve then fund).
+- Version-aware milestone support:
+  - v2: milestones are passed at escrow creation time.
+  - v1 (legacy): read + legacy milestone setup where applicable.
+
+Platform:
+
+- Shared protocol package (`packages/protocol`) is the ABI + deployment source of truth for dapp/API/indexer/SDK.
+- Indexer persists deterministic event ordering (`blockNumber + logIndex`) and seeds v2 milestones on create.
+- API auth via SIWE session tokens and strict wallet ownership checks for user-scoped endpoints.
+- API keys stored hashed (one-time reveal), used for public API endpoints and webhooks.
+
+## Repo map
 
 ```text
 packages/
-  api/         NestJS API
   contracts/   Solidity contracts and Foundry tests
-  dapp/        Next.js App Router frontend
-  docs/        Docusaurus docs site
-  indexer/     Chain event indexer
-  protocol/    Generated ABIs, runtime hashes, and deployment helpers
-  sdk-ts/      TypeScript SDK
+  protocol/    Generated ABIs + deployments helpers (source of truth)
+  indexer/     Watches chain events -> Postgres read model
+  api/         NestJS API for reads/auth/keys/webhooks
+  dapp/        Next.js UI for users and admins
+  sdk-ts/      TypeScript SDK (viem-based)
+  docs/        Docusaurus documentation site
 ```
 
-## Package responsibilities
-
-| Package | Purpose |
-| --- | --- |
-| `packages/contracts` | EscrowFactory, milestone escrow logic, specialized escrow types, arbitration adapters, verification oracle |
-| `packages/protocol` | Generated ABI source of truth consumed by dapp, API, indexer, and SDK |
-| `packages/indexer` | Watches factory and escrow events, seeds v2 milestones on create, persists deterministic history using `blockNumber + logIndex` |
-| `packages/api` | SIWE auth, wallet-owner protected user endpoints, public read endpoints, API key management, evidence/webhook/pulsar modules |
-| `packages/dapp` | Wallet UX, create flows, dashboard, escrow lifecycle actions, ERC-20 approval + fund state machine |
-| `packages/sdk-ts` | Thin viem-based SDK that now targets the v2 milestone factory shape |
-| `packages/docs` | Documentation site |
-
-## Protocol model
-
-### Shared source of truth
-
-Contract interfaces should not be copied by hand. The generated protocol package exports:
-
-- `FactoryV1ABI`
-- `FactoryV2ABI`
-- `MilestoneEscrowV1ABI`
-- `MilestoneEscrowV2ABI`
-- `EscrowKind`
-- `ProtocolVersion`
-- `resolveDeployments(...)`
-
-The generator lives in [packages/protocol/scripts/generate.mjs](/Users/chetanya/Escrowkit/packages/protocol/scripts/generate.mjs).
-
-### Milestone versions
-
-- `v2` is the canonical write path. New milestone escrows are created with milestones included in the factory call.
-- `v1` is maintained for legacy reads and legacy milestone setup where `addMilestones` still exists and the escrow has no milestones yet.
-
-### Factory events
-
-The factory now emits both:
-
-- `EscrowCreated(...)` for legacy compatibility
-- `EscrowCreatedV2(...)` for version-aware indexing and richer metadata
-
-## Local development
+## Developer quickstart (local)
 
 ### Prerequisites
 
@@ -103,47 +112,42 @@ The factory now emits both:
 - Foundry
 - Docker
 
-### 1. Install dependencies
+### Install
 
 ```bash
 pnpm install
 ```
 
-### 2. Start local infrastructure
+### Start Postgres + Redis
 
 ```bash
 docker compose up -d postgres redis
 ```
 
-This starts:
-
-- Postgres on `localhost:5432`
-- Redis on `localhost:6379`
-
-### 3. Generate Prisma clients
+### Generate Prisma clients
 
 ```bash
 pnpm --filter api generate
 pnpm --filter indexer generate
 ```
 
-### 4. Start Anvil and deploy contracts
+### Run a local chain and deploy contracts
 
-In one terminal:
+Terminal 1:
 
 ```bash
 anvil
 ```
 
-In another terminal:
+Terminal 2:
 
 ```bash
 pnpm --filter contracts deploy
 ```
 
-After deployment, copy the deployed addresses into your local env files. Local Anvil does not have baked-in deployment defaults, so the dapp, API, and indexer should all point to your local factory/oracle/adapter addresses.
+### Configure env vars
 
-### 5. Configure environment variables
+Local Anvil has no baked-in deployment defaults, so point the dapp/API/indexer at your local deployment addresses.
 
 #### `packages/api/.env`
 
@@ -182,12 +186,7 @@ NEXT_PUBLIC_VERIFICATION_ORACLE_ADDRESS=0x...
 NEXT_PUBLIC_EXPLORER_URL=http://localhost:8545
 ```
 
-Optional frontend vars:
-
-- `NEXT_PUBLIC_DEPLOY_TARGET=gh-pages`
-- Firebase `NEXT_PUBLIC_FIREBASE_*` values
-
-### 6. Start services
+### Start services
 
 Run each service in its own terminal:
 
@@ -197,123 +196,184 @@ pnpm --filter indexer dev
 pnpm --filter dapp dev
 ```
 
-Typical local URLs:
+Local URLs:
 
 - dapp: `http://localhost:3000`
 - API: `http://localhost:3001`
 
-## Build and test
+## Contributing (open source)
 
-### Repository-wide
+### Where to start
 
-```bash
-pnpm build
-```
+- Read the repo map above.
+- Start with unit tests and small scoped improvements:
+  - Contracts: Foundry tests in `packages/contracts/test`.
+  - API: Jest tests under `packages/api/src/**/*.spec.ts`.
+  - dapp: Jest tests under `packages/dapp/src/**/*.test.tsx`.
 
-### Contracts
+### PR checklist (practical)
 
-```bash
-pnpm --filter contracts build
-pnpm --filter contracts test
-```
+- If you changed any contract ABI/events: run `pnpm --filter contracts build` then `pnpm --filter @escrowkit/protocol build`.
+- Keep changes additive for API response shapes when possible.
+- Run: `pnpm build` and the relevant package tests before opening a PR.
 
-If Foundry crashes while probing system proxy configuration in a restricted environment, use:
+### Good contribution areas
 
-```bash
-cd packages/contracts
-forge test --offline
-```
+- Wallet-driven e2e tests (Playwright/Synpress) for the milestone happy path.
+- Indexing other escrow types (rental/service/lease/B2B) end-to-end.
+- Better dispute/evidence UX and dispute center.
+- Docs updates and onboarding improvements.
 
-### Protocol package
+## Roadmap (features)
 
-```bash
-pnpm --filter @escrowkit/protocol build
-```
+### Core platform roadmap
 
-### API
+Now (stability and completeness):
 
-```bash
-pnpm --filter api test
-pnpm --filter api build
-```
+- Wallet-driven browser e2e for `create -> approve -> fund -> submit -> approve -> dashboard history`.
+- First-class indexing and dashboard support for all escrow types (rental/service/lease/B2B).
+- "Dispute center" UI: evidence timeline, comments, arbiter actions, resolution summary.
+- Better metadata: store human-readable terms off-chain via `detailsHash`.
 
-### dapp
+Next (product expansion):
 
-```bash
-pnpm --filter dapp typecheck
-pnpm --filter dapp test
-pnpm --filter dapp build
-```
+- Saved templates and reusable agreements.
+- Notifications (email + SMS/WhatsApp-style) and webhook delivery status with retries.
+- Verification automations (GitHub, invoice approval, delivery proofs) via VerificationOracle + services.
+- Role-based delegation (accountant/ops mode) with audit logs.
 
-### Indexer
+Later (scale and ecosystem):
 
-```bash
-pnpm --filter indexer build
-```
+- Advanced arbitration adapters and multi-chain deployments.
+- Analytics and reporting exports for operations/accounting.
+- Hardened on-chain upgrade strategy (if introduced) and formal audits.
 
-## Auth and API model
+## India readiness plan (product Indianisation)
 
-### Auth flow
+This is product guidance, not legal advice. Any custody, INR rails, on-ramp flows, or identity requirements should be validated with Indian counsel before production rollout.
 
-- `GET /api/v1/auth/nonce`
-- `POST /api/v1/auth/verify`
-- `GET /api/v1/auth/session`
+### Must-haves (India V1)
 
-The dapp uses SIWE to obtain a session token, stores it client-side, and validates it on boot. User-scoped endpoints under `/users/:address/*` require both:
+1. India mode onboarding (trust + disclosures)
+   - UI journey:
+     - Landing: choose `India` (or auto-detect, confirm)
+     - Explain: "Funds are locked in smart contracts (non-custodial). This is not UPI/bank custody."
+     - Consent: privacy + data processing + key risk disclosures
+     - Continue to wallet connect
 
-- a valid bearer token
-- the authenticated wallet address to match the `:address` route param
+2. INR-first pricing (reduce token anxiety)
+   - UI journey:
+     - Create escrow: enter amounts in `INR` first
+     - Show token equivalent, estimated gas, total payer outflow
+     - Funding screen: clear "Acquire token then fund" guidance (no hidden assumptions)
 
-### API keys
+3. Evidence-first dispute experience
+   - UI journey:
+     - Each milestone: `Add proof` (invoice, screenshots, delivery note, WhatsApp export, PDF)
+     - Dispute page: chronological timeline in IST, per-evidence comments, shareable case link
+     - Arbiter page: agreement summary + evidence bundle + ruling actions
 
-API keys are:
+4. KYC/KYB and signed terms (for India-facing B2B/rental/freelance)
+   - UI journey:
+     - Before deploy: collect KYB (GSTIN/company) or individual verification (provider-dependent)
+     - Generate an agreement summary and store hash in `detailsHash`
+     - Optional eSign integration for legally recognized signatures
 
-- generated once
-- returned in raw form only once
-- stored as `sha256` hashes
-- listed later only as masked metadata
+5. Mobile-first + bilingual (English/Hindi) core flows
+   - UI journey:
+     - Language choice at first run
+     - All critical screens bilingual, minimal dense text, clear CTA states
 
-## Current milestone flow
+6. Notifications beyond email
+   - UI journey:
+     - Opt-in: SMS/WhatsApp/email
+     - Milestone state changes trigger notifications with deep links
 
-The milestone happy path this repo currently optimizes for is:
+### Should-haves (India V2)
 
-1. Create milestone escrow from the dapp using the v2 factory interface
-2. Redirect directly to the escrow detail page
-3. Approve ERC-20 token allowance if needed
-4. Fund the escrow
-5. Submit deliverables
-6. Approve release or refund / open dispute
-7. View history through the indexed dashboard/API read model
+1. Regional language expansion
+   - Suggested first set: Marathi, Tamil, Telugu, Bengali, Kannada, Malayalam.
 
-The dapp detects legacy milestone escrows and falls back to the legacy milestone setup flow only when needed.
+2. Voice-guided help (reduce onboarding friction)
+   - Voice explanations and step-by-step guided creation, with typed confirmation for sensitive steps.
 
-## CI expectations
+3. Delegate approvals ("accountant/ops mode")
+   - Invite delegates to prepare actions; final releases require governed approvals.
 
-GitHub Actions currently verifies:
+4. Tax/report exports for CA/accountant workflows
+   - Export CSV/PDF of escrow events, token amounts, timestamps, and counterparties.
 
-- protocol generation consistency
-- full monorepo build
-- Foundry contract tests
-- API tests
-- dapp typecheck
-- dapp tests
+## Release notes
 
-## Notes
+### April 2026 engineering update
 
-- The dapp build uses webpack for production builds because it is more stable than Turbopack in restricted environments.
-- The dapp build may show warnings from optional `wagmi` connector peer dependencies. Those warnings do not currently block a successful build.
-- Base Sepolia defaults live in [packages/protocol/src/deployments.ts](/Users/chetanya/Escrowkit/packages/protocol/src/deployments.ts).
+- Introduced `packages/protocol` as the ABI and deployment source of truth (no more hand-copied ABIs).
+- Standardized milestone creation on v2 (milestones passed at creation time) while maintaining legacy v1 reads/setup.
+- Added `EscrowCreatedV2(...)` and made the indexer version-aware with milestone seeding on create.
+- Added strict server-side wallet-owner authorization for `/users/:address/*` and `GET /api/v1/auth/session`.
+- Hardened API key management (hash at rest, one-time reveal, masked list views).
+- Improved ERC-20 funding UX (approval required, approval pending, ready-to-fund, funding pending, confirmed).
+- CI now checks protocol generation consistency + runs API/dapp tests and repo build.
 
-## Useful commands
+## Security layers (what's implemented)
 
-```bash
-pnpm install
-docker compose up -d
-pnpm --filter api generate
-pnpm --filter indexer generate
-pnpm --filter contracts deploy
-pnpm --filter api start:dev
-pnpm --filter indexer dev
-pnpm --filter dapp dev
-pnpm build
-```
+EscrowKit's security posture is layered. This section documents what exists today and what is explicitly not covered.
+
+### Layer 1: Smart contracts (fund safety)
+
+Implemented:
+
+- Non-custodial design: funds remain in escrow contracts until release/refund/dispute resolution.
+- `ReentrancyGuard` on release paths in milestone escrows.
+- `SafeERC20` for token transfers and `address(0)` handling for native ETH.
+- Factory-wide pause via `AccessControl` + `Pausable` (global stop-the-world lever).
+- Role/party checks (`onlyPayer`, `onlyPayee`, arbiter/adapter authorization).
+- Config bounds checking (fee/penalty bps caps) and array length checks at initialization.
+
+Not yet covered (needs explicit work/audit):
+
+- Formal third-party audit and published threat model.
+- Formal verification or fuzz/property tests for critical invariants across all escrow types.
+
+### Layer 2: Indexer and data integrity (history correctness)
+
+Implemented:
+
+- Deterministic event ordering persisted via `blockNumber + logIndex`.
+- v2 milestone seeding on escrow creation to avoid missing initialization-time logs.
+- Version-aware watchers for legacy vs v2 milestone escrows.
+
+Not yet covered:
+
+- Reorg-safe indexing strategy with backfilling and finality windows.
+- Coverage for all escrow types and full event surfaces.
+
+### Layer 3: API security (auth, authorization, abuse prevention)
+
+Implemented:
+
+- SIWE-based session auth and `GET /api/v1/auth/session` for session validation.
+- Wallet owner enforcement for `/users/:address/*` endpoints (server-side, not UI-only).
+- API key hashing at rest (SHA-256) and one-time secret return.
+- Helmet security headers, strict CORS, and global request validation (whitelist + forbid unknown fields).
+- Global rate limiting via Nest Throttler.
+
+Not yet covered:
+
+- Fine-grained scopes/permissions for API keys (read vs write vs admin).
+- Audit logging for sensitive admin operations.
+
+### Layer 4: Supply chain and release safety (breaking change prevention)
+
+Implemented:
+
+- CI verifies protocol generation doesn't drift from committed `generated.ts`.
+- Build/test checks across contracts, API, dapp, and SDK.
+
+Not yet covered:
+
+- Wallet-driven browser e2e (Playwright/Synpress) as a release gate.
+
+## License
+
+MIT. See `LICENSE`.
