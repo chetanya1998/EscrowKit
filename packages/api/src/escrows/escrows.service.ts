@@ -10,7 +10,7 @@ export class EscrowsService {
             if (role === 'admin') {
                 return this.prisma.escrow.findMany({
                     where: { adminAddress: { equals: party, mode: 'insensitive' } },
-                    include: { milestones: true, events: true }
+                    include: { milestones: true, events: { orderBy: [{ blockNumber: 'desc' }, { logIndex: 'desc' }] } }
                 });
             } else if (role === 'payer') {
                 return this.prisma.escrow.findMany({
@@ -42,7 +42,11 @@ export class EscrowsService {
     async findOne(address: string) {
         return this.prisma.escrow.findUnique({
             where: { address },
-            include: { milestones: true, events: true, disputes: true },
+            include: {
+                milestones: true,
+                events: { orderBy: [{ blockNumber: 'desc' }, { logIndex: 'desc' }] },
+                disputes: true,
+            },
         });
     }
 
@@ -56,7 +60,7 @@ export class EscrowsService {
     async getEvents(address: string) {
         return this.prisma.event.findMany({
             where: { escrowAddress: address },
-            orderBy: { createdAt: 'desc' }
+            orderBy: [{ blockNumber: 'desc' }, { logIndex: 'desc' }]
         });
     }
 

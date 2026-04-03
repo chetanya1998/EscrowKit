@@ -10,6 +10,15 @@ import "./IB2BVendorEscrow.sol";
 
 interface IEscrowFactory {
     event EscrowCreated(address indexed escrowAddress, address indexed payer, address indexed payee, address arbiter);
+    event EscrowCreatedV2(
+        address indexed escrowAddress,
+        address indexed payer,
+        address indexed payee,
+        uint8 escrowKind,
+        uint16 protocolVersion,
+        address token,
+        bytes32 detailsHash
+    );
 
     function createEscrow(
         address payee,
@@ -17,6 +26,7 @@ interface IEscrowFactory {
         address arbitrationAdapter,
         bytes32 detailsHash,
         address verificationOracle,
+        address token,
         IMilestoneEscrow.EscrowConfig calldata config,
         uint256[] calldata amounts,
         string[] calldata descriptions,

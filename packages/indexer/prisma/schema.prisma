@@ -16,6 +16,13 @@ model Escrow {
   arbiter            String?
   arbitrationAdapter String?
   factoryAddress     String
+  adminAddress       String?
+  chainId            Int?
+  escrowType         String?
+  protocolVersion    Int?
+  tokenAddress       String?
+  detailsHash        String?
+  createdTxHash      String?
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
   milestones         Milestone[]
@@ -46,11 +53,13 @@ model Event {
   escrow          Escrow   @relation(fields: [escrowAddress], references: [address])
   eventName       String
   blockNumber     BigInt
+  logIndex        Int
   transactionHash String
   args            Json
   createdAt       DateTime @default(now())
   
   @@index([escrowAddress])
+  @@index([escrowAddress, blockNumber, logIndex])
 }
 
 model Dispute {
@@ -58,7 +67,7 @@ model Dispute {
   escrowAddress   String
   escrow          Escrow   @relation(fields: [escrowAddress], references: [address])
   milestoneIndex  Int
-  disputeIdOnChain String
+  disputeIdOnChain String   @unique
   status          String   // OPEN, RESOLVED
   reason          String?
   createdAt       DateTime @default(now())

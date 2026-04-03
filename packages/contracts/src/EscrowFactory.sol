@@ -14,6 +14,12 @@ import "./interfaces/IEscrowFactory.sol";
 
 contract EscrowFactory is IEscrowFactory, AccessControl, Pausable {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+    uint8 internal constant ESCROW_KIND_MILESTONE = 0;
+    uint8 internal constant ESCROW_KIND_RENTAL = 1;
+    uint8 internal constant ESCROW_KIND_SERVICE = 2;
+    uint8 internal constant ESCROW_KIND_LEASE = 3;
+    uint8 internal constant ESCROW_KIND_B2B_VENDOR = 4;
+    uint16 internal constant PROTOCOL_VERSION = 2;
 
     address public implementation;
     address public rentalImplementation;
@@ -49,8 +55,9 @@ contract EscrowFactory is IEscrowFactory, AccessControl, Pausable {
         address payee,
         address arbiter,
         address arbitrationAdapter,
-        bytes32 /* detailsHash */,
+        bytes32 detailsHash,
         address verificationOracle,
+        address token,
         IMilestoneEscrow.EscrowConfig calldata config,
         uint256[] calldata amounts,
         string[] calldata descriptions,
@@ -65,7 +72,7 @@ contract EscrowFactory is IEscrowFactory, AccessControl, Pausable {
             payee,
             arbiter,
             arbitrationAdapter,
-            address(0), // Default to ETH
+            token,
             verificationOracle,
             config,
             amounts,
@@ -76,6 +83,15 @@ contract EscrowFactory is IEscrowFactory, AccessControl, Pausable {
 
         escrows.push(clone);
         emit EscrowCreated(clone, msg.sender, payee, arbiter);
+        emit EscrowCreatedV2(
+            clone,
+            msg.sender,
+            payee,
+            ESCROW_KIND_MILESTONE,
+            PROTOCOL_VERSION,
+            token,
+            detailsHash
+        );
         
         return clone;
     }
@@ -102,6 +118,15 @@ contract EscrowFactory is IEscrowFactory, AccessControl, Pausable {
 
         escrows.push(clone);
         emit EscrowCreated(clone, msg.sender, payee, arbiter);
+        emit EscrowCreatedV2(
+            clone,
+            msg.sender,
+            payee,
+            ESCROW_KIND_RENTAL,
+            PROTOCOL_VERSION,
+            token,
+            bytes32(0)
+        );
         
         return clone;
     }
@@ -130,6 +155,15 @@ contract EscrowFactory is IEscrowFactory, AccessControl, Pausable {
 
         escrows.push(clone);
         emit EscrowCreated(clone, msg.sender, payee, arbiter);
+        emit EscrowCreatedV2(
+            clone,
+            msg.sender,
+            payee,
+            ESCROW_KIND_SERVICE,
+            PROTOCOL_VERSION,
+            token,
+            bytes32(0)
+        );
         
         return clone;
     }
@@ -154,6 +188,15 @@ contract EscrowFactory is IEscrowFactory, AccessControl, Pausable {
 
         escrows.push(clone);
         emit EscrowCreated(clone, msg.sender, payee, arbiter);
+        emit EscrowCreatedV2(
+            clone,
+            msg.sender,
+            payee,
+            ESCROW_KIND_LEASE,
+            PROTOCOL_VERSION,
+            token,
+            bytes32(0)
+        );
         
         return clone;
     }
@@ -182,6 +225,15 @@ contract EscrowFactory is IEscrowFactory, AccessControl, Pausable {
 
         escrows.push(clone);
         emit EscrowCreated(clone, msg.sender, vendor, arbiter);
+        emit EscrowCreatedV2(
+            clone,
+            msg.sender,
+            vendor,
+            ESCROW_KIND_B2B_VENDOR,
+            PROTOCOL_VERSION,
+            token,
+            bytes32(0)
+        );
         
         return clone;
     }

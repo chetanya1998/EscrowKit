@@ -7,7 +7,7 @@ import { parseEther } from 'viem';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { MILESTONE_ESCROW_ABI } from '@/lib/constants';
+import { LEGACY_MILESTONE_ESCROW_ABI } from '@/lib/constants';
 import { Plus, Trash2, Loader2, Check } from 'lucide-react';
 import { Address } from 'viem';
 
@@ -58,7 +58,7 @@ export function MilestoneCreation({ escrowAddress, onSuccess }: { escrowAddress:
 
         writeContract({
             address: escrowAddress,
-            abi: MILESTONE_ESCROW_ABI,
+            abi: LEGACY_MILESTONE_ESCROW_ABI,
             functionName: 'addMilestones',
             args: [
                 amounts,
@@ -83,9 +83,9 @@ export function MilestoneCreation({ escrowAddress, onSuccess }: { escrowAddress:
     return (
         <Card className="border-neutral-800 bg-neutral-900">
             <CardHeader>
-                <CardTitle>Initialize Milestones</CardTitle>
+                <CardTitle>Initialize Legacy Milestones</CardTitle>
                 <CardDescription>
-                    This escrow has no milestones yet. Define the scope of work and payments to start.
+                    This escrow was created with the legacy flow and still needs milestones to be added on-chain before funding.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -134,7 +134,7 @@ export function MilestoneCreation({ escrowAddress, onSuccess }: { escrowAddress:
                     className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
                 >
                     {isPending || isConfirming ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                    {isPending ? 'Confirming...' : isConfirming ? 'Adding Milestones...' : 'Initialize Contract'}
+                    {isPending ? 'Confirming...' : isConfirming ? 'Adding Milestones...' : 'Initialize Legacy Contract'}
                 </Button>
             </CardFooter>
         </Card>

@@ -1,6 +1,19 @@
+import { useQuery } from '@tanstack/react-query';
 import { useReadContract, useReadContracts } from 'wagmi';
-import { MILESTONE_ESCROW_ABI, RENTAL_ESCROW_ABI, SERVICE_ESCROW_ABI, LEASE_ESCROW_ABI, B2B_VENDOR_ESCROW_ABI } from '@/lib/constants';
+import {
+    B2B_VENDOR_ESCROW_ABI,
+    FACTORY_ABI,
+    FACTORY_V1_ABI,
+    FACTORY_ADDRESS,
+    LEASE_ESCROW_ABI,
+    LEGACY_FACTORY_ADDRESSES,
+    LEGACY_MILESTONE_ESCROW_ABI,
+    MILESTONE_ESCROW_ABI,
+    RENTAL_ESCROW_ABI,
+    SERVICE_ESCROW_ABI
+} from '@/lib/constants';
 import { Address } from 'viem';
+import { usePublicClient } from 'wagmi';
 
 export interface Milestone {
     id: number;
@@ -59,7 +72,30 @@ const MILESTONE_STATUS = [
     'DISPUTED'
 ] as const;
 
+const CLONE_PREFIX = '363d3d373d3d3d363d73';
+const CLONE_SUFFIX = '5af43d82803e903d91602b57fd5bf3';
+
+function sameAddress(left?: string | null, right?: string | null): boolean {
+    return !!left && !!right && left.toLowerCase() === right.toLowerCase();
+}
+
+function extractCloneImplementationAddress(bytecode?: `0x${string}` | null): Address | null {
+    if (!bytecode) {
+        return null;
+    }
+
+    const normalized = bytecode.slice(2).toLowerCase();
+    if (!normalized.startsWith(CLONE_PREFIX) || !normalized.endsWith(CLONE_SUFFIX)) {
+        return null;
+    }
+
+    const implementation = normalized.slice(CLONE_PREFIX.length, CLONE_PREFIX.length + 40);
+    return (`0x${implementation}`) as Address;
+}
+
 export function useEscrow(address: Address | undefined) {
+    const publicClient = usePublicClient();
+
     // 1. Try to fetch Milestone Count (Milestone Escrow)
     const { data: countData, error: countError } = useReadContract({
         address,
@@ -115,18 +151,61 @@ export function useEscrow(address: Address | undefined) {
         type = 'loading';
     }
 
+    const protocolVersionQuery = useQuery({
+        queryKey: ['escrow-protocol-version', address, type],
+        enabled: !!address && type === 'milestone' && !!publicClient,
+        queryFn: async (): Promise<1 | 2> => {
+            const [bytecode, primaryImplementation, legacyImplementations] = await Promise.all([
+                publicClient!.getBytecode({ address: address! }),
+                publicClient!.readContract({
+                    address: FACTORY_ADDRESS,
+                    abi: FACTORY_ABI,
+                    functionName: 'implementation',
+                }).catch(() => null),
+                Promise.all(
+                    LEGACY_FACTORY_ADDRESSES.map((factoryAddress: Address) =>
+                        publicClient!.readContract({
+                            address: factoryAddress,
+                            abi: FACTORY_V1_ABI,
+                            functionName: 'implementation',
+                        }).catch(() => null)
+                    )
+                ),
+            ]);
+
+            const cloneImplementation = extractCloneImplementationAddress(bytecode);
+
+            if (cloneImplementation && sameAddress(cloneImplementation, primaryImplementation as string | null)) {
+                return 2;
+            }
+
+            if (cloneImplementation && legacyImplementations.some((implementation: unknown) => sameAddress(cloneImplementation, implementation as string | null))) {
+                return 1;
+            }
+
+            if (cloneImplementation && primaryImplementation && !sameAddress(cloneImplementation, primaryImplementation as string | null)) {
+                return 1;
+            }
+
+            return 2;
+        },
+    });
+
+    const protocolVersion = type === 'milestone' ? (protocolVersionQuery.data ?? null) : null;
+    const milestoneAbi = protocolVersion === 1 ? LEGACY_MILESTONE_ESCROW_ABI : MILESTONE_ESCROW_ABI;
+
     // --- MILESTONE ESCROW LOGIC ---
     const count = type === 'milestone' && countData ? Number(countData) : 0;
     const milestoneContracts = Array.from({ length: count }, (_, i) => ({
         address,
-        abi: MILESTONE_ESCROW_ABI,
+        abi: milestoneAbi,
         functionName: 'milestones',
         args: [BigInt(i)]
     }));
 
     const { data: milestonesData, refetch: refetchMilestones } = useReadContracts({
         contracts: milestoneContracts,
-        query: { enabled: type === 'milestone' }
+        query: { enabled: type === 'milestone' && protocolVersion !== null }
     });
 
     const milestones: Milestone[] = milestonesData?.map((result, index) => {
@@ -234,7 +313,7 @@ export function useEscrow(address: Address | undefined) {
 
     // --- SHARED DETAILS (Generic Mapping) ---
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let activeABI: any = MILESTONE_ESCROW_ABI;
+    let activeABI: any = milestoneAbi;
     if (type === 'rental') activeABI = RENTAL_ESCROW_ABI;
     if (type === 'service') activeABI = SERVICE_ESCROW_ABI;
     if (type === 'lease') activeABI = LEASE_ESCROW_ABI;
@@ -264,7 +343,9 @@ export function useEscrow(address: Address | undefined) {
         leaseDetails,
         b2bVendorDetails,
         details,
-        isLoading: !type || type === 'loading' || !details,
+        protocolVersion,
+        supportsLegacyMilestoneSetup: type === 'milestone' && protocolVersion === 1,
+        isLoading: !type || type === 'loading' || !details || (type === 'milestone' && protocolVersion === null),
         isError: false,
         statusLabels: MILESTONE_STATUS,
         refetch: () => {

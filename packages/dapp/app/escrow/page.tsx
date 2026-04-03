@@ -4,7 +4,7 @@
 import React, { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { Address, formatEther, parseEther } from 'viem';
+import { Address, formatEther, formatUnits, parseEther } from 'viem';
 import { useEscrow, Milestone } from '@/hooks/useEscrow';
 import DashboardLayout from "@/components/layout/DashboardLayout"
 import DOMPurify from 'isomorphic-dompurify';
@@ -21,13 +21,15 @@ import { MILESTONE_ESCROW_ABI } from '@/lib/constants';
 import { MilestoneProposal } from "@/components/escrow/milestone-proposal"
 import { DisputeDialog } from "@/components/escrow/dispute-dialog"
 import { MilestoneCreation } from "@/components/escrow/MilestoneCreation"
+import { getTokenByAddress, ZERO_ADDRESS } from '@/lib/tokens';
+import { useTokenApproval } from '@/hooks/use-token-approval';
 
 function EscrowContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const address = searchParams.get('address') as Address;
     const { address: userAddress } = useAccount();
-    const { milestones, details, rentalDetails, serviceDetails, leaseDetails, b2bVendorDetails, type, isLoading, refetch, isError } = useEscrow(address);
+    const { milestones, details, rentalDetails, serviceDetails, leaseDetails, b2bVendorDetails, type, isLoading, refetch, isError, protocolVersion, supportsLegacyMilestoneSetup } = useEscrow(address);
 
     const isPayer = userAddress && details?.payer && userAddress.toLowerCase() === details.payer.toLowerCase();
     const isPayee = userAddress && details?.payee && userAddress.toLowerCase() === details.payee.toLowerCase();
@@ -41,6 +43,16 @@ function EscrowContent() {
 
     const totalValue = milestones.reduce((acc, m) => acc + m.amount, 0n);
     const releasedValue = milestones.filter(m => m.status === 3).reduce((acc, m) => acc + m.amount, 0n);
+    const pendingFundingAmount = milestones.filter(m => m.status === 0).reduce((acc, m) => acc + m.amount, 0n);
+    const tokenAddress = details?.token ?? ZERO_ADDRESS;
+    const token = getTokenByAddress(tokenAddress);
+    const tokenSymbol = token?.symbol ?? (tokenAddress === ZERO_ADDRESS ? 'ETH' : 'TOKEN');
+    const tokenDecimals = token?.decimals ?? 18;
+    const { needsApproval, approve, isApproving, isNative } = useTokenApproval({
+        tokenAddress,
+        spender: address,
+        amount: pendingFundingAmount,
+    });
 
     // Contract Write Hooks
     const { writeContract, data: hash, isPending } = useWriteContract();
@@ -71,16 +83,33 @@ function EscrowContent() {
     };
 
     const handleFund = () => {
-        // Funding logic - assumes ETH for now
-        // Calculate pending amount
-        const pendingAmount = milestones.filter(m => m.status === 0).reduce((acc, m) => acc + m.amount, 0n);
         writeContract({
             address,
             abi: MILESTONE_ESCROW_ABI,
             functionName: 'fund',
-            value: pendingAmount,
+            value: isNative ? pendingFundingAmount : undefined,
         });
     }
+
+    const fundingState = pendingFundingAmount === 0n
+        ? 'confirmed'
+        : isApproving
+            ? 'approval pending'
+            : needsApproval
+                ? 'approval required'
+                : isPending || isConfirming
+                    ? 'funding pending'
+                    : 'ready to fund';
+
+    const fundingLabel = pendingFundingAmount === 0n
+        ? 'Escrow Funded'
+        : isApproving
+            ? `Approving ${tokenSymbol}...`
+            : needsApproval
+                ? `Approve ${tokenSymbol}`
+                : isPending || isConfirming
+                    ? `Funding ${tokenSymbol}...`
+                    : `Fund ${tokenSymbol}`;
 
     if (isError) {
         return (
@@ -127,7 +156,7 @@ function EscrowContent() {
     }
 
     // --- EMPTY STATE: INITIALIZATION ---
-    if (milestones.length === 0 && isPayer) {
+    if (milestones.length === 0 && isPayer && supportsLegacyMilestoneSetup) {
         return (
             <DashboardLayout>
                 <div className="max-w-4xl mx-auto w-full py-10">
@@ -142,7 +171,7 @@ function EscrowContent() {
                 </div>
             </DashboardLayout>
         )
-    } else if (milestones.length === 0 && !isPayer) {
+    } else if (milestones.length === 0 && !isPayer && supportsLegacyMilestoneSetup) {
         return (
             <DashboardLayout>
                 <div className="max-w-4xl mx-auto w-full py-10 flex flex-col items-center justify-center text-center h-[60vh]">
@@ -154,6 +183,23 @@ function EscrowContent() {
                         The payer has not yet added milestones to this escrow.
                         Please check back later or contact them to complete the setup.
                     </p>
+                </div>
+            </DashboardLayout>
+        )
+    } else if (milestones.length === 0) {
+        return (
+            <DashboardLayout>
+                <div className="max-w-4xl mx-auto w-full py-10 flex flex-col items-center justify-center text-center h-[60vh]">
+                    <div className="bg-neutral-900 p-6 rounded-full mb-4">
+                        <Clock className="h-12 w-12 text-neutral-500" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-neutral-50">Milestones Are Still Syncing</h2>
+                    <p className="text-neutral-400 mt-2 max-w-md">
+                        This escrow uses protocol v{protocolVersion ?? 2}, which expects milestones at creation time. If you deployed it moments ago, the indexer may still be catching up.
+                    </p>
+                    <Button onClick={() => refetch()} variant="outline" className="mt-4 border-neutral-700 bg-neutral-900 text-neutral-200 hover:bg-neutral-800">
+                        Refresh Contract State
+                    </Button>
                 </div>
             </DashboardLayout>
         )
@@ -209,7 +255,7 @@ function EscrowContent() {
                     <div className="space-y-6">
                         {/* Negotiation for Payer/Payee */}
                         {(isPayer || isPayee) && (
-                            <MilestoneProposal escrowAddress={address} role={isPayer ? 'payer' : 'payee'} />
+                            <MilestoneProposal escrowAddress={address} role={isPayer ? 'payer' : 'payee'} allowLegacyCommit={supportsLegacyMilestoneSetup} />
                         )}
 
                         <div className="flex items-center gap-2 text-lg font-semibold text-neutral-50">
@@ -245,7 +291,7 @@ function EscrowContent() {
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="font-mono font-medium text-neutral-200">{formatEther(m.amount)} ETH</div>
+                                                <div className="font-mono font-medium text-neutral-200">{formatUnits(m.amount, tokenDecimals)} {tokenSymbol}</div>
                                             </div>
                                         </div>
 
@@ -318,11 +364,15 @@ function EscrowContent() {
                             <CardContent className="space-y-4">
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-neutral-400">Total Project Value</span>
-                                    <span className="font-mono text-neutral-50">{formatEther(totalValue)} ETH</span>
+                                    <span className="font-mono text-neutral-50">{formatUnits(totalValue, tokenDecimals)} {tokenSymbol}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-neutral-400">Released to Worker</span>
-                                    <span className="font-mono text-emerald-500">{formatEther(releasedValue)} ETH</span>
+                                    <span className="font-mono text-emerald-500">{formatUnits(releasedValue, tokenDecimals)} {tokenSymbol}</span>
+                                </div>
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-neutral-400">Pending Funding</span>
+                                    <span className="font-mono text-neutral-200">{formatUnits(pendingFundingAmount, tokenDecimals)} {tokenSymbol}</span>
                                 </div>
 
                                 <div className="space-y-1">
@@ -340,9 +390,26 @@ function EscrowContent() {
                                 {/* Fund Button if Payer and not fully funded? For now assume pre-funded or per-milestone funding logic needs to be checked. */}
                                 {/* If current logic isFundAll, we assume funded. If not, showing 'Fund' button is good. */}
                                 {isPayer && (
-                                    <Button onClick={handleFund} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white">
-                                        Fund Escrow
-                                    </Button>
+                                    <div className="space-y-3">
+                                        <div className="rounded-lg border border-neutral-800 bg-neutral-950/60 p-3 text-xs text-neutral-400">
+                                            <div className="flex items-center justify-between">
+                                                <span>Funding state</span>
+                                                <span className="uppercase tracking-wide text-neutral-300">{fundingState}</span>
+                                            </div>
+                                            {!isNative && pendingFundingAmount > 0n && (
+                                                <div className="mt-2 break-all text-[11px] text-neutral-500">
+                                                    Spender: {address}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <Button
+                                            onClick={needsApproval ? approve : handleFund}
+                                            disabled={pendingFundingAmount === 0n || isApproving || isPending || isConfirming}
+                                            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
+                                        >
+                                            {fundingLabel}
+                                        </Button>
+                                    </div>
                                 )}
                             </CardContent>
                         </Card>
@@ -903,4 +970,3 @@ function B2BVendorEscrowView({ address, details, b2bVendorDetails, refetch }: { 
         </DashboardLayout>
     )
 }
-

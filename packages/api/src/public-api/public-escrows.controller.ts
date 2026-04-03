@@ -40,7 +40,7 @@ export class PublicEscrowsController {
                 milestones: true,
                 disputes: true,
                 events: {
-                    orderBy: { createdAt: 'desc' },
+                    orderBy: [{ blockNumber: 'desc' }, { logIndex: 'desc' }],
                     take: 10
                 }
             },

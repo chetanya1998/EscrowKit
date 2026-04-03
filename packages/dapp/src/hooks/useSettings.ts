@@ -3,7 +3,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAccount } from 'wagmi';
-import { API_BASE_URL } from '@/lib/utils';
+import { API_BASE_URL, authFetch } from '@/lib/utils';
 import { toast } from 'sonner';
 
 // Define User Interface
@@ -24,14 +24,14 @@ export interface UserProfile {
 
 // Fetch Profile
 const fetchProfile = async (address: string): Promise<UserProfile> => {
-    const res = await fetch(`${API_BASE_URL}/users/${address}`);
+    const res = await authFetch(`${API_BASE_URL}/users/${address}`);
     if (!res.ok) throw new Error('Failed to fetch profile');
     return res.json();
 };
 
 // Update Profile
 const updateProfileRequest = async ({ address, data }: { address: string, data: Partial<UserProfile> }): Promise<UserProfile> => {
-    const res = await fetch(`${API_BASE_URL}/users/${address}`, {
+    const res = await authFetch(`${API_BASE_URL}/users/${address}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

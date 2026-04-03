@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useAccount } from "wagmi"
-import { API_BASE_URL } from '@/lib/utils'
+import { API_BASE_URL, authFetch } from '@/lib/utils'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,7 +12,9 @@ import { toast } from "sonner"
 interface ApiKey {
     id: string
     name: string
-    key: string
+    maskedKey: string
+    prefix: string
+    lastFour: string
     createdAt: string
 }
 
@@ -29,6 +31,7 @@ export function DeveloperSettings() {
     const [keys, setKeys] = useState<ApiKey[]>([])
     const [stats, setStats] = useState<Stats | null>(null)
     const [newKeyName, setNewKeyName] = useState("")
+    const [generatedKey, setGeneratedKey] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
@@ -41,7 +44,7 @@ export function DeveloperSettings() {
     const fetchKeys = async () => {
         if (!address) return
         try {
-            const res = await fetch(`${API_BASE_URL}/users/${address}/keys`)
+            const res = await authFetch(`${API_BASE_URL}/users/${address}/keys`)
             if (res.ok) {
                 const data = await res.json()
                 setKeys(data)
@@ -54,7 +57,7 @@ export function DeveloperSettings() {
     const fetchStats = async () => {
         if (!address) return
         try {
-            const res = await fetch(`${API_BASE_URL}/users/${address}/analytics`)
+            const res = await authFetch(`${API_BASE_URL}/users/${address}/analytics`)
             if (res.ok) {
                 const data = await res.json()
                 setStats(data)
@@ -68,12 +71,14 @@ export function DeveloperSettings() {
         if (!address || !newKeyName) return
         setLoading(true)
         try {
-            const res = await fetch(`${API_BASE_URL}/users/${address}/keys`, {
+            const res = await authFetch(`${API_BASE_URL}/users/${address}/keys`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name: newKeyName })
             })
             if (res.ok) {
+                const data = await res.json()
+                setGeneratedKey(data.key)
                 toast.success("API Key Generated")
                 setNewKeyName("")
                 fetchKeys()
@@ -90,7 +95,7 @@ export function DeveloperSettings() {
     const revokeKey = async (keyId: string) => {
         if (!address) return
         try {
-            const res = await fetch(`${API_BASE_URL}/users/${address}/keys/${keyId}`, {
+            const res = await authFetch(`${API_BASE_URL}/users/${address}/keys/${keyId}`, {
                 method: "DELETE"
             })
             if (res.ok) {
@@ -102,8 +107,8 @@ export function DeveloperSettings() {
         }
     }
 
-    const copyKey = (key: string) => {
-        navigator.clipboard.writeText(key)
+    const copyKey = (value: string) => {
+        navigator.clipboard.writeText(value)
         toast.success("Key copied to clipboard")
     }
 
@@ -149,7 +154,7 @@ export function DeveloperSettings() {
                 <CardHeader>
                     <CardTitle className="text-neutral-50">API Keys</CardTitle>
                     <CardDescription className="text-neutral-400">
-                        Manage your API keys for external integrations.
+                        Manage your API keys for external integrations. Raw keys are only shown once at creation time.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -165,6 +170,24 @@ export function DeveloperSettings() {
                         </Button>
                     </div>
 
+                    {generatedKey && (
+                        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-4 space-y-3">
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="space-y-1">
+                                    <p className="text-sm font-medium text-emerald-300">New API key</p>
+                                    <p className="text-xs text-neutral-400">This secret will not be shown again after you leave this page.</p>
+                                </div>
+                                <Button variant="outline" size="sm" onClick={() => copyKey(generatedKey)} className="border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10">
+                                    <Copy className="h-4 w-4 mr-2" />
+                                    Copy
+                                </Button>
+                            </div>
+                            <div className="rounded-md bg-black/30 px-3 py-2 font-mono text-sm text-neutral-100 break-all">
+                                {generatedKey}
+                            </div>
+                        </div>
+                    )}
+
                     <div className="space-y-4">
                         {keys.map((key) => (
                             <div key={key.id} className="flex items-center justify-between p-4 rounded-lg border border-neutral-800 bg-neutral-950/50">
@@ -172,14 +195,11 @@ export function DeveloperSettings() {
                                     <p className="font-medium text-neutral-50">{key.name}</p>
                                     <div className="flex items-center gap-2 text-sm text-neutral-400 font-mono bg-black/30 px-2 py-1 rounded">
                                         <Key className="h-3 w-3" />
-                                        {key.key}
+                                        {key.maskedKey}
                                     </div>
                                     <p className="text-xs text-neutral-500">Created: {new Date(key.createdAt).toLocaleDateString()}</p>
                                 </div>
                                 <div className="flex gap-2">
-                                    <Button variant="ghost" size="icon" onClick={() => copyKey(key.key)} className="hover:text-emerald-400">
-                                        <Copy className="h-4 w-4" />
-                                    </Button>
                                     <Button variant="ghost" size="icon" onClick={() => revokeKey(key.id)} className="hover:text-red-400 text-red-500/50">
                                         <Trash className="h-4 w-4" />
                                     </Button>

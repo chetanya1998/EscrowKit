@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   output: isGithubPages ? "export" : undefined,
   basePath: isGithubPages ? "/EscrowKit" : undefined,
   trailingSlash: isGithubPages ? true : false,
+  transpilePackages: ["@escrowkit/protocol"],
   images: {
     unoptimized: true,
   },

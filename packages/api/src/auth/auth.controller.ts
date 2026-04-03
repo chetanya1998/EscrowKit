@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get, Post, Body, UnauthorizedException, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './auth.guard';
 
 class VerifyDto {
     message: string;
@@ -24,5 +25,15 @@ export class AuthController {
         } catch (error) {
             throw new UnauthorizedException(error.message || 'Invalid signature');
         }
+    }
+
+    @Get('session')
+    @UseGuards(JwtAuthGuard)
+    getSession(@Request() request: { user: { walletAddress: string; expiresAt: string | null } }) {
+        return {
+            walletAddress: request.user.walletAddress,
+            valid: true,
+            expiresAt: request.user.expiresAt,
+        };
     }
 }

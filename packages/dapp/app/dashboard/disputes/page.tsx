@@ -35,7 +35,7 @@ export default function DisputesPage() {
                 <div className="flex items-center gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
                     <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
                     <p className="text-sm text-amber-400">
-                        Unable to reach the API — showing cached data.{' '}
+                        Unable to reach the API right now.{' '}
                         {isFetching && <span className="text-amber-500/60">Retrying...</span>}
                     </p>
                 </div>

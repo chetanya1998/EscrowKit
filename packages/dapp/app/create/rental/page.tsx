@@ -21,11 +21,13 @@ import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
+import { TokenSelector } from "@/components/token-selector"
 
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi"
-import { parseEther } from "viem"
+import { decodeEventLog, parseUnits } from "viem"
 import { useRouter } from "next/navigation"
 import { FACTORY_ADDRESS, FACTORY_ABI } from "@/lib/constants"
+import { Token, SUPPORTED_TOKENS, ZERO_ADDRESS } from "@/lib/tokens"
 
 const formSchema = z.object({
     landlordAddress: z.string().min(42, "Invalid Ethereum address").max(42, "Invalid Ethereum address"),
@@ -50,9 +52,10 @@ const formSchema = z.object({
 export default function CreateRentalEscrow() {
     const router = useRouter()
     const [step, setStep] = useState(1)
+    const [selectedToken, setSelectedToken] = useState<Token>(SUPPORTED_TOKENS[0])
 
     const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+        resolver: zodResolver(formSchema as any),
         defaultValues: {
             landlordAddress: "",
             propertyReference: "",
@@ -65,18 +68,45 @@ export default function CreateRentalEscrow() {
     })
 
     const { data: hash, writeContract, isPending, error } = useWriteContract()
-    const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash })
+    const { isLoading: isConfirming, data: receipt } = useWaitForTransactionReceipt({ hash })
 
     useEffect(() => {
-        if (isSuccess) {
-            router.push('/dashboard/escrows')
+        if (!receipt) {
+            return
         }
-    }, [isSuccess, router])
+
+        const createdLog = receipt.logs.find((log) => {
+            try {
+                const decoded = decodeEventLog({
+                    abi: FACTORY_ABI,
+                    data: log.data,
+                    topics: log.topics,
+                })
+
+                return decoded.eventName === "EscrowCreatedV2"
+            } catch {
+                return false
+            }
+        })
+
+        if (!createdLog) {
+            router.push('/dashboard/escrows')
+            return
+        }
+
+        const decoded = decodeEventLog({
+            abi: FACTORY_ABI,
+            data: createdLog.data,
+            topics: createdLog.topics,
+        }) as unknown as { args: { escrowAddress: `0x${string}` } }
+
+        router.push(`/escrow?address=${decoded.args.escrowAddress}`)
+    }, [receipt, router])
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        const arbiter = (values.arbiterAddress || '0x0000000000000000000000000000000000000000') as `0x${string}`;
-        const adapter = '0x0000000000000000000000000000000000000000' as `0x${string}`;
-        const token = '0x0000000000000000000000000000000000000000' as `0x${string}`;
+        const arbiter = (values.arbiterAddress || ZERO_ADDRESS) as `0x${string}`;
+        const adapter = ZERO_ADDRESS as `0x${string}`;
+        const tokenAddr = selectedToken.address;
 
         writeContract({
             address: FACTORY_ADDRESS as `0x${string}`,
@@ -86,15 +116,15 @@ export default function CreateRentalEscrow() {
                 values.landlordAddress as `0x${string}`,
                 arbiter,
                 adapter,
-                token,
-                parseEther(values.depositAmount),
+                tokenAddr,
+                parseUnits(values.depositAmount, selectedToken.decimals),
                 {
-                    arbitrationFee: parseEther(values.arbitrationFee),
+                    arbitrationFee: parseUnits(values.arbitrationFee, selectedToken.decimals),
                     disputeWindow: BigInt(Number(values.disputeWindowDays) * 86400),
                     claimWindow: BigInt(Number(values.claimWindowDays) * 86400),
                 }
             ],
-            value: parseEther(values.depositAmount)
+            value: BigInt(0)
         });
     }
 
@@ -172,6 +202,14 @@ export default function CreateRentalEscrow() {
                                                 <FormMessage />
                                             </FormItem>
                                         )}
+                                    />
+
+                                    <Separator className="bg-neutral-800" />
+
+                                    <TokenSelector
+                                        value={selectedToken.address}
+                                        onChange={setSelectedToken}
+                                        label="Deposit Currency"
                                     />
                                 </CardContent>
                                 <CardFooter className="flex justify-end border-t border-neutral-800 pt-6">

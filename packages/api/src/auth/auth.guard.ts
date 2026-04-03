@@ -20,6 +20,7 @@ export class JwtAuthGuard implements CanActivate {
         const decoded = this.authService.verifySessionToken(token);
         request.user = {
             walletAddress: decoded.walletAddress,
+            expiresAt: decoded.exp ? new Date(decoded.exp * 1000).toISOString() : null,
         };
 
         return true;

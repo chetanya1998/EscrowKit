@@ -32,7 +32,7 @@ export function DashboardView({ role }: { role?: 'payer' | 'payee' | 'admin' }) 
                     <div className="flex items-center gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
                         <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
                         <p className="text-sm text-amber-400">
-                            Unable to reach the API — showing cached data.{' '}
+                            Unable to reach the API right now.{' '}
                             {isFetching && <span className="text-amber-500/60">Retrying...</span>}
                         </p>
                     </div>
@@ -74,14 +74,14 @@ export function DashboardView({ role }: { role?: 'payer' | 'payee' | 'admin' }) 
                     <Card className="bg-neutral-900 border-neutral-800">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-neutral-400">
-                                Secured Value
+                                Indexed Escrows
                             </CardTitle>
                             <Lock className="h-4 w-4 text-emerald-500" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold text-neutral-50">4,200 USDC</div>
+                            <div className="text-2xl font-bold text-neutral-50">{transactions.length}</div>
                             <p className="text-xs text-neutral-500 mt-2">
-                                Locked in smart contracts
+                                Backed by indexed on-chain history
                             </p>
                         </CardContent>
                     </Card>
@@ -148,7 +148,7 @@ export function DashboardView({ role }: { role?: 'payer' | 'payee' | 'admin' }) 
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="text-right">
-                                                <Link href={`/escrow/${tx.counterparty || tx.id}`}>
+                                                <Link href={`/escrow?address=${tx.address || tx.id}`}>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 text-neutral-500 hover:text-neutral-300">
                                                         <ArrowUpRight className="h-4 w-4" />
                                                     </Button>

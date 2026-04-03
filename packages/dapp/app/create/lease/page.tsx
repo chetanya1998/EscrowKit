@@ -52,7 +52,7 @@ export default function CreateLeaseEscrow() {
     const [step, setStep] = useState(1)
 
     const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+        resolver: zodResolver(formSchema as any),
         defaultValues: {
             lessorAddress: "",
             leaseLabel: "",

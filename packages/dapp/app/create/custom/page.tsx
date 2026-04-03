@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, CheckCircle2, AlertTriangle, PenLine, FileText, 
 import Link from "next/link";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { parseUnits } from "viem";
-import EscrowFactoryABI from "@/lib/EscrowFactory.json";
+import { FACTORY_ABI, FACTORY_ADDRESS } from "@/lib/constants";
 
 // Standard supported tokens (Base Sepolia for example)
 const SUPPORTED_TOKENS = [
@@ -43,7 +43,6 @@ export default function CustomEscrowPage() {
     const [deployedEscrowHash, setDeployedEscrowHash] = useState<string | null>(null);
 
     // Contract Interaction
-    const factoryAddress = process.env.NEXT_PUBLIC_FACTORY_ADDRESS as `0x${string}`;
     const { data: hash, writeContract, isPending } = useWriteContract();
 
     const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
@@ -87,8 +86,8 @@ export default function CustomEscrowPage() {
             };
 
             writeContract({
-                address: factoryAddress,
-                abi: EscrowFactoryABI.abi,
+                address: FACTORY_ADDRESS,
+                abi: FACTORY_ABI,
                 functionName: 'createEscrow',
                 args: [
                     payeeAddress,        // payee
@@ -96,13 +95,14 @@ export default function CustomEscrowPage() {
                     arbitrationAdapter,  // arbitrationAdapter
                     "0x0000000000000000000000000000000000000000000000000000000000000000", // detailsHash
                     verificationOracle,  // verificationOracle
+                    selectedToken.address as `0x${string}`,
                     config,              // EscrowConfig
                     amountList,          // amounts
                     descriptionList,     // descriptions
                     deadlineList,        // deadlines
                     conditionHashList    // conditionHashes
                 ],
-                value: selectedToken.address === "0x0000000000000000000000000000000000000000" ? parseUnits(totalAmount, 18) : 0n
+                value: 0n
             });
         } catch (err: any) {
             console.error(err);

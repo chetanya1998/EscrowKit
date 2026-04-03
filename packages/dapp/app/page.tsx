@@ -713,7 +713,7 @@ export default function LandingPage() {
         if (entry.isIntersecting) {
           const sectionId = entry.target.id;
           if (sectionId) {
-            logEvent(analytics, 'section_view', { section: sectionId });
+            logEvent(analytics!, 'section_view', { section: sectionId });
           }
         }
       });

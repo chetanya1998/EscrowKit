@@ -6,10 +6,20 @@ import "../src/EscrowFactory.sol";
 import "../src/MilestoneEscrow.sol";
 import "../src/MockAdapter.sol";
 import "../src/interfaces/IMilestoneEscrow.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract MockERC20 is ERC20 {
+    constructor() ERC20("Mock Token", "MOCK") {}
+
+    function mint(address to, uint256 amount) external {
+        _mint(to, amount);
+    }
+}
 
 contract EscrowFlowTest is Test {
     EscrowFactory factory;
     MockArbitrationAdapter adapter;
+    MockERC20 token;
     
     address payer = address(0x1);
     address payee = address(0x2);
@@ -20,8 +30,10 @@ contract EscrowFlowTest is Test {
     function setUp() public {
         factory = new EscrowFactory();
         adapter = new MockArbitrationAdapter(arbiter);
+        token = new MockERC20();
         
         vm.deal(payer, 100 ether);
+        token.mint(payer, 1_000_000 ether);
     }
 
     function test_CreateEscrow() public {
@@ -47,11 +59,39 @@ contract EscrowFlowTest is Test {
         deadlines[1] = block.timestamp + 2 days;
         
         bytes32[] memory conditions = new bytes32[](2);
+        bytes32 detailsHash = keccak256("milestone-details");
+        vm.recordLogs();
 
-        address escrowAddr = factory.createEscrow(payee, arbiter, address(adapter), bytes32(0), address(0), config, amounts, descs, deadlines, conditions);
+        address escrowAddr = factory.createEscrow(payee, arbiter, address(adapter), detailsHash, address(0), address(0), config, amounts, descs, deadlines, conditions);
         escrow = MilestoneEscrow(escrowAddr);
         assertEq(escrow.payer(), payer);
         assertEq(escrow.getMilestoneCount(), 2);
+
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+        bytes32 expectedTopic = keccak256("EscrowCreatedV2(address,address,address,uint8,uint16,address,bytes32)");
+        bool found;
+
+        for (uint256 i = 0; i < entries.length; i++) {
+            if (entries[i].topics[0] == expectedTopic) {
+                found = true;
+                (
+                    uint8 escrowKind,
+                    uint16 protocolVersion,
+                    address tokenAddress,
+                    bytes32 emittedDetailsHash
+                ) = abi.decode(entries[i].data, (uint8, uint16, address, bytes32));
+
+                assertEq(address(uint160(uint256(entries[i].topics[1]))), escrowAddr);
+                assertEq(address(uint160(uint256(entries[i].topics[2]))), payer);
+                assertEq(address(uint160(uint256(entries[i].topics[3]))), payee);
+                assertEq(escrowKind, 0);
+                assertEq(protocolVersion, 2);
+                assertEq(tokenAddress, address(0));
+                assertEq(emittedDetailsHash, detailsHash);
+            }
+        }
+
+        assertTrue(found, "EscrowCreatedV2 not emitted");
     }
 
     function test_FundAll() public {
@@ -124,7 +164,7 @@ contract EscrowFlowTest is Test {
         deadlines[0] = block.timestamp + 1 days;
         bytes32[] memory conditions = new bytes32[](1);
 
-        address escrowAddr = factory.createEscrow(payee, arbiter, address(adapter), bytes32(0), address(0), config, amounts, descs, deadlines, conditions);
+        address escrowAddr = factory.createEscrow(payee, arbiter, address(adapter), bytes32(0), address(0), address(0), config, amounts, descs, deadlines, conditions);
         escrow = MilestoneEscrow(escrowAddr);
 
         vm.prank(payer);
@@ -143,5 +183,53 @@ contract EscrowFlowTest is Test {
         vm.expectRevert("Already funded");
         vm.prank(payer);
         escrow.updateMilestone(0, 3 ether, "Late Update", block.timestamp + 3 days);
+    }
+
+    function test_FundAll_WithERC20() public {
+        vm.prank(payer);
+        IMilestoneEscrow.EscrowConfig memory config = IMilestoneEscrow.EscrowConfig({
+            arbitrationFeeBps: 100,
+            payerPenaltyBps: 500,
+            payeePenaltyBps: 500,
+            disputeWindow: 3 days,
+            reviewPeriod: 14 days
+        });
+
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 1000 ether;
+        amounts[1] = 500 ether;
+
+        string[] memory descs = new string[](2);
+        descs[0] = "Milestone 1";
+        descs[1] = "Milestone 2";
+
+        uint256[] memory deadlines = new uint256[](2);
+        deadlines[0] = block.timestamp + 1 days;
+        deadlines[1] = block.timestamp + 2 days;
+
+        bytes32[] memory conditions = new bytes32[](2);
+
+        address escrowAddr = factory.createEscrow(
+            payee,
+            arbiter,
+            address(adapter),
+            bytes32(0),
+            address(0),
+            address(token),
+            config,
+            amounts,
+            descs,
+            deadlines,
+            conditions
+        );
+        escrow = MilestoneEscrow(escrowAddr);
+
+        vm.startPrank(payer);
+        token.approve(escrowAddr, 1500 ether);
+        escrow.fund();
+        vm.stopPrank();
+
+        assertEq(token.balanceOf(escrowAddr), 1500 ether);
+        assertEq(token.balanceOf(payer), 1_000_000 ether - 1500 ether);
     }
 }

@@ -4,7 +4,7 @@ import { Address, formatEther, parseEther, keccak256, toHex } from 'viem';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MILESTONE_ESCROW_ABI } from '@/lib/constants';
+import { LEGACY_MILESTONE_ESCROW_ABI, MILESTONE_ESCROW_ABI } from '@/lib/constants';
 import { Milestone, EscrowDetails } from '@/hooks/useEscrow';
 
 interface PayerViewProps {
@@ -80,7 +80,7 @@ export function PayerView({ address, milestones, details, refetch }: PayerViewPr
 
         writeContract({
             address,
-            abi: MILESTONE_ESCROW_ABI,
+            abi: LEGACY_MILESTONE_ESCROW_ABI,
             functionName: 'addMilestones',
             args: [
                 [parseEther(newMilestoneAmount)],

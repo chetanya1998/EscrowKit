@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { formatUnits } from 'viem';
 import * as crypto from 'crypto';
+import { hashApiKey, maskApiKey } from '../common/utils/api-key';
 
 @Injectable()
 export class UsersService {
@@ -28,8 +29,11 @@ export class UsersService {
 
         return this.prisma.escrow.findMany({
             where,
-            include: { milestones: true },
-            orderBy: { createdAt: 'desc' }
+            include: { milestones: true, disputes: true },
+            orderBy: [
+                { createdAt: 'desc' },
+                { updatedAt: 'desc' }
+            ]
         });
     }
 
@@ -42,12 +46,13 @@ export class UsersService {
                     { arbiter: { equals: address, mode: 'insensitive' } }
                 ]
             },
-            include: { milestones: true }
+            include: { milestones: true, disputes: true }
         });
 
         let totalVolume = BigInt(0);
         let activeEscrows = 0;
         let completedEscrows = 0;
+        let activeDisputes = 0;
 
         for (const escrow of escrows) {
             let isCompleted = true;
@@ -63,12 +68,20 @@ export class UsersService {
             } else {
                 activeEscrows++;
             }
+
+            activeDisputes += escrow.disputes.filter((dispute) => dispute.status === 'OPEN').length;
         }
+
+        const disputeRate = escrows.length > 0
+            ? `${((activeDisputes / escrows.length) * 100).toFixed(1)}%`
+            : '0%';
 
         return {
             totalVolume: formatUnits(totalVolume, 18), // Assuming 18 decimals for now
             activeEscrows,
-            completedEscrows
+            completedEscrows,
+            activeDisputes,
+            disputeRate,
         };
     }
 
@@ -110,33 +123,41 @@ export class UsersService {
     async generateApiKey(address: string, name: string) {
         const user = await this.getProfile(address);
         const key = 'sk_' + crypto.randomBytes(32).toString('hex');
+        const prefix = key.slice(0, 10);
+        const lastFour = key.slice(-4);
 
-        // In a real app, store a hash of the key, show key once.
-        // For MVP, knowing the requirement is to show it, we might store it or hash it.
-        // Let's store it directly for MVP simplicity or hash it if we want security.
-        // The prompt says "show key only once upon generation", implying we should likely store a hash.
-        // But for now let's just create it. schema has `key` field. 
-        // If we want to be secure: store hash, return key. 
-        // ApiKeyGuard checks `key` against DB. If DB has hash, guard needs to hash incoming.
-        // Let's assume simple storage for now as schema.prisma wasn't explicit about hashing.
-
-        await this.prisma.apiKey.create({
+        const apiKey = await this.prisma.apiKey.create({
             data: {
-                key, // WARNING: storing plain text for MVP. In prod, store hash.
+                keyHash: hashApiKey(key),
+                prefix,
+                lastFour,
                 ownerId: user.id,
                 name
             }
         });
 
-        return { key };
+        return {
+            id: apiKey.id,
+            name: apiKey.name,
+            key,
+            maskedKey: maskApiKey(prefix, lastFour),
+            prefix,
+            lastFour,
+            createdAt: apiKey.createdAt,
+        };
     }
 
     async listApiKeys(address: string) {
         const user = await this.getProfile(address);
-        return this.prisma.apiKey.findMany({
+        const keys = await this.prisma.apiKey.findMany({
             where: { ownerId: user.id, isActive: true },
-            select: { id: true, name: true, createdAt: true, key: true } // Return key for MVP dashboard
+            select: { id: true, name: true, createdAt: true, prefix: true, lastFour: true }
         });
+
+        return keys.map((key) => ({
+            ...key,
+            maskedKey: maskApiKey(key.prefix, key.lastFour),
+        }));
     }
 
     async revokeApiKey(address: string, keyId: string) {
@@ -201,4 +222,3 @@ export class UsersService {
         };
     }
 }
-

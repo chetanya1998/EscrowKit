@@ -13,8 +13,8 @@ import { Badge } from "@/components/ui/badge"
 import { Loader2, Plus, PenTool, CheckCircle, XCircle } from "lucide-react"
 import { toast } from "sonner"
 import { parseEther, formatEther } from "viem"
-import { MILESTONE_ESCROW_ABI } from "@/lib/constants"
-import { API_BASE_URL } from '@/lib/utils'
+import { LEGACY_MILESTONE_ESCROW_ABI } from "@/lib/constants"
+import { API_BASE_URL, authFetch } from '@/lib/utils'
 
 interface MilestoneDraft {
     id: string
@@ -30,9 +30,10 @@ interface MilestoneDraft {
 interface MilestoneProposalProps {
     escrowAddress: string
     role: "payer" | "payee" | "arbiter" | "viewer"
+    allowLegacyCommit?: boolean
 }
 
-export function MilestoneProposal({ escrowAddress, role }: MilestoneProposalProps) {
+export function MilestoneProposal({ escrowAddress, role, allowLegacyCommit = false }: MilestoneProposalProps) {
     const { address } = useAccount()
     const { signTypedDataAsync } = useSignTypedData()
     const { writeContract, data: hash, isPending: isWritePending } = useWriteContract()
@@ -54,7 +55,7 @@ export function MilestoneProposal({ escrowAddress, role }: MilestoneProposalProp
 
     const fetchDrafts = async () => {
         try {
-            const res = await fetch(`${API_BASE_URL}/api/v1/drafts/${escrowAddress}`)
+            const res = await authFetch(`${API_BASE_URL}/api/v1/drafts/${escrowAddress}`)
             if (res.ok) {
                 const data = await res.json()
                 setDrafts(data)
@@ -68,7 +69,7 @@ export function MilestoneProposal({ escrowAddress, role }: MilestoneProposalProp
         if (!address || !title || !amount) return
         setLoading(true)
         try {
-            const res = await fetch(`${API_BASE_URL}/api/v1/drafts`, {
+            const res = await authFetch(`${API_BASE_URL}/api/v1/drafts`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -136,7 +137,7 @@ export function MilestoneProposal({ escrowAddress, role }: MilestoneProposalProp
             })
 
             // Send signature to backend
-            const res = await fetch(`${API_BASE_URL}/api/v1/drafts/${draft.id}/sign`, {
+            const res = await authFetch(`${API_BASE_URL}/api/v1/drafts/${draft.id}/sign`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ signature, signer: address })
@@ -156,13 +157,18 @@ export function MilestoneProposal({ escrowAddress, role }: MilestoneProposalProp
     }
 
     const commitDraft = async (draft: MilestoneDraft) => {
+        if (!allowLegacyCommit) {
+            toast.error("This escrow already uses the v2 milestone flow and cannot accept legacy post-deploy milestone commits.");
+            return;
+        }
+
         // Payer calling addMilestones
         const amountWei = parseEther(draft.amount)
         const deadlineTimestamp = Math.floor(new Date(draft.deadline).getTime() / 1000)
 
         writeContract({
             address: escrowAddress as `0x${string}`,
-            abi: MILESTONE_ESCROW_ABI,
+            abi: LEGACY_MILESTONE_ESCROW_ABI,
             functionName: 'addMilestones',
             args: [
                 [amountWei],
@@ -267,10 +273,14 @@ export function MilestoneProposal({ escrowAddress, role }: MilestoneProposalProp
                                             )}
 
                                             {/* Logic for Payer to Commit */}
-                                            {role === 'payer' && draft.isSigned && draft.status === 'SIGNED' && (
+                                            {role === 'payer' && draft.isSigned && draft.status === 'SIGNED' && allowLegacyCommit && (
                                                 <Button size="sm" onClick={() => commitDraft(draft)} disabled={isWritePending || isConfirming} className="bg-blue-500 hover:bg-blue-600">
                                                     {(isWritePending || isConfirming) ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCircle className="w-4 h-4 mr-2" /> Commit</>}
                                                 </Button>
+                                            )}
+
+                                            {role === 'payer' && draft.isSigned && draft.status === 'SIGNED' && !allowLegacyCommit && (
+                                                <span className="text-xs text-neutral-500 italic">Already committed in v2 create flow</span>
                                             )}
 
                                             {/* Payer waiting for signature */}

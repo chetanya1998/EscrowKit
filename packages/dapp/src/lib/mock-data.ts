@@ -2,6 +2,7 @@ export type TransactionType = 'created' | 'funded' | 'released' | 'refunded' | '
 
 export interface Transaction {
     id: string;
+    address: string;
     date: string;
     type: TransactionType;
     amount: string;
@@ -22,6 +23,7 @@ export interface UsageStats {
 export const mockTransactions: Transaction[] = [
     {
         id: 'tx_1',
+        address: '0x1111111111111111111111111111111111111111',
         date: '2023-10-25',
         type: 'created',
         amount: '0.15',
@@ -31,6 +33,7 @@ export const mockTransactions: Transaction[] = [
     },
     {
         id: 'tx_2',
+        address: '0x1111111111111111111111111111111111111111',
         date: '2023-10-26',
         type: 'funded',
         amount: '0.15',
@@ -40,6 +43,7 @@ export const mockTransactions: Transaction[] = [
     },
     {
         id: 'tx_3',
+        address: '0x1111111111111111111111111111111111111111',
         date: '2023-10-28',
         type: 'released',
         amount: '0.15',
@@ -49,6 +53,7 @@ export const mockTransactions: Transaction[] = [
     },
     {
         id: 'tx_4',
+        address: '0x2222222222222222222222222222222222222222',
         date: '2023-11-01',
         type: 'created',
         amount: '50',
@@ -58,6 +63,7 @@ export const mockTransactions: Transaction[] = [
     },
     {
         id: 'tx_5',
+        address: '0x2222222222222222222222222222222222222222',
         date: '2023-11-02',
         type: 'disputed',
         amount: '50',

@@ -57,7 +57,7 @@ export default function CreateB2BVendorEscrow() {
     const [step, setStep] = useState(1)
 
     const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+        resolver: zodResolver(formSchema as any),
         defaultValues: {
             vendorAddress: "",
             projectTitle: "",

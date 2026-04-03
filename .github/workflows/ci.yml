@@ -58,6 +58,11 @@ jobs:
         working-directory: packages/api
         run: npx prisma generate --schema=prisma/schema.prisma
 
+      - name: Verify Protocol Generation
+        run: |
+          pnpm --filter @escrowkit/protocol generate
+          git diff --exit-code packages/protocol/src/generated.ts
+
       - name: Build
         run: pnpm build
 
@@ -65,3 +70,12 @@ jobs:
         run: |
           cd packages/contracts
           forge test
+
+      - name: Test API
+        run: pnpm --filter api test
+
+      - name: Typecheck Dapp
+        run: pnpm --filter dapp typecheck
+
+      - name: Test Dapp
+        run: pnpm --filter dapp test

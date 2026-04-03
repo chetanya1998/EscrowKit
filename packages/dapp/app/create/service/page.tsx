@@ -55,7 +55,7 @@ export default function CreateServiceEscrow() {
     const [step, setStep] = useState(1)
 
     const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+        resolver: zodResolver(formSchema as any),
         defaultValues: {
             providerAddress: "",
             serviceDescription: "",

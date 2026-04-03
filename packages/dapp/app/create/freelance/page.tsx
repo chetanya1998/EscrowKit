@@ -22,11 +22,13 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
+import { TokenSelector } from "@/components/token-selector"
 
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi"
-import { parseEther } from "viem"
+import { decodeEventLog, parseUnits } from "viem"
 import { useRouter } from "next/navigation"
 import { FACTORY_ADDRESS, FACTORY_ABI } from "@/lib/constants"
+import { Token, SUPPORTED_TOKENS, ZERO_ADDRESS } from "@/lib/tokens"
 
 const milestoneSchema = z.object({
     description: z.string().min(5, "Description must be at least 5 characters"),
@@ -61,9 +63,10 @@ const formSchema = z.object({
 export default function CreateFreelanceEscrow() {
     const router = useRouter()
     const [step, setStep] = useState(1)
+    const [selectedToken, setSelectedToken] = useState<Token>(SUPPORTED_TOKENS[0])
 
     const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+        resolver: zodResolver(formSchema as any),
         defaultValues: {
             freelancerAddress: "",
             projectTitle: "",
@@ -83,22 +86,50 @@ export default function CreateFreelanceEscrow() {
     })
 
     const { data: hash, writeContract, isPending, error } = useWriteContract()
-    const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash })
+    const { isLoading: isConfirming, data: receipt } = useWaitForTransactionReceipt({ hash })
 
     useEffect(() => {
-        if (isSuccess) {
-            router.push('/dashboard/escrows')
+        if (!receipt) {
+            return
         }
-    }, [isSuccess, router])
+
+        const createdLog = receipt.logs.find((log) => {
+            try {
+                const decoded = decodeEventLog({
+                    abi: FACTORY_ABI,
+                    data: log.data,
+                    topics: log.topics,
+                })
+
+                return decoded.eventName === "EscrowCreatedV2"
+            } catch {
+                return false
+            }
+        })
+
+        if (!createdLog) {
+            router.push('/dashboard/escrows')
+            return
+        }
+
+        const decoded = decodeEventLog({
+            abi: FACTORY_ABI,
+            data: createdLog.data,
+            topics: createdLog.topics,
+        }) as unknown as { args: { escrowAddress: `0x${string}` } }
+
+        router.push(`/escrow?address=${decoded.args.escrowAddress}`)
+    }, [receipt, router])
 
     const totalAmount = form.watch("milestones")?.reduce((sum, m) => sum + (Number(m.amount) || 0), 0) || 0
 
     function onSubmit(values: z.infer<typeof formSchema>) {
-        const arbiter = (values.arbiterAddress || '0x0000000000000000000000000000000000000000') as `0x${string}`;
-        const adapter = '0x0000000000000000000000000000000000000000' as `0x${string}`;
-        const verificationOracle = '0x0000000000000000000000000000000000000000' as `0x${string}`;
+        const arbiter = (values.arbiterAddress || ZERO_ADDRESS) as `0x${string}`;
+        const adapter = ZERO_ADDRESS as `0x${string}`;
+        const verificationOracle = ZERO_ADDRESS as `0x${string}`;
+        const tokenAddr = selectedToken.address;
 
-        const amountList = values.milestones.map(m => parseEther(m.amount));
+        const amountList = values.milestones.map(m => parseUnits(m.amount, selectedToken.decimals));
         const descriptionList = values.milestones.map(m => m.description);
         const deadlineList = values.milestones.map(() => BigInt(0));
         const conditionHashList = values.milestones.map(() => "0x0000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`);
@@ -121,13 +152,14 @@ export default function CreateFreelanceEscrow() {
                 adapter,
                 "0x0000000000000000000000000000000000000000000000000000000000000000" as `0x${string}`,
                 verificationOracle,
+                tokenAddr,
                 config,
                 amountList,
                 descriptionList,
                 deadlineList,
                 conditionHashList,
             ],
-            value: parseEther(totalAmount.toString())
+            value: BigInt(0)
         });
     }
 
@@ -174,8 +206,8 @@ export default function CreateFreelanceEscrow() {
                         {step === 1 && (
                             <Card className="bg-neutral-900 border-neutral-800">
                                 <CardHeader>
-                                    <CardTitle className="text-neutral-50">Step 1: Counterparty Details</CardTitle>
-                                    <CardDescription className="text-neutral-400">Identify the freelancer and scope of work.</CardDescription>
+                                    <CardTitle className="text-neutral-50">Step 1: Counterparty & Currency</CardTitle>
+                                    <CardDescription className="text-neutral-400">Identify the freelancer, scope of work, and payment currency.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
                                     <FormField
@@ -205,6 +237,14 @@ export default function CreateFreelanceEscrow() {
                                                 <FormMessage />
                                             </FormItem>
                                         )}
+                                    />
+
+                                    <Separator className="bg-neutral-800" />
+
+                                    <TokenSelector
+                                        value={selectedToken.address}
+                                        onChange={setSelectedToken}
+                                        label="Payment Currency"
                                     />
                                 </CardContent>
                                 <CardFooter className="flex justify-end border-t border-neutral-800 pt-6">

@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
+import type { CSSProperties } from "react";
 import "./globals.css";
 
-const inter = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-inter" });
-const outfit = Space_Grotesk({ subsets: ["latin"], variable: "--font-outfit" });
 import { Providers } from "../src/components/providers";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -39,7 +37,15 @@ export default function RootLayout({
       <head>
         <meta httpEquiv="Content-Security-Policy" content={cspHeader} />
       </head>
-      <body className={`${inter.variable} ${outfit.variable} font-sans`}>
+      <body
+        className="font-sans"
+        style={
+          {
+            "--font-inter": '"Segoe UI", "Helvetica Neue", Arial, sans-serif',
+            "--font-outfit": '"Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif',
+          } as CSSProperties
+        }
+      >
         <TooltipProvider>
           <Providers>
             {children}
