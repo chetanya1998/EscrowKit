@@ -10,6 +10,24 @@ export class PublicEscrowsController {
 
     @Get()
     async getEscrows(@Request() req: any) {
+        const apiKeyContext = req['apiKeyContext'];
+
+        if (apiKeyContext?.environmentId || apiKeyContext?.projectId || apiKeyContext?.organizationId) {
+            return this.prisma.escrow.findMany({
+                where: {
+                    ...(apiKeyContext.environmentId
+                        ? { environmentId: apiKeyContext.environmentId }
+                        : apiKeyContext.projectId
+                            ? { projectId: apiKeyContext.projectId }
+                            : { organizationId: apiKeyContext.organizationId }),
+                },
+                include: {
+                    milestones: true,
+                },
+                orderBy: [{ createdAt: 'desc' }],
+            });
+        }
+
         const ownerId = req['apiKeyOwnerId'];
         // Assuming API Key owner is linked to a user address somehow, or we use ownerId directly
         // Let's assume for MVP ownerId is the user ID which has an associated address
@@ -33,9 +51,20 @@ export class PublicEscrowsController {
     }
 
     @Get(':address')
-    async getEscrowDetails(@Param('address') address: string) {
-        return this.prisma.escrow.findUnique({
-            where: { address },
+    async getEscrowDetails(@Request() req: any, @Param('address') address: string) {
+        const apiKeyContext = req['apiKeyContext'];
+
+        return this.prisma.escrow.findFirst({
+            where: {
+                address,
+                ...(apiKeyContext?.environmentId
+                    ? { environmentId: apiKeyContext.environmentId }
+                    : apiKeyContext?.projectId
+                        ? { projectId: apiKeyContext.projectId }
+                        : apiKeyContext?.organizationId
+                            ? { organizationId: apiKeyContext.organizationId }
+                            : {}),
+            },
             include: {
                 milestones: true,
                 disputes: true,

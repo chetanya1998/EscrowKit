@@ -8,6 +8,31 @@ datasource db {
   provider = "postgresql"
 }
 
+enum MembershipRole {
+  OWNER
+  ADMIN
+  DEVELOPER
+  VIEWER
+}
+
+enum ProjectEnvironmentType {
+  SANDBOX
+  PRODUCTION
+}
+
+enum WebhookDeliveryStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  RETRYING
+}
+
+enum AuditActorType {
+  USER
+  API_KEY
+  SYSTEM
+}
+
 model Escrow {
   id                 String      @id @default(uuid())
   address            String      @unique
@@ -23,11 +48,23 @@ model Escrow {
   tokenAddress       String?
   detailsHash        String?
   createdTxHash      String?
+  organizationId     String?
+  projectId          String?
+  environmentId      String?
+  externalReference  String?
+  metadata           Json?
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
+  organization       Organization?      @relation(fields: [organizationId], references: [id])
+  project            Project?           @relation(fields: [projectId], references: [id])
+  environment        ProjectEnvironment? @relation(fields: [environmentId], references: [id])
   milestones         Milestone[]
   events             Event[]
   disputes           Dispute[]
+
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([environmentId])
 }
 
 model Milestone {
@@ -74,38 +111,160 @@ model Dispute {
 }
 
 model User {
-  id              String   @id @default(uuid())
-  address         String   @unique
-  username        String?  @unique
-  email           String?  @unique
-  bio             String?
-  avatar          String?
-  preferences     Json?    // { theme: 'dark', notifications: { email: true, app: true } }
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                      String                   @id @default(uuid())
+  address                 String                   @unique
+  username                String?                  @unique
+  email                   String?                  @unique
+  bio                     String?
+  avatar                  String?
+  preferences             Json?                    // { theme: 'dark', notifications: { email: true, app: true } }
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  organizationsCreated    Organization[]           @relation("OrganizationCreator")
+  projectsCreated         Project[]                @relation("ProjectCreator")
+  projectEnvironmentsCreated ProjectEnvironment[]  @relation("ProjectEnvironmentCreator")
+  organizationMemberships OrganizationMembership[]
+  apiKeysCreated          ApiKey[]                 @relation("ApiKeyCreator")
+  webhooksCreated         Webhook[]                @relation("WebhookCreator")
+  auditLogs               AuditLog[]               @relation("AuditActorUser")
+}
+
+model Organization {
+  id                String                   @id @default(uuid())
+  slug              String                   @unique
+  name              String
+  description       String?
+  createdByUserId   String?
+  metadata          Json?
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+  createdByUser     User?                    @relation("OrganizationCreator", fields: [createdByUserId], references: [id])
+  memberships       OrganizationMembership[]
+  projects          Project[]
+  apiKeys           ApiKey[]
+  webhooks          Webhook[]
+  webhookDeliveries WebhookDelivery[]
+  auditLogs         AuditLog[]
+  escrows           Escrow[]
+}
+
+model OrganizationMembership {
+  id             String         @id @default(uuid())
+  organizationId String
+  userId         String
+  role           MembershipRole @default(DEVELOPER)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  organization   Organization   @relation(fields: [organizationId], references: [id])
+  user           User           @relation(fields: [userId], references: [id])
+
+  @@unique([organizationId, userId])
+  @@index([userId, role])
+}
+
+model Project {
+  id                String               @id @default(uuid())
+  organizationId    String
+  slug              String
+  name              String
+  description       String?
+  createdByUserId   String?
+  metadata          Json?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  organization      Organization         @relation(fields: [organizationId], references: [id])
+  createdByUser     User?                @relation("ProjectCreator", fields: [createdByUserId], references: [id])
+  environments      ProjectEnvironment[]
+  apiKeys           ApiKey[]
+  webhooks          Webhook[]
+  webhookDeliveries WebhookDelivery[]
+  auditLogs         AuditLog[]
+  escrows           Escrow[]
+
+  @@unique([organizationId, slug])
+  @@index([organizationId, createdAt])
+}
+
+model ProjectEnvironment {
+  id                String                 @id @default(uuid())
+  projectId         String
+  slug              String
+  name              String
+  type              ProjectEnvironmentType
+  baseUrl           String?
+  metadata          Json?
+  createdByUserId   String?
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  project           Project                @relation(fields: [projectId], references: [id])
+  createdByUser     User?                  @relation("ProjectEnvironmentCreator", fields: [createdByUserId], references: [id])
+  apiKeys           ApiKey[]
+  webhooks          Webhook[]
+  webhookDeliveries WebhookDelivery[]
+  auditLogs         AuditLog[]
+  escrows           Escrow[]
+
+  @@unique([projectId, slug])
+  @@index([projectId, type])
 }
 
 model ApiKey {
-  id        String   @id @default(uuid())
-  keyHash   String   @unique
-  prefix    String
-  lastFour  String
-  ownerId   String
-  name      String
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id              String              @id @default(uuid())
+  keyHash         String              @unique
+  prefix          String
+  lastFour        String
+  ownerId         String?
+  organizationId  String?
+  projectId       String?
+  environmentId   String?
+  createdByUserId String?
+  name            String
+  description     String?
+  scopes          String[]            @default([])
+  metadata        Json?
+  isActive        Boolean             @default(true)
+  lastUsedAt      DateTime?
+  revokedAt       DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  organization    Organization?       @relation(fields: [organizationId], references: [id])
+  project         Project?            @relation(fields: [projectId], references: [id])
+  environment     ProjectEnvironment? @relation(fields: [environmentId], references: [id])
+  createdByUser   User?               @relation("ApiKeyCreator", fields: [createdByUserId], references: [id])
 
   @@index([ownerId, isActive])
+  @@index([organizationId, isActive])
+  @@index([projectId, isActive])
+  @@index([environmentId, isActive])
 }
 
 model Webhook {
-  id        String   @id @default(uuid())
-  url       String
-  secret    String
-  events    String[]
-  ownerId   String
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id              String              @id @default(uuid())
+  url             String
+  secret          String
+  secretLastFour  String?
+  events          String[]
+  ownerId         String?
+  organizationId  String?
+  projectId       String?
+  environmentId   String?
+  createdByUserId String?
+  description     String?
+  headers         Json?
+  isActive        Boolean             @default(true)
+  lastTriggeredAt DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  organization    Organization?       @relation(fields: [organizationId], references: [id])
+  project         Project?            @relation(fields: [projectId], references: [id])
+  environment     ProjectEnvironment? @relation(fields: [environmentId], references: [id])
+  createdByUser   User?               @relation("WebhookCreator", fields: [createdByUserId], references: [id])
+  deliveries      WebhookDelivery[]
+
+  @@index([ownerId, isActive])
+  @@index([organizationId, isActive])
+  @@index([projectId, isActive])
+  @@index([environmentId, isActive])
 }
 
 model MilestoneDraft {
@@ -122,4 +281,59 @@ model MilestoneDraft {
   status        String   // PENDING, SIGNED, REJECTED, COMMITTED
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model WebhookDelivery {
+  id             String                @id @default(uuid())
+  webhookId      String
+  organizationId String?
+  projectId      String?
+  environmentId  String?
+  event          String
+  requestId      String?
+  status         WebhookDeliveryStatus @default(PENDING)
+  attemptCount   Int                   @default(1)
+  responseStatus Int?
+  responseBody   String?
+  errorMessage   String?
+  deliveredAt    DateTime?
+  nextRetryAt    DateTime?
+  payload        Json
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  webhook        Webhook               @relation(fields: [webhookId], references: [id])
+  organization   Organization?         @relation(fields: [organizationId], references: [id])
+  project        Project?              @relation(fields: [projectId], references: [id])
+  environment    ProjectEnvironment?   @relation(fields: [environmentId], references: [id])
+
+  @@index([webhookId, createdAt])
+  @@index([organizationId, createdAt])
+  @@index([projectId, createdAt])
+  @@index([environmentId, createdAt])
+  @@index([status, createdAt])
+}
+
+model AuditLog {
+  id             String          @id @default(uuid())
+  organizationId String?
+  projectId      String?
+  environmentId  String?
+  actorType      AuditActorType
+  actorId        String
+  actorUserId    String?
+  action         String
+  targetType     String
+  targetId       String?
+  summary        String?
+  metadata       Json?
+  createdAt      DateTime        @default(now())
+  organization   Organization?   @relation(fields: [organizationId], references: [id])
+  project        Project?        @relation(fields: [projectId], references: [id])
+  environment    ProjectEnvironment? @relation(fields: [environmentId], references: [id])
+  actorUser      User?           @relation("AuditActorUser", fields: [actorUserId], references: [id])
+
+  @@index([organizationId, createdAt])
+  @@index([projectId, createdAt])
+  @@index([environmentId, createdAt])
+  @@index([actorType, actorId, createdAt])
 }
