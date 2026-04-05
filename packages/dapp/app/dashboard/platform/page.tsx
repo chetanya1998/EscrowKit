@@ -2,6 +2,6 @@
 
 import { DeveloperPlatformConsole } from "@/components/platform/developer-platform-console";
 
-export function DeveloperSettings() {
+export default function DeveloperPlatformPage() {
   return <DeveloperPlatformConsole />;
 }

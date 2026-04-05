@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, LayoutTemplate, History, Settings, FileText, UserCircle, Briefcase, Lock, AlertTriangle, Code } from "lucide-react"
+import { Home, LayoutTemplate, History, Settings, Briefcase, AlertTriangle, Code, Webhook } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -42,6 +42,11 @@ const userItems = [
 ]
 
 const adminItems = [
+    {
+        title: "Developer Platform",
+        url: "/dashboard/platform",
+        icon: Webhook,
+    },
     {
         title: "Templates",
         url: "/dashboard/templates",
@@ -96,7 +101,7 @@ export function AppSidebar() {
                 </SidebarGroup>
 
                 <SidebarGroup>
-                    <SidebarGroupLabel>Marketplace Integrators</SidebarGroupLabel>
+                    <SidebarGroupLabel>Developer Console</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             {adminItems.map((item) => (

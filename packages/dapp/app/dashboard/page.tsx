@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Plus, ArrowUpRight, ShieldCheck, Zap, Lock, CheckCircle, LayoutTemplate, AlertTriangle } from "lucide-react"
+import { Plus, ArrowUpRight, ShieldCheck, Zap, Lock, CheckCircle, LayoutTemplate, AlertTriangle, Webhook } from "lucide-react"
 import Link from "next/link"
 import { ContractPreviewModal } from "@/components/contract-preview-modal"
 
@@ -214,6 +214,25 @@ export default function DashboardPage() {
                                     <Button className="w-full bg-white text-black hover:bg-neutral-200 font-semibold gap-2">
                                         <Plus className="h-4 w-4" />
                                         Browse Templates
+                                    </Button>
+                                </Link>
+                            </CardContent>
+                        </Card>
+
+                        <Card className="bg-neutral-900 border-neutral-800">
+                            <CardHeader>
+                                <div className="h-10 w-10 rounded-full bg-neutral-800 flex items-center justify-center mb-2">
+                                    <Webhook className="h-5 w-5 text-emerald-400" />
+                                </div>
+                                <CardTitle className="text-neutral-50">Developer Platform</CardTitle>
+                                <CardDescription className="text-neutral-400">
+                                    Manage organizations, project environments, API keys, and webhook delivery logs for the new backend platform layer.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Link href="/dashboard/platform">
+                                    <Button variant="outline" className="w-full border-neutral-700 bg-neutral-950 text-neutral-100 hover:bg-neutral-800">
+                                        Open Console
                                     </Button>
                                 </Link>
                             </CardContent>
