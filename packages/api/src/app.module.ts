@@ -10,6 +10,7 @@ import { UsersModule } from './users/users.module';
 import { PublicApiModule } from './public-api/public-api.module';
 import { WebhookModule } from './webhook/webhook.module';
 import { AuthModule } from './auth/auth.module';
+import { DeveloperPlatformModule } from './developer-platform/developer-platform.module';
 
 @Module({
   imports: [
@@ -17,7 +18,14 @@ import { AuthModule } from './auth/auth.module';
       ttl: 60000,
       limit: 100, // 100 requests per minute
     }]),
-    EscrowsModule, UsersModule, EvidenceModule, PulsarModule, PublicApiModule, WebhookModule, AuthModule
+    EscrowsModule,
+    UsersModule,
+    EvidenceModule,
+    PulsarModule,
+    PublicApiModule,
+    WebhookModule,
+    AuthModule,
+    DeveloperPlatformModule,
   ],
   controllers: [AppController],
   providers: [
