@@ -2,7 +2,7 @@
 
 Non-custodial escrow infrastructure for marketplaces, freelancers, rentals, and B2B workflows.
 
-> Last updated: April 3, 2026  
+> Last updated: April 5, 2026  
 > License: MIT (see `LICENSE`)
 
 ## Start here (pick your path)
@@ -99,9 +99,35 @@ packages/
   indexer/     Watches chain events -> Postgres read model
   api/         NestJS API for reads/auth/keys/webhooks
   dapp/        Next.js UI for users and admins
-  sdk-ts/      TypeScript SDK (viem-based)
+  sdk-ts/      TypeScript SDK (viem client, recipes, and bundled types)
   docs/        Docusaurus documentation site
 ```
+
+## TypeScript SDK
+
+The SDK lives in `packages/sdk-ts` and builds on top of `@escrowkit/protocol`, which remains the source of truth for generated ABIs and deployment helpers.
+
+Current SDK surface:
+
+- `EscrowKitClient` for wallet-driven contract writes.
+- `EscrowRecipes` for higher-level helper flows.
+- `MilestoneStatus`, `Milestone`, and `EscrowDetails` for shared types.
+
+Current client methods:
+
+- `createEscrow(...)` for v2 milestone escrow creation.
+- `addMilestones(...)` for legacy v1 escrows.
+- `fund(...)` for native-token funding.
+- `submitDeliverable(...)` and `approveMilestone(...)` for milestone execution.
+
+Rebuild order after ABI or SDK source changes:
+
+```bash
+pnpm --filter @escrowkit/protocol build
+pnpm --filter sdk-ts build
+```
+
+The SDK build currently emits ESM, CJS, and declaration files under `packages/sdk-ts/dist`.
 
 ## Developer quickstart (local)
 
@@ -213,7 +239,7 @@ Local URLs:
 
 ### PR checklist (practical)
 
-- If you changed any contract ABI/events: run `pnpm --filter contracts build` then `pnpm --filter @escrowkit/protocol build`.
+- If you changed any contract ABI/events: run `pnpm --filter contracts build`, then `pnpm --filter @escrowkit/protocol build`, then `pnpm --filter sdk-ts build`.
 - Keep changes additive for API response shapes when possible.
 - Run: `pnpm build` and the relevant package tests before opening a PR.
 
