@@ -6,8 +6,13 @@ export class EscrowsController {
     constructor(private readonly escrowsService: EscrowsService) { }
 
     @Get()
-    findAll(@Query('party') party?: string, @Query('role') role?: string) {
-        return this.escrowsService.findAll(party, role);
+    findAll(
+        @Query('party') party?: string, 
+        @Query('role') role?: string,
+        @Query('environmentId') environmentId?: string,
+        @Query('projectId') projectId?: string
+    ) {
+        return this.escrowsService.findAll(party, role, environmentId, projectId);
     }
 
     @Get(':address')

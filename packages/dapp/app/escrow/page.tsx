@@ -23,6 +23,7 @@ import { DisputeDialog } from "@/components/escrow/dispute-dialog"
 import { MilestoneCreation } from "@/components/escrow/MilestoneCreation"
 import { getTokenByAddress, ZERO_ADDRESS } from '@/lib/tokens';
 import { useTokenApproval } from '@/hooks/use-token-approval';
+import { EscrowTimeline } from "@/components/escrow/EscrowTimeline";
 
 function EscrowContent() {
     const searchParams = useSearchParams();
@@ -261,6 +262,8 @@ function EscrowContent() {
                         <div className="flex items-center gap-2 text-lg font-semibold text-neutral-50">
                             <Clock className="h-5 w-5 text-neutral-400" /> Progress Timeline
                         </div>
+
+                        <EscrowTimeline type="milestone" milestones={milestones} />
 
                         <div className="space-y-4">
                             {milestones.map((m, index) => {
@@ -518,6 +521,8 @@ function RentalEscrowView({ address, details, rentalDetails, refetch }: { addres
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
+                            <EscrowTimeline type="rental" statusValue={status} />
+                            
                             <div className="flex flex-col items-center justify-center p-6 bg-neutral-950/50 rounded-lg border border-neutral-800">
                                 {status === 0 && <span className="text-neutral-400">Awaiting Deposit</span>}
                                 {status === 1 && <span className="text-emerald-500 font-bold text-xl">Active Lease</span>}
@@ -678,6 +683,8 @@ function ServiceEscrowView({ address, details, serviceDetails, refetch }: { addr
                             <CardTitle className="text-neutral-100 flex items-center gap-2"><Activity className="h-5 w-5 text-purple-500" /> Work Status</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
+                            <EscrowTimeline type="service" statusValue={status} />
+
                             <div className="flex flex-col items-center justify-center p-6 bg-neutral-950/50 rounded-lg border border-neutral-800">
                                 {status === 0 && <span className="text-neutral-400">Awaiting Deposit</span>}
                                 {status === 1 && <span className="text-blue-400 font-bold text-xl">Work in Progress</span>}
@@ -787,6 +794,8 @@ function LeaseEscrowView({ address, details, leaseDetails, refetch }: { address:
                             <CardTitle className="text-neutral-100 flex items-center gap-2"><Activity className="h-5 w-5 text-amber-500" /> Lease Status</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
+                            <EscrowTimeline type="lease" statusValue={status} />
+
                             <div className="flex flex-col items-center justify-center p-6 bg-neutral-950/50 rounded-lg border border-neutral-800">
                                 {status === 0 && <span className="text-neutral-400">Awaiting Full Lease Deposit</span>}
                                 {status === 1 && <span className="text-emerald-500 font-bold text-xl">Active Lease</span>}
@@ -906,6 +915,8 @@ function B2BVendorEscrowView({ address, details, b2bVendorDetails, refetch }: { 
                             <CardTitle className="text-neutral-100 flex items-center gap-2"><Activity className="h-5 w-5 text-indigo-500" /> Payment Status</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
+                            <EscrowTimeline type="b2b-vendor" statusValue={status} />
+
                             <div className="flex flex-col items-center justify-center p-6 bg-neutral-950/50 rounded-lg border border-neutral-800">
                                 {status === 0 && <span className="text-neutral-400">Awaiting Invoice Submission/Funding</span>}
                                 {status === 1 && <span className="text-blue-400 font-bold text-xl">Funded - Awaiting Invoice</span>}

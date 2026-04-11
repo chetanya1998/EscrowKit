@@ -12,6 +12,7 @@ import type {
   ScopeFilters,
   Webhook,
   WebhookDelivery,
+  Escrow,
 } from "@/lib/developer-platform";
 import { API_BASE_URL, authFetch } from "@/lib/utils";
 
@@ -505,5 +506,29 @@ export function useReplayWebhookMutation() {
     onError: (error: Error) => {
       toast.error(error.message);
     },
+  });
+}
+
+export function useDeveloperEscrows(filters: ScopeFilters, enabled: boolean) {
+  return useQuery({
+    queryKey: developerQueryKey("escrows", filters),
+    queryFn: () =>
+      platformRequest<Escrow[]>(
+        `/api/v1/escrows${buildQueryString({
+          environmentId: filters.environmentId,
+          projectId: filters.projectId,
+        })}`,
+      ),
+    enabled,
+    staleTime: 15_000,
+  });
+}
+
+export function useDeveloperEscrow(escrowId: string | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: developerQueryKey("escrow", escrowId),
+    queryFn: () => platformRequest<Escrow>(`/api/v1/escrows/${escrowId}`),
+    enabled: enabled && Boolean(escrowId),
+    staleTime: 15_000,
   });
 }
