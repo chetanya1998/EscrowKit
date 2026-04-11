@@ -1,0 +1,25 @@
+{
+  "name": "@escrowkit/react",
+  "version": "0.1.0",
+  "description": "React hooks and components for EscrowKit",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "@escrowkit/core": "workspace:*",
+    "@tanstack/react-query": "^5.0.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0"
+  }
+}

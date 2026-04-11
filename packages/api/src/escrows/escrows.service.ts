@@ -5,26 +5,38 @@ import { PrismaService } from '../prisma/prisma.service';
 export class EscrowsService {
     constructor(private prisma: PrismaService) { }
 
-    async findAll(party?: string, role?: string) {
+    async findAll(party?: string, role?: string, environmentId?: string, projectId?: string) {
+        const whereClause: any = {};
+        
+        if (environmentId) {
+            whereClause.environmentId = environmentId;
+        } else if (projectId) {
+            whereClause.projectId = projectId;
+        }
+
         if (party) {
             if (role === 'admin') {
                 return this.prisma.escrow.findMany({
-                    where: { adminAddress: { equals: party, mode: 'insensitive' } },
-                    include: { milestones: true, events: { orderBy: [{ blockNumber: 'desc' }, { logIndex: 'desc' }] } }
+                    where: { ...whereClause, adminAddress: { equals: party, mode: 'insensitive' } },
+                    include: { milestones: true, events: { orderBy: [{ blockNumber: 'desc' }, { logIndex: 'desc' }] } },
+                    orderBy: { createdAt: 'desc' }
                 });
             } else if (role === 'payer') {
                 return this.prisma.escrow.findMany({
-                    where: { payer: { equals: party, mode: 'insensitive' } },
-                    include: { milestones: true }
+                    where: { ...whereClause, payer: { equals: party, mode: 'insensitive' } },
+                    include: { milestones: true },
+                    orderBy: { createdAt: 'desc' }
                 });
             } else if (role === 'payee') {
                 return this.prisma.escrow.findMany({
-                    where: { payee: { equals: party, mode: 'insensitive' } },
-                    include: { milestones: true }
+                    where: { ...whereClause, payee: { equals: party, mode: 'insensitive' } },
+                    include: { milestones: true },
+                    orderBy: { createdAt: 'desc' }
                 });
             } else {
                 return this.prisma.escrow.findMany({
                     where: {
+                        ...whereClause,
                         OR: [
                             { payer: { equals: party, mode: 'insensitive' } },
                             { payee: { equals: party, mode: 'insensitive' } },
@@ -32,11 +44,16 @@ export class EscrowsService {
                             { adminAddress: { equals: party, mode: 'insensitive' } }
                         ]
                     },
-                    include: { milestones: true }
+                    include: { milestones: true },
+                    orderBy: { createdAt: 'desc' }
                 });
             }
         }
-        return this.prisma.escrow.findMany({ include: { milestones: true } });
+        return this.prisma.escrow.findMany({ 
+            where: whereClause,
+            include: { milestones: true }, 
+            orderBy: { createdAt: 'desc' }
+        });
     }
 
     async findOne(address: string) {

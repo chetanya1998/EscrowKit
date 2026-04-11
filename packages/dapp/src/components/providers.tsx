@@ -8,6 +8,7 @@ import { config } from '../wagmi'
 import * as React from 'react'
 import { authAdapter } from '../lib/authAdapter'
 import { API_BASE_URL, AUTH_CHANGED_EVENT, getStoredAuthToken, clearStoredAuthToken } from '../lib/utils'
+import { PlatformProvider } from '../contexts/PlatformContext'
 
 const queryClient = new QueryClient()
 
@@ -94,7 +95,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
                 <AuthWrapper>
-                    {children}
+                    <PlatformProvider>
+                        {children}
+                    </PlatformProvider>
                 </AuthWrapper>
             </QueryClientProvider>
         </WagmiProvider>
