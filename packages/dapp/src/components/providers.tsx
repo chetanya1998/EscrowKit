@@ -15,11 +15,6 @@ const queryClient = new QueryClient()
 function AuthWrapper({ children }: { children: React.ReactNode }) {
     const { address, isConnected } = useAccount()
     const [authStatus, setAuthStatus] = React.useState<AuthenticationStatus>('loading')
-    const [mounted, setMounted] = React.useState(false)
-
-    React.useEffect(() => {
-        setMounted(true)
-    }, [])
 
     React.useEffect(() => {
         let cancelled = false
@@ -84,21 +79,29 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
             status={authStatus}
         >
             <RainbowKitProvider theme={darkTheme()}>
-                {mounted && children}
+                {children}
             </RainbowKitProvider>
         </RainbowKitAuthenticationProvider>
     )
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
+    const [mounted, setMounted] = React.useState(false)
+
+    React.useEffect(() => {
+        setMounted(true)
+    }, [])
+
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
-                <AuthWrapper>
-                    <PlatformProvider>
-                        {children}
-                    </PlatformProvider>
-                </AuthWrapper>
+                {mounted && (
+                    <AuthWrapper>
+                        <PlatformProvider>
+                            {children}
+                        </PlatformProvider>
+                    </AuthWrapper>
+                )}
             </QueryClientProvider>
         </WagmiProvider>
     )
