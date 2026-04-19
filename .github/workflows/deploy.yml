@@ -2,9 +2,8 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ["main", "master"]
+    branches: ["main"]
   workflow_dispatch:
-
 
 permissions:
   contents: read
@@ -36,18 +35,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
-      - name: Prepare for Static Export
-        run: |
-          rm -rf packages/dapp/app/escrow
-          rm -rf packages/dapp/app/dashboard/disputes/\[id\]
-
       - name: Build
         env:
           NEXT_PUBLIC_DEPLOY_TARGET: gh-pages
+          NEXT_PUBLIC_API_URL: https://escrow-kit-api.up.railway.app # Ensure production API URL is used
         run: |
-          cd packages/dapp
-          pnpm build
-          touch out/.nojekyll
+          pnpm --filter dapp build
+          touch packages/dapp/out/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
