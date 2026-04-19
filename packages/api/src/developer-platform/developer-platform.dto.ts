@@ -14,7 +14,7 @@ import {
 import {
   MembershipRole,
   ProjectEnvironmentType,
-} from '../generated/prisma';
+} from '@prisma/client';
 
 export class CreateOrganizationDto {
   @IsString()
