@@ -77,21 +77,17 @@ export class AuthService {
         // 1. Generate a "guest address"
         const guestAddress = `guest:${deviceId}`;
 
-        // 2. Find or create the guest user
-        let user = await this.prisma.user.findUnique({
+        // 2. Find or create the guest user using upsert
+        const user = await this.prisma.user.upsert({
             where: { address: guestAddress },
+            update: { deviceId: deviceId, isGuest: true },
+            create: {
+                address: guestAddress,
+                deviceId: deviceId,
+                isGuest: true,
+                username: `Guest_${deviceId.slice(0, 8)}`,
+            },
         });
-
-        if (!user) {
-            user = await this.prisma.user.create({
-                data: {
-                    address: guestAddress,
-                    deviceId: deviceId,
-                    isGuest: true,
-                    username: `Guest_${deviceId.slice(0, 8)}`,
-                },
-            });
-        }
 
         // 3. Issue Session JWT
         const sessionToken = this.signToken({ walletAddress: guestAddress }, this.SESSION_EXPIRATION_SECONDS);

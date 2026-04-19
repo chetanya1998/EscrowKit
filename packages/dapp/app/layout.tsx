@@ -32,12 +32,13 @@ export default function RootLayout({
   `.replace(/\s{2,}/g, ' ').trim();
 
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         {/* <meta httpEquiv="Content-Security-Policy" content={cspHeader} /> */}
       </head>
       <body
         className="font-sans"
+        suppressHydrationWarning
         style={
           {
             "--font-inter": '"Segoe UI", "Helvetica Neue", Arial, sans-serif',
