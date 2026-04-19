@@ -11,13 +11,15 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
+const isFirebaseConfigured = !!firebaseConfig.projectId;
+
 // Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const app = !getApps().length && isFirebaseConfigured ? initializeApp(firebaseConfig) : (getApps().length ? getApp() : null);
 
 // Initialize Analytics selectively (only runs in browser environment)
 let analytics: Analytics | null = null;
 
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && app) {
   isSupported().then((supported) => {
     if (supported) {
       analytics = getAnalytics(app);

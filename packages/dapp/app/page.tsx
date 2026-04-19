@@ -42,7 +42,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { logEvent } from "firebase/analytics";
 import { analytics } from "@/lib/firebase";
-import { setStoredAuthToken } from "@/lib/utils";
+import { setStoredAuthToken, API_BASE_URL } from "@/lib/utils";
 
 /**
  * HOOKS & UTILITIES
@@ -748,8 +748,8 @@ export default function LandingPage() {
         localStorage.setItem('escrowkit_device_id', deviceId);
       }
 
-      // 2. Call Guest Login API
-      const response = await fetch('/api/v1/auth/guest', {
+      // 2. Call Guest Login API using absolute URL
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/guest`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deviceId }),
