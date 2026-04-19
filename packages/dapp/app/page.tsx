@@ -35,11 +35,14 @@ import {
   Play,
   Copy,
   BookOpen,
-  Bug
+  Bug,
+  Loader2
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { logEvent } from "firebase/analytics";
 import { analytics } from "@/lib/firebase";
+import { setStoredAuthToken } from "@/lib/utils";
 
 /**
  * HOOKS & UTILITIES
@@ -701,6 +704,8 @@ const SecurityLayers = () => {
  */
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isGuestLoggingIn, setIsGuestLoggingIn] = useState(false);
+  const router = useRouter();
   
   // Create refs for sections we want to track
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
@@ -729,6 +734,46 @@ export default function LandingPage() {
   const trackGithubClick = (location: string) => {
     if (analytics) {
       logEvent(analytics, 'github_click', { button_location: location });
+    }
+  };
+
+  const handleGuestLogin = async () => {
+    try {
+      setIsGuestLoggingIn(true);
+      
+      // 1. Get or generate Device ID
+      let deviceId = localStorage.getItem('escrowkit_device_id');
+      if (!deviceId) {
+        deviceId = crypto.randomUUID();
+        localStorage.setItem('escrowkit_device_id', deviceId);
+      }
+
+      // 2. Call Guest Login API
+      const response = await fetch('/api/v1/auth/guest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deviceId }),
+      });
+
+      if (!response.ok) throw new Error('Guest login failed');
+
+      const { token } = await response.json();
+
+      // 3. Store Token using utility
+      setStoredAuthToken(token);
+      
+      // 4. Trace event
+      if (analytics) {
+        logEvent(analytics, 'guest_login', { device_id: deviceId });
+      }
+
+      // 5. Redirect to Dashboard
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Guest login error:', error);
+      alert('Failed to start guest session. Please try again.');
+    } finally {
+      setIsGuestLoggingIn(false);
     }
   };
 
@@ -809,10 +854,22 @@ export default function LandingPage() {
             <p className="text-zinc-300 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-light">{subheadline}</p>
           </FadeIn>
           <FadeIn delay={400}>
-            <div className="flex items-center justify-center gap-4 mb-10">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
               <a href="https://github.com/chetanya1998/EscrowKit" target="_blank" onClick={() => trackGithubClick('hero_explore')} className="bg-emerald-500 text-black h-14 px-12 rounded-full font-bold text-base hover:bg-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.4)] transition-all flex items-center gap-3">
                 <ArrowRight size={18} /> Explore the Project
               </a>
+              <button 
+                onClick={handleGuestLogin}
+                disabled={isGuestLoggingIn}
+                className="h-14 px-12 rounded-full font-bold text-base border border-emerald-500/30 hover:border-emerald-500/60 hover:bg-emerald-500/10 transition-all text-white bg-emerald-500/5 flex items-center gap-3 disabled:opacity-50"
+              >
+                {isGuestLoggingIn ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <Users size={18} />
+                )}
+                Try as Guest
+              </button>
             </div>
           </FadeIn>
           <FadeIn delay={500}>

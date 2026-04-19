@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Plus, ArrowUpRight, ShieldCheck, Zap, Lock, CheckCircle, LayoutTemplate, Wallet, Rocket, Activity, ChevronRight, Briefcase, Key, FileCode2 } from "lucide-react"
+import { OnboardingTour } from "@/components/dashboard/OnboardingTour"
 import Link from "next/link"
 
 export function DashboardView({ role }: { role?: 'payer' | 'payee' | 'admin' }) {
@@ -24,6 +25,7 @@ export function DashboardView({ role }: { role?: 'payer' | 'payee' | 'admin' }) 
 
     return (
         <div className="flex flex-col gap-10 mt-2 animate-in fade-in duration-700">
+            <OnboardingTour />
             {/* Premium Hero Section - Now for everyone */}
             <div className="relative overflow-hidden rounded-3xl bg-neutral-900 border border-white/10 p-8 md:p-10 lg:p-12 shadow-2xl">
                 <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-500/20 via-neutral-900 to-neutral-900 opacity-60"></div>
@@ -68,7 +70,7 @@ export function DashboardView({ role }: { role?: 'payer' | 'payee' | 'admin' }) 
             </div>
 
             {/* Popular Templates Quick-Launch */}
-            <div className="flex flex-col gap-6">
+            <div id="quick-launch" className="flex flex-col gap-6">
                 <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold text-white flex items-center gap-2">
                         <Rocket className="h-5 w-5 text-indigo-400" />
@@ -117,7 +119,7 @@ export function DashboardView({ role }: { role?: 'payer' | 'payee' | 'admin' }) 
             )}
 
             {/* Metrics Grid */}
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            <div id="metrics-grid" className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
                 <MetricCard 
                     title="Total Volume" 
                     value={`${stats?.totalVolume || "0"} ETH`}
@@ -146,7 +148,7 @@ export function DashboardView({ role }: { role?: 'payer' | 'payee' | 'admin' }) 
             </div>
 
             {/* Recent Activity + Sidebar */}
-            <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+            <div id="recent-activity" className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
                 
                 <Card className="col-span-2 bg-neutral-900/50 backdrop-blur-md border-white/5 shadow-xl rounded-2xl overflow-hidden flex flex-col">
                     <CardHeader className="flex flex-row items-center justify-between border-b border-white/5 bg-white/[0.02] px-6 py-5">

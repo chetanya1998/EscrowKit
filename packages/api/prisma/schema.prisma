@@ -118,6 +118,8 @@ model User {
   bio                     String?
   avatar                  String?
   preferences             Json?                    // { theme: 'dark', notifications: { email: true, app: true } }
+  isGuest                 Boolean                  @default(false)
+  deviceId                String?                  @unique
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
   organizationsCreated    Organization[]           @relation("OrganizationCreator")

@@ -4,7 +4,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Wallet, Gavel, FileText, Settings, PlusCircle } from "lucide-react"
+import { LayoutDashboard, Wallet, Gavel, FileText, Settings, PlusCircle, Code2, BookOpen, Terminal } from "lucide-react"
 
 const sidebarItems = [
     {
@@ -37,6 +37,22 @@ const sidebarItems = [
         href: "/dashboard/transactions",
         icon: FileText,
     },
+    {
+        title: "Documentation",
+        href: "/dashboard/docs",
+        icon: BookOpen,
+        isHeader: true,
+    },
+    {
+        title: "SDK Reference",
+        href: "/dashboard/docs/sdk",
+        icon: Terminal,
+    },
+    {
+        title: "API Reference",
+        href: "/dashboard/docs/api",
+        icon: Code2,
+    },
 ]
 
 export function Sidebar() {
@@ -56,14 +72,23 @@ export function Sidebar() {
                 </div>
                 <div className="flex-1 overflow-auto py-4">
                     <nav className="grid items-start px-4 text-sm font-medium">
-                        {sidebarItems.map((item, index) => {
+                        {sidebarItems.map((item: any, index) => {
                             const Icon = item.icon
+                            
+                            if (item.isHeader) {
+                                return (
+                                    <div id="sidebar-docs" key={index} className="mt-6 mb-2 px-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+                                        {item.title}
+                                    </div>
+                                )
+                            }
+
                             return (
                                 <Link
                                     key={index}
                                     href={item.href}
                                     className={cn(
-                                        "flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all hover:text-neutral-50",
+                                        "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-neutral-50",
                                         pathname === item.href
                                             ? "bg-neutral-800 text-neutral-50"
                                             : "text-neutral-400 hover:bg-neutral-800/50"

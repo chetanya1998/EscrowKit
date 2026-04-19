@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { generateNonce, SiweMessage } from 'siwe';
 import * as crypto from 'crypto';
+import { PrismaService } from '../prisma/prisma.service';
 
 interface TokenPayload {
     walletAddress?: string;
@@ -27,6 +28,8 @@ export class AuthService {
     private readonly JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-dev-only-do-not-use-in-prod';
     private readonly SESSION_EXPIRATION_SECONDS = 7 * 24 * 60 * 60;
     private readonly NONCE_EXPIRATION_SECONDS = 5 * 60;
+
+    constructor(private readonly prisma: PrismaService) { }
 
     generateNonce() {
         const nonce = generateNonce();
@@ -68,6 +71,32 @@ export class AuthService {
         const sessionToken = this.signToken({ walletAddress }, this.SESSION_EXPIRATION_SECONDS);
 
         return sessionToken;
+    }
+
+    async guestLogin(deviceId: string) {
+        // 1. Generate a "guest address"
+        const guestAddress = `guest:${deviceId}`;
+
+        // 2. Find or create the guest user
+        let user = await this.prisma.user.findUnique({
+            where: { address: guestAddress },
+        });
+
+        if (!user) {
+            user = await this.prisma.user.create({
+                data: {
+                    address: guestAddress,
+                    deviceId: deviceId,
+                    isGuest: true,
+                    username: `Guest_${deviceId.slice(0, 8)}`,
+                },
+            });
+        }
+
+        // 3. Issue Session JWT
+        const sessionToken = this.signToken({ walletAddress: guestAddress }, this.SESSION_EXPIRATION_SECONDS);
+
+        return { token: sessionToken, user };
     }
 
     verifySessionToken(token: string): any {

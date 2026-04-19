@@ -8,6 +8,10 @@ class VerifyDto {
     nonceToken: string;
 }
 
+class GuestLoginDto {
+    deviceId: string;
+}
+
 @Controller('api/v1/auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) { }
@@ -24,6 +28,15 @@ export class AuthController {
             return { token };
         } catch (error) {
             throw new UnauthorizedException(error.message || 'Invalid signature');
+        }
+    }
+
+    @Post('guest')
+    async guestLogin(@Body() body: GuestLoginDto) {
+        try {
+            return await this.authService.guestLogin(body.deviceId);
+        } catch (error) {
+            throw new UnauthorizedException(error.message || 'Guest login failed');
         }
     }
 
