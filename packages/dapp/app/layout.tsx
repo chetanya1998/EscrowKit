@@ -34,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <meta httpEquiv="Content-Security-Policy" content={cspHeader} />
+        {/* <meta httpEquiv="Content-Security-Policy" content={cspHeader} /> */}
       </head>
       <body
         className="font-sans"
