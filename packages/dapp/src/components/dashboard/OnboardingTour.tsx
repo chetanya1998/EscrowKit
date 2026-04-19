@@ -52,9 +52,9 @@ export function OnboardingTour() {
 
   useEffect(() => {
     const isCompleted = localStorage.getItem(TOUR_STORAGE_KEY)
-    const isGuest = localStorage.getItem('escrowkit_session_token') // Guest token is enough check for now
+    const isAuthenticated = localStorage.getItem('auth_token')
     
-    if (!isCompleted && isGuest) {
+    if (!isCompleted && isAuthenticated) {
       const timer = setTimeout(() => setIsOpen(true), 1500)
       return () => clearTimeout(timer)
     }

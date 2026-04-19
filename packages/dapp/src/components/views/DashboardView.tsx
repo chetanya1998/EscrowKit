@@ -26,84 +26,98 @@ export function DashboardView({ role }: { role?: 'payer' | 'payee' | 'admin' }) 
     return (
         <div className="flex flex-col gap-10 mt-2 animate-in fade-in duration-700">
             <OnboardingTour />
-            {/* Premium Hero Section - Now for everyone */}
-            <div className="relative overflow-hidden rounded-3xl bg-neutral-900 border border-white/10 p-8 md:p-10 lg:p-12 shadow-2xl">
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-500/20 via-neutral-900 to-neutral-900 opacity-60"></div>
-                <div className="absolute bottom-0 right-0 w-3/4 h-3/4 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent opacity-60"></div>
-                
-                <div className="relative z-10 max-w-3xl">
-                    <Badge className="bg-indigo-500/10 text-indigo-400 border-indigo-500/20 mb-6 px-3 py-1 text-xs">
-                        {transactions.length > 0 ? 'Dashboard Overview' : 'Welcome to EscrowKit'}
-                    </Badge>
-                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-6 leading-[1.2]">
-                        {transactions.length > 0 ? 'Manage your secure' : 'Secure your assets with'} <br className="hidden md:block"/>
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400">
-                            Trustless Smart Contracts
-                        </span>
-                    </h1>
-                    <p className="text-base md:text-lg text-neutral-400 mb-8 leading-relaxed max-w-2xl">
-                        {transactions.length > 0 
-                            ? 'Monitor your ongoing agreements and execute new secure payments using our battle-tested escrow templates.'
-                            : 'Start executing secure, transparent agreements on-chain. Choose from our templates to create your first escrow in seconds.'
-                        }
-                    </p>
-                    <div className="flex flex-wrap items-center gap-4">
-                        <Link href="/dashboard/templates">
-                            <Button size="lg" className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold h-12 px-6 rounded-full gap-2 transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(79,70,229,0.3)] text-sm group">
-                                <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" />
-                                Create New Escrow
+        <div id="project-overview" className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            {/* Project Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                    <div className="h-16 w-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shadow-[0_0_40px_rgba(79,70,229,0.15)]">
+                        <Rocket className="h-8 w-8" />
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <h1 className="text-2xl font-bold text-white tracking-tight">Escrow-Kit</h1>
+                            <Badge className="bg-neutral-800 text-[10px] text-neutral-400 border-none font-bold uppercase tracking-widest px-2 py-0.5">NANO</Badge>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-neutral-500">
+                            <span>Project URL unavailable</span>
+                            <Button variant="ghost" size="sm" className="h-6 px-2 text-neutral-500 hover:text-white bg-neutral-900/50 rounded-md gap-1.5 text-xs">
+                                Copy <ChevronRight className="h-3 w-3" />
                             </Button>
-                        </Link>
-                        <Link href="/dashboard/contracts">
-                            <Button size="lg" variant="outline" className="border-white/10 bg-white/5 hover:bg-white/10 hover:text-white h-12 px-6 rounded-full text-neutral-300 gap-2 transition-all text-sm backdrop-blur-md">
-                                <FileCode2 className="h-4 w-4" />
-                                Explore Contracts
-                            </Button>
-                        </Link>
+                        </div>
                     </div>
                 </div>
                 
-                {/* Decorative Background Icon */}
-                <div className="absolute -right-10 -bottom-20 opacity-[0.02] pointer-events-none transform -rotate-12">
-                    <ShieldCheck className="w-[400px] h-[400px]" />
+                <div className="grid grid-cols-2 md:flex items-center gap-3">
+                    <StatusItem icon={<Activity className="h-3.5 w-3.5" />} label="STATUS" value="Coming up..." color="text-indigo-400" />
+                    <StatusItem icon={<FileCode2 className="h-3.5 w-3.5" />} label="LAST MIGRATION" value="None" />
+                    <StatusItem icon={<Lock className="h-3.5 w-3.5" />} label="LAST BACKUP" value="No backups" />
+                    <StatusItem icon={<ArrowUpRight className="h-3.5 w-3.5" />} label="RECENT BRANCH" value="No branches" />
                 </div>
             </div>
 
-            {/* Popular Templates Quick-Launch */}
-            <div id="quick-launch" className="flex flex-col gap-6">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                        <Rocket className="h-5 w-5 text-indigo-400" />
-                        Quick Launch Templates
-                    </h2>
-                    <Link href="/dashboard/templates" className="text-xs font-medium text-neutral-400 hover:text-white flex items-center gap-1 transition-colors">
-                        All templates <ChevronRight className="h-3 w-3" />
-                    </Link>
-                </div>
-                <div className="grid md:grid-cols-3 gap-5">
-                    <TemplateCard 
-                        title="Milestone Escrow" 
-                        description="Progressive release funds based on project phases."
-                        icon={<Activity className="h-5 w-5 text-cyan-400" />}
-                        gradient="from-cyan-500/10 via-cyan-500/5 to-transparent"
-                        href="/dashboard/templates/milestone"
+            {/* Infrastructure Visual Section */}
+            <div className="grid lg:grid-cols-3 gap-6">
+                <Card className="lg:col-span-2 bg-neutral-900 border-white/5 rounded-2xl overflow-hidden relative group min-h-[300px]">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(79,70,229,0.05),transparent_70%)]"></div>
+                    <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle, #ffffff10 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
+                    
+                    <CardContent className="p-8 h-full flex items-center justify-center">
+                        <div className="relative group cursor-pointer">
+                            <div className="absolute -inset-10 bg-indigo-500/20 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div className="relative bg-neutral-950/80 border border-white/10 rounded-2xl p-6 flex items-center gap-5 shadow-2xl backdrop-blur-xl">
+                                <div className="h-12 w-12 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                                    <ShieldCheck className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-bold text-white mb-0.5">Primary Smart Engine</h3>
+                                    <p className="text-xs text-neutral-400">Multi-Chain Protocol (v1.4)</p>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <Badge variant="outline" className="text-[9px] border-emerald-500/20 text-emerald-500 h-4 bg-emerald-500/5">ACTIVE</Badge>
+                                        <span className="text-[10px] text-neutral-500 font-mono">0x...8be7a3</span>
+                                    </div>
+                                </div>
+                                <div className="ml-4 pl-4 border-l border-white/5 flex flex-col items-center">
+                                    <div className="h-5 w-8 rounded bg-neutral-900 border border-white/10 overflow-hidden flex items-center justify-center">
+                                        <div className="w-full h-1/2 bg-blue-600"></div>
+                                        <div className="w-full h-1/2 bg-red-600"></div>
+                                    </div>
+                                    <span className="text-[9px] text-neutral-600 mt-1 uppercase font-bold">ETH</span>
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <div className="flex flex-col gap-6">
+                    <QuickStartCard 
+                        title="New Escrow" 
+                        description="Launch a new secure agreement from templates." 
+                        icon={<Plus className="h-4 w-4" />}
+                        href="/dashboard/templates"
                     />
-                    <TemplateCard 
-                        title="Service Escrow" 
-                        description="Secure holding for one-off freelance or expert work."
-                        icon={<Briefcase className="h-5 w-5 text-purple-400" />}
-                        gradient="from-purple-500/10 via-purple-500/5 to-transparent"
-                        href="/dashboard/templates/service"
+                    <QuickStartCard 
+                        title="Developer Hub" 
+                        description="Manage API keys and view integration logs." 
+                        icon={<Key className="h-4 w-4" />}
+                        href="/dashboard/developer"
                     />
-                    <TemplateCard 
-                        title="Vendor Escrow" 
-                        description="Complex B2B agreements with custom token settlement."
-                        icon={<Key className="h-5 w-5 text-amber-400" />}
-                        gradient="from-amber-500/10 via-amber-500/5 to-transparent"
-                        href="/dashboard/templates/vendor"
+                    <QuickStartCard 
+                        title="Settings" 
+                        description="Configure notifications and account preferences." 
+                        icon={<Activity className="h-4 w-4" />}
+                        href="/dashboard/settings"
                     />
                 </div>
             </div>
+
+            {/* Request Metrics Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <MiniChartCard title="DATABASE REQUESTS" value="0" />
+                <MiniChartCard title="AUTH REQUESTS" value="0" />
+                <MiniChartCard title="STORAGE REQUESTS" value="0" />
+                <MiniChartCard title="REALTIME REQUESTS" value="0" />
+            </div>
+        </div>
 
             <div className="h-px bg-white/5 w-full"></div>
 
@@ -277,6 +291,58 @@ export function DashboardView({ role }: { role?: 'payer' | 'payee' | 'admin' }) 
                 </div>
             </div>
         </div>
+    )
+}
+
+function StatusItem({ icon, label, value, color = "text-neutral-500" }: { icon: React.ReactNode, label: string, value: string, color?: string }) {
+    return (
+        <div className="bg-neutral-900 border border-white/5 rounded-xl p-3 flex items-center gap-3 min-w-[140px]">
+            <div className={`h-8 w-8 rounded-lg bg-white/5 flex items-center justify-center ${color}`}>
+                {icon}
+            </div>
+            <div>
+                <p className="text-[10px] font-bold text-neutral-600 uppercase tracking-tighter leading-none mb-1">{label}</p>
+                <p className="text-xs font-semibold text-neutral-300 truncate max-w-[80px]">{value}</p>
+            </div>
+        </div>
+    )
+}
+
+function QuickStartCard({ title, description, icon, href }: { title: string, description: string, icon: React.ReactNode, href: string }) {
+    return (
+        <Link href={href} className="group">
+            <Card className="bg-neutral-900 border-white/5 hover:border-indigo-500/30 transition-all rounded-xl p-4 flex items-center gap-4 group-hover:-translate-y-1">
+                <div className="h-10 w-10 rounded-lg bg-indigo-500/10 border border-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+                    {icon}
+                </div>
+                <div>
+                    <h3 className="text-sm font-bold text-white mb-0.5 group-hover:text-indigo-400 transition-colors">{title}</h3>
+                    <p className="text-[11px] text-neutral-500 line-clamp-1">{description}</p>
+                </div>
+            </Card>
+        </Link>
+    )
+}
+
+function MiniChartCard({ title, value }: { title: string, value: string }) {
+    return (
+        <Card className="bg-neutral-900 border-white/5 rounded-xl p-4 overflow-hidden relative group">
+            <div className="relative z-10 flex flex-col gap-3">
+                <p className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest">{title}</p>
+                <div className="flex items-end justify-between gap-4">
+                    <span className="text-2xl font-bold text-white">{value}</span>
+                    <div className="flex items-end gap-1 h-8">
+                        {[40, 70, 45, 90, 65, 80, 50].map((h, i) => (
+                            <div 
+                                key={i} 
+                                className="w-1.5 bg-indigo-500/20 rounded-t-sm group-hover:bg-indigo-500/40 transition-colors" 
+                                style={{ height: `${h}%` }}
+                            ></div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </Card>
     )
 }
 

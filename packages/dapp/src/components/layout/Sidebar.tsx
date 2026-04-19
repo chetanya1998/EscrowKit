@@ -38,6 +38,17 @@ const sidebarItems = [
         icon: FileText,
     },
     {
+        title: "Developer Hub",
+        href: "/dashboard/developer",
+        icon: Terminal,
+        isHeader: true,
+    },
+    {
+        title: "Platform Overview",
+        href: "/dashboard/developer",
+        icon: LayoutDashboard,
+    },
+    {
         title: "Documentation",
         href: "/dashboard/docs",
         icon: BookOpen,
@@ -77,7 +88,7 @@ export function Sidebar() {
                             
                             if (item.isHeader) {
                                 return (
-                                    <div id="sidebar-docs" key={index} className="mt-6 mb-2 px-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+                                    <div id={`sidebar-${item.title.toLowerCase().replace(/\s+/g, '-')}`} key={index} className="mt-6 mb-2 px-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
                                         {item.title}
                                     </div>
                                 )
