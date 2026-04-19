@@ -1,14 +1,25 @@
 import { Controller, Get, Post, Body, UnauthorizedException, UseGuards, Request } from '@nestjs/common';
+import { IsString, IsNotEmpty } from 'class-validator';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './auth.guard';
 
 class VerifyDto {
+    @IsString()
+    @IsNotEmpty()
     message: string;
+
+    @IsString()
+    @IsNotEmpty()
     signature: string;
+
+    @IsString()
+    @IsNotEmpty()
     nonceToken: string;
 }
 
 class GuestLoginDto {
+    @IsString()
+    @IsNotEmpty()
     deviceId: string;
 }
 
