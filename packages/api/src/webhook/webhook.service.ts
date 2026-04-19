@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import * as crypto from 'crypto';
-import { Webhook, WebhookDeliveryStatus, Prisma } from '@prisma/client';
+import { Prisma, WebhookDeliveryStatus } from '../generated/prisma';
 import { PrismaService } from '../prisma/prisma.service';
 import { serializePublicResponse } from '../common/utils/serialize-public-response';
 

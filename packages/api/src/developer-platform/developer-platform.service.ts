@@ -10,7 +10,7 @@ import {
   MembershipRole,
   Prisma,
   ProjectEnvironmentType,
-} from '@prisma/client';
+} from '../generated/prisma';
 import { hashApiKey, maskApiKey } from '../common/utils/api-key';
 import { PrismaService } from '../prisma/prisma.service';
 import { WebhookService } from '../webhook/webhook.service';
